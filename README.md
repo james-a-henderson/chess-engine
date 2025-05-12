@@ -1,4 +1,5 @@
 # chess-engine
+
 generic chess engine
 
 The idea for this project is to create a generic, modifiable chess engine in Typescript. It will take chess moves as an input, and process the game state.
