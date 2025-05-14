@@ -1,6 +1,6 @@
 import { GameRules } from '../types';
 
-export const testConfig: GameRules = {
+export const testConfig: GameRules<['rook']> = {
     name: 'test',
     board: {
         height: 8,

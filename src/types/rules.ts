@@ -1,12 +1,12 @@
 import { PieceConfig } from './pieces';
 
-export type GameRules = {
+export type GameRules<PieceNames extends string[]> = {
     name: string;
     players: Player[];
     board: RectangularBoard;
-    pieces: PieceConfig[];
-    winConditions: WinCondition[];
-    drawConditions: DrawCondition[];
+    pieces: PieceConfig<PieceNames>[];
+    winConditions: WinCondition<PieceNames>[];
+    drawConditions: DrawCondition<PieceNames>[];
 };
 
 export type Player = {
@@ -24,12 +24,12 @@ type Resign = WinConditionBase & {
     condition: 'resign';
 };
 
-type CheckMate = WinConditionBase & {
+type CheckMate<PieceNames extends string[]> = WinConditionBase & {
     condition: 'checkmate';
-    checkmatePiece: string; //todo: enforce piece names via type system
+    checkmatePiece: PieceNames[keyof PieceNames] & string;
 };
 
-type WinCondition = Resign | CheckMate;
+type WinCondition<PieceNames extends string[]> = Resign | CheckMate<PieceNames>;
 
 type DrawConditionBase = {
     condition: string;
@@ -41,14 +41,16 @@ type DrawByRepetition = DrawConditionBase & {
 };
 
 //for implementing the 50 move rule
-type ExcessiveMoveRule = DrawConditionBase & {
+type ExcessiveMoveRule<PieceNames extends string[]> = DrawConditionBase & {
     condition: 'excessiveMoveRule';
     moveCount: number;
     capturesResetCount: boolean;
-    piecesWhichResetCount: string[];
+    piecesWhichResetCount: (PieceNames[keyof PieceNames] & string)[];
 };
 
-type DrawCondition = DrawByRepetition | ExcessiveMoveRule;
+type DrawCondition<PieceNames extends string[]> =
+    | DrawByRepetition
+    | ExcessiveMoveRule<PieceNames>;
 
 //todo: add other board types (long term todo)
 export type RectangularBoard = {

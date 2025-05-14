@@ -1,28 +1,28 @@
 import { BoardPosition } from './common';
 import { PlayerColor } from './rules';
 
-export type PieceConfig = {
-    name: string;
+export type PieceConfig<PieceNames extends string[]> = {
+    name: PieceNames[keyof PieceNames] & string;
     notation: string;
     displayCharacters: {
         playerColor: PlayerColor;
         displayCharacter: string;
     }[];
-    moves: Move[];
+    moves: Move<PieceNames>[];
     startingPositions: {
         playerColor: PlayerColor;
         positions: BoardPosition[];
     }[];
 };
 
-type MoveBase = {
+type MoveBase<PieceNames extends string[]> = {
     type: string;
     name: string; //used for identifying specific moves. Mostly needed for en passant
     captureAvailability: CaptureAvailability;
-    moveConditions?: MoveCondition[];
+    moveConditions?: MoveCondition<PieceNames>[];
 };
 
-type StandardMove = MoveBase & {
+type StandardMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'standard';
     directions: Direction[] | 'all';
     maxSpaces: number | 'unlimited';
@@ -34,7 +34,7 @@ type StandardMove = MoveBase & {
     }[];
 };
 
-type JumpMove = MoveBase & {
+type JumpMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'jump';
     jumpCoordinates: {
         horizontalSpaces: number;
@@ -42,7 +42,7 @@ type JumpMove = MoveBase & {
     }[];
 };
 
-type PromotionMove = MoveBase & {
+type PromotionMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'promotion';
     directions: Direction[] | 'all';
     maxSpaces: number | 'unlimited';
@@ -51,13 +51,13 @@ type PromotionMove = MoveBase & {
         playerColor: PlayerColor;
         positions: BoardPosition[];
     }[];
-    promotionTargets: string[];
+    promotionTargets: (PieceNames[keyof PieceNames] & string)[];
 };
 
-type CastleMove = MoveBase & {
+type CastleMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'castle';
     targetPiece: {
-        name: string;
+        name: PieceNames[keyof PieceNames] & string;
         playerColor: PlayerColor;
         location: BoardPosition;
     }[];
@@ -68,7 +68,11 @@ type CastleMove = MoveBase & {
     }[];
 };
 
-type Move = StandardMove | JumpMove | PromotionMove | CastleMove;
+type Move<PieceNames extends string[]> =
+    | StandardMove<PieceNames>
+    | JumpMove<PieceNames>
+    | PromotionMove<PieceNames>
+    | CastleMove<PieceNames>;
 
 type CaptureAvailability = 'optional' | 'required' | 'forbidden';
 
@@ -76,33 +80,34 @@ type MoveConditionBase = {
     condition: string;
 };
 
-type ConditionOtherPieceHasNotMoved = MoveConditionBase & {
-    condition: 'otherPieceHasNotMoved';
-    piece: string;
-    piecePosition: {
-        playerColor: PlayerColor;
-        position: BoardPosition;
-    }[];
-};
+type ConditionOtherPieceHasNotMoved<PieceNames extends string[]> =
+    MoveConditionBase & {
+        condition: 'otherPieceHasNotMoved';
+        piece: PieceNames[keyof PieceNames] & string;
+        piecePosition: {
+            playerColor: PlayerColor;
+            position: BoardPosition;
+        }[];
+    };
 
 type ConditionFirstPieceMove = MoveConditionBase & {
     condition: 'firstPieceMove';
 };
 
-type SpecificPreviousMove = MoveConditionBase & {
+type SpecificPreviousMove<PieceNames extends string[]> = MoveConditionBase & {
     condition: 'specificPreviousMove';
     previousMoveName: string;
-    pieces: string[];
+    pieces: (PieceNames[keyof PieceNames] & string)[];
     locations: {
         direction: Direction;
         numSpaces: number;
     }[];
 };
 
-type MoveCondition =
+type MoveCondition<PieceNames extends string[]> =
     | ConditionFirstPieceMove
-    | SpecificPreviousMove
-    | ConditionOtherPieceHasNotMoved;
+    | SpecificPreviousMove<PieceNames>
+    | ConditionOtherPieceHasNotMoved<PieceNames>;
 
 //directions are relative to the player's position
 type Direction =

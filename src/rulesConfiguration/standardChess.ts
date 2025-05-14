@@ -1,6 +1,8 @@
 import { GameRules } from '../types';
 
-export const standardChessConfig: GameRules = {
+export const standardChessConfig: GameRules<
+    ['pawn', 'king', 'queen', 'rook', 'bishop', 'knight']
+> = {
     name: 'chess',
     board: {
         height: 8,

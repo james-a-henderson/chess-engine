@@ -5,13 +5,11 @@ import {
     PlayerConfigurationError
 } from './validationErrors';
 
-export class GameEngine {
+export class GameEngine<PieceNames extends string[]> {
     private players: Player[];
     private board: string[][];
 
-    private pieceNames: Set<string> = new Set();
-
-    constructor(rules: GameRules) {
+    constructor(rules: GameRules<PieceNames>) {
         this.board = this.generateEmptyBoard(rules.board);
         this.players = this.validatePlayerConfiguration(rules.players);
         this.registerPieces(rules.pieces);
@@ -68,18 +66,19 @@ export class GameEngine {
         });
     }
 
-    private registerPieces(pieces: PieceConfig[]) {
+    private registerPieces(pieces: PieceConfig<PieceNames>[]) {
         const notations = new Set();
         const displayCharacters = new Set();
+        const pieceNames = new Set();
 
-        pieces.forEach((piece: PieceConfig) => {
-            if (this.pieceNames.has(piece.name)) {
+        pieces.forEach((piece: PieceConfig<PieceNames>) => {
+            if (pieceNames.has(piece.name)) {
                 throw new PieceConfigurationError(
                     piece.name,
                     'piece names must be unique'
                 );
             }
-            this.pieceNames.add(piece.name);
+            pieceNames.add(piece.name);
 
             if (notations.has(piece.notation)) {
                 throw new PieceConfigurationError(
@@ -131,15 +130,6 @@ export class GameEngine {
                 displayCharacters.add(displayCharacterConfig.displayCharacter);
             });
         });
-    }
-
-    private assertPieceNameExists(name: string) {
-        if (!this.pieceNames.has(name)) {
-            throw new PieceConfigurationError(
-                name,
-                'piece name does not exist'
-            );
-        }
     }
 
     private assertPlayerColorExists(color: string) {

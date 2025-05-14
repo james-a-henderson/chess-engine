@@ -7,8 +7,10 @@ import {
     PlayerConfigurationError
 } from './validationErrors';
 
+type testPieceNames = ['testPiece', 'foo', 'bar'];
+
 describe('validateRulesConfiguration', () => {
-    const genericPiece: PieceConfig = {
+    const genericPiece: PieceConfig<testPieceNames> = {
         name: 'testPiece',
         notation: 'A',
         displayCharacters: [
@@ -34,7 +36,7 @@ describe('validateRulesConfiguration', () => {
         ]
     };
 
-    const genericRulesConfig: GameRules = {
+    const genericRulesConfig: GameRules<testPieceNames> = {
         name: 'test',
         board: {
             height: 8,
@@ -76,7 +78,7 @@ describe('validateRulesConfiguration', () => {
         ])(
             'board with width %d and height %d does not throw error',
             (width, height) => {
-                const config: GameRules = {
+                const config: GameRules<testPieceNames> = {
                     ...genericRulesConfig,
                     board: {
                         width: width,
@@ -109,7 +111,7 @@ describe('validateRulesConfiguration', () => {
         ])(
             'board with width %d and height %d throws an error',
             (width, height) => {
-                const config: GameRules = {
+                const config: GameRules<testPieceNames> = {
                     ...genericRulesConfig,
                     board: {
                         width: width,
@@ -156,7 +158,7 @@ describe('validateRulesConfiguration', () => {
         ])(
             'player configuration %o does not throw an error',
             (players: Player[]) => {
-                const config: GameRules = {
+                const config: GameRules<testPieceNames> = {
                     ...genericRulesConfig,
                     players: players
                 };
@@ -213,7 +215,7 @@ describe('validateRulesConfiguration', () => {
             [[{ color: 'white', order: 0 } as Player]],
             [[]]
         ])('player configuration %o throws an error', (players: Player[]) => {
-            const config: GameRules = {
+            const config: GameRules<testPieceNames> = {
                 ...genericRulesConfig,
                 players: players
             };
@@ -226,8 +228,8 @@ describe('validateRulesConfiguration', () => {
 
     describe('piece config', () => {
         test('throws if the same piece name is reused', () => {
-            const config: GameRules = {
-                ...testConfig,
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
                 pieces: [
                     genericPiece,
                     {
@@ -263,8 +265,8 @@ describe('validateRulesConfiguration', () => {
         });
 
         test('throws if same piece notation is reused', () => {
-            const config: GameRules = {
-                ...testConfig,
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
                 pieces: [
                     genericPiece,
                     {
@@ -299,8 +301,8 @@ describe('validateRulesConfiguration', () => {
             );
         });
         test('throws if same display character is reused', () => {
-            const config: GameRules = {
-                ...testConfig,
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
                 pieces: [
                     {
                         ...genericPiece,
@@ -323,8 +325,8 @@ describe('validateRulesConfiguration', () => {
         });
 
         test('throws if multiple display characters are used for the same player', () => {
-            const config: GameRules = {
-                ...testConfig,
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
                 pieces: [
                     {
                         ...genericPiece,
@@ -347,8 +349,8 @@ describe('validateRulesConfiguration', () => {
         });
 
         test('throws if there are fewer display characters then number of players', () => {
-            const config: GameRules = {
-                ...testConfig,
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
                 pieces: [
                     {
                         ...genericPiece,
@@ -367,8 +369,8 @@ describe('validateRulesConfiguration', () => {
         });
 
         test('throws if there are no display characters', () => {
-            const config: GameRules = {
-                ...testConfig,
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
                 pieces: [
                     {
                         ...genericPiece,
@@ -381,8 +383,8 @@ describe('validateRulesConfiguration', () => {
             );
         });
         test('throws if display character does not belong to registered player', () => {
-            const config: GameRules = {
-                ...testConfig,
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
                 pieces: [
                     {
                         ...genericPiece,
