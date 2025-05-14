@@ -9,7 +9,7 @@ export type GameRules = {
     drawConditions: DrawCondition[];
 };
 
-type Player = {
+export type Player = {
     color: PlayerColor;
     order: number;
 };
