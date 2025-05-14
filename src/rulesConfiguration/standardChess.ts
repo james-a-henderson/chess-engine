@@ -39,9 +39,8 @@ export const standardChessConfig: GameRules = {
     ],
     pieces: [
         {
-            //todo: add promotion rules
-            //todo: add en passant rules
             name: 'pawn',
+            notation: '', //pawns have no piece name in algebreic notation
             displayCharacters: [
                 {
                     playerColor: 'white',
@@ -55,23 +54,126 @@ export const standardChessConfig: GameRules = {
             moves: [
                 {
                     type: 'standard',
+                    name: 'pawnMoveForward',
                     directions: ['forward'],
                     maxSpaces: 1,
                     captureAvailability: 'forbidden'
                 },
                 {
                     type: 'standard',
+                    name: 'pawnCapture',
                     directions: ['leftForward', 'rightForward'],
                     maxSpaces: 1,
                     captureAvailability: 'required'
                 },
                 {
                     type: 'standard',
+                    name: 'pawnDoubleMove',
                     directions: ['forward'],
                     maxSpaces: 2,
                     minSpaces: 2,
                     captureAvailability: 'forbidden',
-                    moveConditions: ['firstPieceMove']
+                    moveConditions: [
+                        {
+                            condition: 'firstPieceMove'
+                        }
+                    ]
+                },
+                {
+                    type: 'promotion',
+                    name: 'pawnPromotion',
+                    captureAvailability: 'forbidden',
+                    directions: ['forward'],
+                    maxSpaces: 1,
+                    promotionSquares: [
+                        {
+                            playerColor: 'white',
+                            positions: [
+                                ['a', 8],
+                                ['b', 8],
+                                ['c', 8],
+                                ['d', 8],
+                                ['e', 8],
+                                ['f', 8],
+                                ['g', 8],
+                                ['h', 8]
+                            ]
+                        },
+                        {
+                            playerColor: 'black',
+                            positions: [
+                                ['a', 1],
+                                ['b', 1],
+                                ['c', 1],
+                                ['d', 1],
+                                ['e', 1],
+                                ['f', 1],
+                                ['g', 1],
+                                ['h', 1]
+                            ]
+                        }
+                    ],
+                    promotionTargets: ['knight', 'rook', 'bishop', 'queen']
+                },
+                {
+                    type: 'promotion',
+                    name: 'pawnPromotionCapture',
+                    captureAvailability: 'required',
+                    directions: ['leftForward', 'rightForward'],
+                    maxSpaces: 1,
+                    promotionSquares: [
+                        {
+                            playerColor: 'white',
+                            positions: [
+                                ['a', 8],
+                                ['b', 8],
+                                ['c', 8],
+                                ['d', 8],
+                                ['e', 8],
+                                ['f', 8],
+                                ['g', 8],
+                                ['h', 8]
+                            ]
+                        },
+                        {
+                            playerColor: 'black',
+                            positions: [
+                                ['a', 1],
+                                ['b', 1],
+                                ['c', 1],
+                                ['d', 1],
+                                ['e', 1],
+                                ['f', 1],
+                                ['g', 1],
+                                ['h', 1]
+                            ]
+                        }
+                    ],
+                    promotionTargets: ['knight', 'rook', 'bishop', 'queen']
+                },
+                {
+                    type: 'standard',
+                    name: 'enPassant',
+                    captureAvailability: 'required',
+                    directions: ['leftForward', 'rightForward'],
+                    maxSpaces: 1,
+                    moveConditions: [
+                        {
+                            condition: 'specificPreviousMove',
+                            previousMoveName: 'pawnDoubleMove',
+                            pieces: ['pawn'],
+                            locations: [
+                                {
+                                    direction: 'left',
+                                    numSpaces: 1
+                                },
+                                {
+                                    direction: 'right',
+                                    numSpaces: 1
+                                }
+                            ]
+                        }
+                    ]
                 }
             ],
             startingPositions: [
@@ -104,8 +206,8 @@ export const standardChessConfig: GameRules = {
             ]
         },
         {
-            //todo: add castling rules
             name: 'king',
+            notation: 'K',
             displayCharacters: [
                 {
                     playerColor: 'white',
@@ -119,9 +221,68 @@ export const standardChessConfig: GameRules = {
             moves: [
                 {
                     type: 'standard',
+                    name: 'kingMove',
                     captureAvailability: 'optional',
                     directions: 'all',
                     maxSpaces: 1
+                },
+                {
+                    type: 'castle',
+                    name: 'kingsideCastle',
+                    captureAvailability: 'forbidden',
+                    targetPiece: [
+                        {
+                            playerColor: 'white',
+                            name: 'rook',
+                            location: ['h', 1]
+                        },
+                        {
+                            playerColor: 'black',
+                            name: 'rook',
+                            location: ['h', 8]
+                        }
+                    ],
+                    resultLocation: [
+                        {
+                            playerColor: 'white',
+                            location: ['g', 1],
+                            targetPieceLocation: ['f', 1]
+                        },
+                        {
+                            playerColor: 'black',
+                            location: ['g', 8],
+                            targetPieceLocation: ['f', 8]
+                        }
+                    ]
+                },
+                {
+                    type: 'castle',
+                    name: 'queensideCastle',
+                    captureAvailability: 'forbidden',
+                    targetPiece: [
+                        {
+                            playerColor: 'white',
+                            name: 'rook',
+                            location: ['a', 1]
+                        },
+                        {
+                            playerColor: 'black',
+                            name: 'rook',
+                            location: ['a', 8]
+                        }
+                    ],
+                    resultLocation: [
+                        {
+                            playerColor: 'white',
+                            location: ['c', 1],
+                            targetPieceLocation: ['d', 1]
+                        },
+                        {
+                            playerColor: 'black',
+                            location: ['c', 8],
+                            targetPieceLocation: ['d', 8]
+                        }
+                    ]
                 }
             ],
             startingPositions: [
@@ -137,6 +298,7 @@ export const standardChessConfig: GameRules = {
         },
         {
             name: 'queen',
+            notation: 'Q',
             displayCharacters: [
                 {
                     playerColor: 'white',
@@ -150,6 +312,7 @@ export const standardChessConfig: GameRules = {
             moves: [
                 {
                     type: 'standard',
+                    name: 'queenMove',
                     directions: 'all',
                     maxSpaces: 'unlimited',
                     captureAvailability: 'optional'
@@ -168,6 +331,7 @@ export const standardChessConfig: GameRules = {
         },
         {
             name: 'rook',
+            notation: 'R',
             displayCharacters: [
                 {
                     playerColor: 'white',
@@ -181,6 +345,7 @@ export const standardChessConfig: GameRules = {
             moves: [
                 {
                     type: 'standard',
+                    name: 'rookMove',
                     directions: ['forward', 'backward', 'left', 'right'],
                     maxSpaces: 'unlimited',
                     captureAvailability: 'optional'
@@ -205,6 +370,7 @@ export const standardChessConfig: GameRules = {
         },
         {
             name: 'bishop',
+            notation: 'B',
             displayCharacters: [
                 {
                     playerColor: 'white',
@@ -218,6 +384,7 @@ export const standardChessConfig: GameRules = {
             moves: [
                 {
                     type: 'standard',
+                    name: 'bishopMove',
                     directions: [
                         'leftForward',
                         'leftBackward',
@@ -247,6 +414,7 @@ export const standardChessConfig: GameRules = {
         },
         {
             name: 'knight',
+            notation: 'N',
             displayCharacters: [
                 {
                     playerColor: 'white',
@@ -260,6 +428,7 @@ export const standardChessConfig: GameRules = {
             moves: [
                 {
                     type: 'jump',
+                    name: 'knightMove',
                     captureAvailability: 'optional',
                     jumpCoordinates: [
                         {
