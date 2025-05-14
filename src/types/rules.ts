@@ -1,10 +1,10 @@
-import { Piece } from './pieces';
+import { PieceConfig } from './pieces';
 
 export type GameRules = {
     name: string;
     players: Player[];
     board: RectangularBoard;
-    pieces: Piece[];
+    pieces: PieceConfig[];
     winConditions: WinCondition[];
     drawConditions: DrawCondition[];
 };

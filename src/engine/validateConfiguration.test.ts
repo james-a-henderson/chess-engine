@@ -1,6 +1,6 @@
 import { GameEngine } from './GameEngine';
 import { standardChessConfig, testConfig } from '../rulesConfiguration';
-import { GameRules, Piece, Player } from '../types';
+import { GameRules, PieceConfig, Player } from '../types';
 import {
     BoardConfigurationError,
     PieceConfigurationError,
@@ -8,7 +8,7 @@ import {
 } from './validationErrors';
 
 describe('validateRulesConfiguration', () => {
-    const genericPiece: Piece = {
+    const genericPiece: PieceConfig = {
         name: 'testPiece',
         notation: 'A',
         displayCharacters: [

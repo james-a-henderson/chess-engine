@@ -1,4 +1,4 @@
-import { GameRules, Piece, Player, RectangularBoard } from '../types';
+import { GameRules, PieceConfig, Player, RectangularBoard } from '../types';
 import {
     BoardConfigurationError,
     PieceConfigurationError,
@@ -68,11 +68,11 @@ export class GameEngine {
         });
     }
 
-    private registerPieces(pieces: Piece[]) {
+    private registerPieces(pieces: PieceConfig[]) {
         const notations = new Set();
         const displayCharacters = new Set();
 
-        pieces.forEach((piece: Piece) => {
+        pieces.forEach((piece: PieceConfig) => {
             if (this.pieceNames.has(piece.name)) {
                 throw new PieceConfigurationError(
                     piece.name,

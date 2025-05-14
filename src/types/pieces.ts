@@ -1,7 +1,7 @@
 import { BoardPosition } from './common';
 import { PlayerColor } from './rules';
 
-export type Piece = {
+export type PieceConfig = {
     name: string;
     notation: string;
     displayCharacters: {
