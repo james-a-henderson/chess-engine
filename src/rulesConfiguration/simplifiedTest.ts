@@ -25,6 +25,7 @@ export const testConfig: GameRules = {
     pieces: [
         {
             name: 'rook',
+            notation: 'R',
             displayCharacters: [
                 {
                     playerColor: 'white',
@@ -38,6 +39,7 @@ export const testConfig: GameRules = {
             moves: [
                 {
                     type: 'standard',
+                    name: 'rookMove',
                     directions: ['forward', 'backward', 'left', 'right'],
                     maxSpaces: 'unlimited',
                     captureAvailability: 'optional'
