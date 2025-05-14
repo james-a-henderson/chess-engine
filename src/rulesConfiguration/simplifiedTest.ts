@@ -13,7 +13,7 @@ export const testConfig: GameRules = {
         },
         {
             color: 'black',
-            order: 0
+            order: 1
         }
     ],
     winConditions: [
