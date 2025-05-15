@@ -1,2 +1,2 @@
 export * from './validationErrors';
-export * from './gameErrors'
+export * from './gameErrors';

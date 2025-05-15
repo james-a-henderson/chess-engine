@@ -7,7 +7,7 @@ export class GameError extends Error {
 }
 
 export class InvalidSpaceError extends GameError {
-    constructor(message: string){
+    constructor(message: string) {
         super(message);
         this.name = 'InvalidSpaceError';
         Object.setPrototypeOf(this, InvalidSpaceError.prototype);
