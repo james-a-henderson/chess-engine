@@ -5,7 +5,7 @@ import {
     BoardConfigurationError,
     PieceConfigurationError,
     PlayerConfigurationError
-} from './validationErrors';
+} from '../types/errors/validationErrors';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];
 
@@ -73,10 +73,10 @@ describe('validateRulesConfiguration', () => {
         test.each([
             [8, 8],
             [1, 1],
-            [1024, 1024],
+            [702, 702],
             [18, 45]
         ])(
-            'board with width %d and height %d does not throw error',
+            'board with width %d and height %d generates board of correct size',
             (width, height) => {
                 const config: GameRules<testPieceNames> = {
                     ...genericRulesConfig,
@@ -86,9 +86,11 @@ describe('validateRulesConfiguration', () => {
                     }
                 };
 
-                expect(() => new GameEngine(config)).not.toThrow(
-                    BoardConfigurationError
-                );
+                const board = new GameEngine(config).board;
+                expect(board.length).toEqual(width);
+                board.forEach((file) => {
+                    expect(file.length).toEqual(height);
+                });
             }
         );
 
@@ -107,7 +109,8 @@ describe('validateRulesConfiguration', () => {
             [6.6, 7.7],
             [Infinity, 2],
             [4, Infinity],
-            [Number.MAX_SAFE_INTEGER + 1, 5]
+            [Number.MAX_SAFE_INTEGER + 1, 5],
+            [1024, 1024]
         ])(
             'board with width %d and height %d throws an error',
             (width, height) => {

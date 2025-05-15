@@ -1,35 +1,70 @@
-import { GameRules, PieceConfig, Player, RectangularBoard } from '../types';
+import {
+    BoardPosition,
+    GameRules,
+    MAXIMUM_BOARD_SIZE,
+    PieceConfig,
+    Player,
+    RectangularBoard
+} from '../types';
+import { Piece } from './piece';
 import {
     BoardConfigurationError,
     PieceConfigurationError,
-    PlayerConfigurationError
-} from './validationErrors';
+    PlayerConfigurationError,
+    InvalidSpaceError
+} from '../types/errors';
+import { fileLetterToIndex, indexToFileLetter } from '../common';
+
+type BoardSpace<PieceNames extends string[]> = {
+    position: BoardPosition;
+    piece?: Piece<PieceNames>;
+};
+
+type Board<PieceNames extends string[]> = BoardSpace<PieceNames>[][];
 
 export class GameEngine<PieceNames extends string[]> {
-    private players: Player[];
-    private board: string[][];
+    private _players: Player[];
+    private _board: Board<PieceNames>;
+    private _config: GameRules<PieceNames>;
 
     constructor(rules: GameRules<PieceNames>) {
-        this.board = this.generateEmptyBoard(rules.board);
-        this.players = this.validatePlayerConfiguration(rules.players);
+        this._config = rules;
+        this._board = this.generateEmptyBoard(rules.board);
+        this._players = this.validatePlayerConfiguration(rules.players);
         this.registerPieces(rules.pieces);
     }
 
-    private generateEmptyBoard(boardConfig: RectangularBoard): string[][] {
+    get board() {
+        return this._board;
+    }
+
+    private generateEmptyBoard(
+        boardConfig: RectangularBoard
+    ): Board<PieceNames> {
         if (
             !Number.isSafeInteger(boardConfig.width) ||
             !Number.isSafeInteger(boardConfig.height) ||
             boardConfig.width <= 0 ||
-            boardConfig.width > 1024 || //somewhat arbrirtary maximum board size
+            boardConfig.width > MAXIMUM_BOARD_SIZE || //somewhat arbrirtary maximum board size
             boardConfig.height <= 0 ||
-            boardConfig.height > 1024
+            boardConfig.height > MAXIMUM_BOARD_SIZE
         ) {
             throw new BoardConfigurationError('invalid board size');
         }
 
-        //todo: change types to something more useful
-        const board: string[][] = new Array<string[]>(boardConfig.width);
-        board.fill(new Array<string>(boardConfig.height).fill(''));
+        const board: Board<PieceNames> = [];
+
+        for (let i = 0; i < boardConfig.width; i++) {
+            const file: BoardSpace<PieceNames>[] = [];
+            for (let j = 0; j < boardConfig.height; j++) {
+                file.push({
+                    position: this.indiciesToCoordinates([i, j]),
+                    piece: undefined
+                });
+            }
+            board.push(file);
+        }
+
         return board;
     }
 
@@ -88,7 +123,7 @@ export class GameEngine<PieceNames extends string[]> {
             }
             notations.add(piece.notation);
 
-            if (piece.displayCharacters.length !== this.players.length) {
+            if (piece.displayCharacters.length !== this._players.length) {
                 throw new PieceConfigurationError(
                     piece.name,
                     'piece must have one display character per player'
@@ -133,7 +168,7 @@ export class GameEngine<PieceNames extends string[]> {
     }
 
     private assertPlayerColorExists(color: string) {
-        const playerIndex = this.players.findIndex((player) => {
+        const playerIndex = this._players.findIndex((player) => {
             return player.color === color;
         });
 
@@ -142,5 +177,41 @@ export class GameEngine<PieceNames extends string[]> {
                 `player color ${color} does not exist`
             );
         }
+    }
+
+    /**
+     * Translates two dimensional array indicies to chess coordinates
+     *
+     * For example, [0][4] would translate to a5
+     * @param indicies
+     */
+    private indiciesToCoordinates(indicies: [number, number]): BoardPosition {
+        if (
+            indicies[0] >= this._config.board.width ||
+            indicies[1] >= this._config.board.height ||
+            indicies[0] < 0 ||
+            indicies[1] < 0
+        ) {
+            throw new InvalidSpaceError('Invalid space index');
+        }
+        return [indexToFileLetter(indicies[0]), indicies[1] + 1];
+    }
+
+    private coordinatesToIndicies(
+        coordinates: BoardPosition
+    ): [number, number] {
+        const fileIndex = fileLetterToIndex(coordinates[0]);
+        const rankIndex = coordinates[1] - 1;
+
+        if (
+            fileIndex >= this._config.board.width ||
+            rankIndex >= this._config.board.height ||
+            fileIndex < 0 ||
+            rankIndex < 0
+        ) {
+            throw new InvalidSpaceError('Invalid coordinates');
+        }
+
+        return [fileIndex, rankIndex];
     }
 }
