@@ -1,4 +1,4 @@
-import { BoardPosition } from './common';
+import { BoardPosition } from '../common';
 import { PlayerColor } from './rules';
 
 export type PieceConfig<PieceNames extends string[]> = {
