@@ -3,8 +3,7 @@ import {
     GameRules,
     MAXIMUM_BOARD_SIZE,
     PieceConfig,
-    Player,
-    RectangularBoard
+    Player
 } from '../types';
 import { Piece } from './piece';
 import {
@@ -29,34 +28,32 @@ export class GameEngine<PieceNames extends string[]> {
 
     constructor(rules: GameRules<PieceNames>) {
         this._config = rules;
-        this._board = this.generateEmptyBoard(rules.board);
-        this._players = this.validatePlayerConfiguration(rules.players);
-        this.registerPieces(rules.pieces);
+        this._board = this.generateEmptyBoard();
+        this._players = this.validatePlayerConfiguration();
+        this.registerPieces();
     }
 
     get board() {
         return this._board;
     }
 
-    private generateEmptyBoard(
-        boardConfig: RectangularBoard
-    ): Board<PieceNames> {
+    private generateEmptyBoard(): Board<PieceNames> {
         if (
-            !Number.isSafeInteger(boardConfig.width) ||
-            !Number.isSafeInteger(boardConfig.height) ||
-            boardConfig.width <= 0 ||
-            boardConfig.width > MAXIMUM_BOARD_SIZE ||
-            boardConfig.height <= 0 ||
-            boardConfig.height > MAXIMUM_BOARD_SIZE
+            !Number.isSafeInteger(this._config.board.width) ||
+            !Number.isSafeInteger(this._config.board.height) ||
+            this._config.board.width <= 0 ||
+            this._config.board.width > MAXIMUM_BOARD_SIZE ||
+            this._config.board.height <= 0 ||
+            this._config.board.height > MAXIMUM_BOARD_SIZE
         ) {
             throw new BoardConfigurationError('invalid board size');
         }
 
         const board: Board<PieceNames> = [];
 
-        for (let i = 0; i < boardConfig.width; i++) {
+        for (let i = 0; i < this._config.board.width; i++) {
             const file: BoardSpace<PieceNames>[] = [];
-            for (let j = 0; j < boardConfig.height; j++) {
+            for (let j = 0; j < this._config.board.height; j++) {
                 file.push({
                     position: this.indiciesToCoordinates([i, j]),
                     piece: undefined
@@ -68,14 +65,14 @@ export class GameEngine<PieceNames extends string[]> {
         return board;
     }
 
-    private validatePlayerConfiguration(players: Player[]): Player[] {
-        if (players.length < 2) {
+    private validatePlayerConfiguration(): Player[] {
+        if (this._config.players.length < 2) {
             throw new PlayerConfigurationError('Must have at least 2 players');
         }
 
         const colors = new Set();
         const orders = new Set();
-        players.forEach((player: Player) => {
+        this._config.players.forEach((player: Player) => {
             if (colors.has(player.color)) {
                 throw new PlayerConfigurationError(
                     'Player colors must be unique'
@@ -96,17 +93,17 @@ export class GameEngine<PieceNames extends string[]> {
             orders.add(player.order);
         });
 
-        return players.toSorted((a, b) => {
+        return this._config.players.toSorted((a, b) => {
             return a.order - b.order;
         });
     }
 
-    private registerPieces(pieces: PieceConfig<PieceNames>[]) {
+    private registerPieces() {
         const notations = new Set();
         const displayCharacters = new Set();
         const pieceNames = new Set();
 
-        pieces.forEach((piece: PieceConfig<PieceNames>) => {
+        this._config.pieces.forEach((piece: PieceConfig<PieceNames>) => {
             if (pieceNames.has(piece.name)) {
                 throw new PieceConfigurationError(
                     piece.name,
