@@ -45,7 +45,7 @@ export class GameEngine<PieceNames extends string[]> {
             !Number.isSafeInteger(boardConfig.width) ||
             !Number.isSafeInteger(boardConfig.height) ||
             boardConfig.width <= 0 ||
-            boardConfig.width > MAXIMUM_BOARD_SIZE || //somewhat arbrirtary maximum board size
+            boardConfig.width > MAXIMUM_BOARD_SIZE ||
             boardConfig.height <= 0 ||
             boardConfig.height > MAXIMUM_BOARD_SIZE
         ) {
@@ -123,47 +123,30 @@ export class GameEngine<PieceNames extends string[]> {
             }
             notations.add(piece.notation);
 
-            if (piece.displayCharacters.length !== this._players.length) {
+            if (
+                Object.keys(piece.displayCharacters).length !==
+                this._players.length
+            ) {
                 throw new PieceConfigurationError(
                     piece.name,
                     'piece must have one display character per player'
                 );
             }
 
-            const displayCharacterPlayerColors = new Set();
+            for (const [playerColor, displayCharacter] of Object.entries(
+                piece.displayCharacters
+            )) {
+                this.assertPlayerColorExists(playerColor);
 
-            piece.displayCharacters.forEach((displayCharacterConfig) => {
-                this.assertPlayerColorExists(
-                    displayCharacterConfig.playerColor
-                );
-
-                if (
-                    displayCharacterPlayerColors.has(
-                        displayCharacterConfig.playerColor
-                    )
-                ) {
-                    throw new PieceConfigurationError(
-                        piece.name,
-                        'pieces can only have one display character per player'
-                    );
-                }
-                displayCharacterPlayerColors.add(
-                    displayCharacterConfig.playerColor
-                );
-
-                if (
-                    displayCharacters.has(
-                        displayCharacterConfig.displayCharacter
-                    )
-                ) {
+                if (displayCharacters.has(displayCharacter)) {
                     throw new PieceConfigurationError(
                         piece.name,
                         'piece display characters must be unique'
                     );
                 }
 
-                displayCharacters.add(displayCharacterConfig.displayCharacter);
-            });
+                displayCharacters.add(displayCharacter);
+            }
         });
     }
 

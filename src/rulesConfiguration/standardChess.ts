@@ -43,16 +43,10 @@ export const standardChessConfig: GameRules<
         {
             name: 'pawn',
             notation: '', //pawns have no piece name in algebreic notation
-            displayCharacters: [
-                {
-                    playerColor: 'white',
-                    displayCharacter: '♙'
-                },
-                {
-                    playerColor: 'black',
-                    displayCharacter: '♟'
-                }
-            ],
+            displayCharacters: {
+                white: '♙',
+                black: '♟'
+            },
             moves: [
                 {
                     type: 'standard',
@@ -210,16 +204,10 @@ export const standardChessConfig: GameRules<
         {
             name: 'king',
             notation: 'K',
-            displayCharacters: [
-                {
-                    playerColor: 'white',
-                    displayCharacter: '♔'
-                },
-                {
-                    playerColor: 'black',
-                    displayCharacter: '♚'
-                }
-            ],
+            displayCharacters: {
+                white: '♔',
+                black: '♚'
+            },
             moves: [
                 {
                     type: 'standard',
@@ -301,16 +289,10 @@ export const standardChessConfig: GameRules<
         {
             name: 'queen',
             notation: 'Q',
-            displayCharacters: [
-                {
-                    playerColor: 'white',
-                    displayCharacter: '♕'
-                },
-                {
-                    playerColor: 'black',
-                    displayCharacter: '♛'
-                }
-            ],
+            displayCharacters: {
+                white: '♕',
+                black: '♛'
+            },
             moves: [
                 {
                     type: 'standard',
@@ -334,16 +316,10 @@ export const standardChessConfig: GameRules<
         {
             name: 'rook',
             notation: 'R',
-            displayCharacters: [
-                {
-                    playerColor: 'white',
-                    displayCharacter: '♖'
-                },
-                {
-                    playerColor: 'black',
-                    displayCharacter: '♜'
-                }
-            ],
+            displayCharacters: {
+                white: '♖',
+                black: '♜'
+            },
             moves: [
                 {
                     type: 'standard',
@@ -373,16 +349,10 @@ export const standardChessConfig: GameRules<
         {
             name: 'bishop',
             notation: 'B',
-            displayCharacters: [
-                {
-                    playerColor: 'white',
-                    displayCharacter: '♗'
-                },
-                {
-                    playerColor: 'black',
-                    displayCharacter: '♝'
-                }
-            ],
+            displayCharacters: {
+                white: '♗',
+                black: '♝'
+            },
             moves: [
                 {
                     type: 'standard',
@@ -417,16 +387,10 @@ export const standardChessConfig: GameRules<
         {
             name: 'knight',
             notation: 'N',
-            displayCharacters: [
-                {
-                    playerColor: 'white',
-                    displayCharacter: '♘'
-                },
-                {
-                    playerColor: 'black',
-                    displayCharacter: '♞'
-                }
-            ],
+            displayCharacters: {
+                white: '♘',
+                black: '♞'
+            },
             moves: [
                 {
                     type: 'jump',

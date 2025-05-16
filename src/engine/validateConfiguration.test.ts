@@ -13,16 +13,10 @@ describe('validateRulesConfiguration', () => {
     const genericPiece: PieceConfig<testPieceNames> = {
         name: 'testPiece',
         notation: 'A',
-        displayCharacters: [
-            {
-                playerColor: 'white',
-                displayCharacter: 'A'
-            },
-            {
-                playerColor: 'black',
-                displayCharacter: 'B'
-            }
-        ],
+        displayCharacters: {
+            white: 'A',
+            black: 'B'
+        },
         moves: [],
         startingPositions: [
             {
@@ -238,16 +232,10 @@ describe('validateRulesConfiguration', () => {
                     {
                         name: 'testPiece',
                         notation: 'B',
-                        displayCharacters: [
-                            {
-                                playerColor: 'white',
-                                displayCharacter: 'C'
-                            },
-                            {
-                                playerColor: 'black',
-                                displayCharacter: 'D'
-                            }
-                        ],
+                        displayCharacters: {
+                            white: 'C',
+                            black: 'D'
+                        },
                         moves: [],
                         startingPositions: [
                             {
@@ -275,16 +263,10 @@ describe('validateRulesConfiguration', () => {
                     {
                         name: 'foo',
                         notation: 'A',
-                        displayCharacters: [
-                            {
-                                playerColor: 'white',
-                                displayCharacter: 'C'
-                            },
-                            {
-                                playerColor: 'black',
-                                displayCharacter: 'D'
-                            }
-                        ],
+                        displayCharacters: {
+                            white: 'C',
+                            black: 'D'
+                        },
                         moves: [],
                         startingPositions: [
                             {
@@ -309,40 +291,10 @@ describe('validateRulesConfiguration', () => {
                 pieces: [
                     {
                         ...genericPiece,
-                        displayCharacters: [
-                            {
-                                playerColor: 'white',
-                                displayCharacter: 'A'
-                            },
-                            {
-                                playerColor: 'black',
-                                displayCharacter: 'A'
-                            }
-                        ]
-                    }
-                ]
-            };
-            expect(() => new GameEngine(config)).toThrow(
-                PieceConfigurationError
-            );
-        });
-
-        test('throws if multiple display characters are used for the same player', () => {
-            const config: GameRules<testPieceNames> = {
-                ...genericRulesConfig,
-                pieces: [
-                    {
-                        ...genericPiece,
-                        displayCharacters: [
-                            {
-                                playerColor: 'white',
-                                displayCharacter: 'A'
-                            },
-                            {
-                                playerColor: 'white',
-                                displayCharacter: 'A'
-                            }
-                        ]
+                        displayCharacters: {
+                            white: 'A',
+                            black: 'A'
+                        }
                     }
                 ]
             };
@@ -357,12 +309,9 @@ describe('validateRulesConfiguration', () => {
                 pieces: [
                     {
                         ...genericPiece,
-                        displayCharacters: [
-                            {
-                                playerColor: 'white',
-                                displayCharacter: 'A'
-                            }
-                        ]
+                        displayCharacters: {
+                            white: 'A'
+                        }
                     }
                 ]
             };
@@ -377,7 +326,7 @@ describe('validateRulesConfiguration', () => {
                 pieces: [
                     {
                         ...genericPiece,
-                        displayCharacters: []
+                        displayCharacters: {}
                     }
                 ]
             };
@@ -391,17 +340,11 @@ describe('validateRulesConfiguration', () => {
                 pieces: [
                     {
                         ...genericPiece,
-                        displayCharacters: [
-                            {
-                                playerColor: 'white',
-                                displayCharacter: 'A'
-                            },
-                            {
-                                // @ts-expect-error there are currently only two player colors defined
-                                playerColor: 'green',
-                                displayCharacter: 'A'
-                            }
-                        ]
+                        displayCharacters: {
+                            white: 'A',
+                            // @ts-expect-error there are currently only two player colors defined
+                            green: 'B'
+                        }
                     }
                 ]
             };

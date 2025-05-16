@@ -26,16 +26,10 @@ export const testConfig: GameRules<['rook']> = {
         {
             name: 'rook',
             notation: 'R',
-            displayCharacters: [
-                {
-                    playerColor: 'white',
-                    displayCharacter: '♖'
-                },
-                {
-                    playerColor: 'black',
-                    displayCharacter: '♜'
-                }
-            ],
+            displayCharacters: {
+                white: '♖',
+                black: '♜'
+            },
             moves: [
                 {
                     type: 'standard',

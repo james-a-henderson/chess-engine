@@ -4,10 +4,7 @@ import { PlayerColor } from './rules';
 export type PieceConfig<PieceNames extends string[]> = {
     name: PieceNames[keyof PieceNames] & string;
     notation: string;
-    displayCharacters: {
-        playerColor: PlayerColor;
-        displayCharacter: string;
-    }[];
+    displayCharacters: Partial<Record<PlayerColor, string>>;
     moves: Move<PieceNames>[];
     startingPositions: {
         playerColor: PlayerColor;
