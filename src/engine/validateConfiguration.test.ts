@@ -1,11 +1,12 @@
 import { GameEngine } from './GameEngine';
 import { standardChessConfig, testConfig } from '../rulesConfiguration';
-import { GameRules, PieceConfig, Player } from '../types';
+import { GameRules, InvalidSpaceError, PieceConfig, Player } from '../types';
 import {
     BoardConfigurationError,
     PieceConfigurationError,
     PlayerConfigurationError
 } from '../types/errors/validationErrors';
+import { assertBoardPosition } from '../testHelpers';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];
 
@@ -25,7 +26,7 @@ describe('validateRulesConfiguration', () => {
             },
             {
                 playerColor: 'black',
-                positions: [['a', 8]]
+                positions: [['a', 3]]
             }
         ]
     };
@@ -33,8 +34,8 @@ describe('validateRulesConfiguration', () => {
     const genericRulesConfig: GameRules<testPieceNames> = {
         name: 'test',
         board: {
-            height: 8,
-            width: 8
+            height: 3,
+            width: 3
         },
         players: [
             {
@@ -352,5 +353,118 @@ describe('validateRulesConfiguration', () => {
                 PlayerConfigurationError
             );
         });
+    });
+
+    describe('piece starting positions', () => {
+        test('sets correct positions when configuration is valid', () => {
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
+                pieces: [
+                    {
+                        name: 'foo',
+                        notation: 'F',
+                        moves: [],
+                        displayCharacters: {
+                            white: 'f',
+                            black: 'F'
+                        },
+                        startingPositions: [
+                            {
+                                playerColor: 'white',
+                                positions: [['a', 1]]
+                            },
+                            {
+                                playerColor: 'black',
+                                positions: [['a', 3]]
+                            }
+                        ]
+                    },
+                    {
+                        name: 'bar',
+                        notation: 'B',
+                        moves: [],
+                        displayCharacters: {
+                            white: 'b',
+                            black: 'B'
+                        },
+                        startingPositions: [
+                            {
+                                playerColor: 'white',
+                                positions: [['c', 1]]
+                            },
+                            {
+                                playerColor: 'black',
+                                positions: [['c', 3]]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const engine = new GameEngine<testPieceNames>(config);
+
+            const expectedBoard: string[][] = [
+                ['F', ' ', 'B'],
+                [' ', ' ', ' '],
+                ['f', ' ', 'b']
+            ];
+
+            assertBoardPosition(engine, expectedBoard);
+        });
+
+        test('throws if multiple pieces are placed on the same space', () => {
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
+                pieces: [
+                    {
+                        ...genericPiece,
+                        startingPositions: [
+                            {
+                                playerColor: 'white',
+                                positions: [['a', 1]]
+                            },
+                            {
+                                playerColor: 'black',
+                                positions: [['a', 1]]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            expect(() => new GameEngine(config)).toThrow(
+                PieceConfigurationError
+            );
+        });
+
+        test.each([
+            ['d', 1],
+            ['c', 0],
+            ['2', 2],
+            ['aa', 3],
+            ['a', 10],
+            ['b', 100],
+            ['a', -10]
+        ])(
+            'position %s, %d is outside the board and throws error',
+            (file: string, rank: number) => {
+                const config: GameRules<testPieceNames> = {
+                    ...genericRulesConfig,
+                    pieces: [
+                        {
+                            ...genericPiece,
+                            startingPositions: [
+                                {
+                                    playerColor: 'white',
+                                    positions: [[file, rank]]
+                                }
+                            ]
+                        }
+                    ]
+                };
+
+                expect(() => new GameEngine(config)).toThrow(InvalidSpaceError);
+            }
+        );
     });
 });

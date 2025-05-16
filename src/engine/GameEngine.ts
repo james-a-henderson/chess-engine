@@ -31,6 +31,7 @@ export class GameEngine<PieceNames extends string[]> {
         this._board = this.generateEmptyBoard();
         this._players = this.validatePlayerConfiguration();
         this.registerPieces();
+        this.placePieces();
     }
 
     get board() {
@@ -63,6 +64,32 @@ export class GameEngine<PieceNames extends string[]> {
         }
 
         return board;
+    }
+
+    private placePieces() {
+        this._config.pieces.forEach((pieceConfig: PieceConfig<PieceNames>) => {
+            pieceConfig.startingPositions.forEach((startingPositions) => {
+                startingPositions.positions.forEach((position) => {
+                    const piece = new Piece(
+                        pieceConfig,
+                        startingPositions.playerColor,
+                        position
+                    );
+                    const [fileIndex, rankIndex] =
+                        this.coordinatesToIndicies(position);
+
+                    const boardPosition = this._board[fileIndex][rankIndex];
+
+                    if (boardPosition.piece) {
+                        throw new PieceConfigurationError(
+                            pieceConfig.name,
+                            'Multiple pieces cannot have the same starting position'
+                        );
+                    }
+                    boardPosition.piece = piece;
+                });
+            });
+        });
     }
 
     private validatePlayerConfiguration(): Player[] {
