@@ -19,16 +19,10 @@ describe('validateRulesConfiguration', () => {
             black: 'B'
         },
         moves: [],
-        startingPositions: [
-            {
-                playerColor: 'white',
-                positions: [['a', 1]]
-            },
-            {
-                playerColor: 'black',
-                positions: [['a', 3]]
-            }
-        ]
+        startingPositions: {
+            white: [['a', 1]],
+            black: [['a', 3]]
+        }
     };
 
     const genericRulesConfig: GameRules<testPieceNames> = {
@@ -78,7 +72,8 @@ describe('validateRulesConfiguration', () => {
                     board: {
                         width: width,
                         height: height
-                    }
+                    },
+                    pieces: []
                 };
 
                 const board = new GameEngine(config).board;
@@ -238,16 +233,10 @@ describe('validateRulesConfiguration', () => {
                             black: 'D'
                         },
                         moves: [],
-                        startingPositions: [
-                            {
-                                playerColor: 'white',
-                                positions: [['b', 1]]
-                            },
-                            {
-                                playerColor: 'black',
-                                positions: [['b', 8]]
-                            }
-                        ]
+                        startingPositions: {
+                            white: [['b', 1]],
+                            black: [['b', 3]]
+                        }
                     }
                 ]
             };
@@ -269,16 +258,10 @@ describe('validateRulesConfiguration', () => {
                             black: 'D'
                         },
                         moves: [],
-                        startingPositions: [
-                            {
-                                playerColor: 'white',
-                                positions: [['b', 1]]
-                            },
-                            {
-                                playerColor: 'black',
-                                positions: [['b', 8]]
-                            }
-                        ]
+                        startingPositions: {
+                            white: [['b', 1]],
+                            black: [['b', 3]]
+                        }
                     }
                 ]
             };
@@ -368,16 +351,10 @@ describe('validateRulesConfiguration', () => {
                             white: 'f',
                             black: 'F'
                         },
-                        startingPositions: [
-                            {
-                                playerColor: 'white',
-                                positions: [['a', 1]]
-                            },
-                            {
-                                playerColor: 'black',
-                                positions: [['a', 3]]
-                            }
-                        ]
+                        startingPositions: {
+                            white: [['a', 1]],
+                            black: [['a', 3]]
+                        }
                     },
                     {
                         name: 'bar',
@@ -387,16 +364,10 @@ describe('validateRulesConfiguration', () => {
                             white: 'b',
                             black: 'B'
                         },
-                        startingPositions: [
-                            {
-                                playerColor: 'white',
-                                positions: [['c', 1]]
-                            },
-                            {
-                                playerColor: 'black',
-                                positions: [['c', 3]]
-                            }
-                        ]
+                        startingPositions: {
+                            white: [['c', 1]],
+                            black: [['c', 3]]
+                        }
                     }
                 ]
             };
@@ -418,16 +389,10 @@ describe('validateRulesConfiguration', () => {
                 pieces: [
                     {
                         ...genericPiece,
-                        startingPositions: [
-                            {
-                                playerColor: 'white',
-                                positions: [['a', 1]]
-                            },
-                            {
-                                playerColor: 'black',
-                                positions: [['a', 1]]
-                            }
-                        ]
+                        startingPositions: {
+                            white: [['a', 1]],
+                            black: [['a', 1]]
+                        }
                     }
                 ]
             };
@@ -453,12 +418,9 @@ describe('validateRulesConfiguration', () => {
                     pieces: [
                         {
                             ...genericPiece,
-                            startingPositions: [
-                                {
-                                    playerColor: 'white',
-                                    positions: [[file, rank]]
-                                }
-                            ]
+                            startingPositions: {
+                                white: [[file, rank]]
+                            }
                         }
                     ]
                 };

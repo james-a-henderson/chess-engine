@@ -39,22 +39,16 @@ export const testConfig: GameRules<['rook']> = {
                     captureAvailability: 'optional'
                 }
             ],
-            startingPositions: [
-                {
-                    playerColor: 'white',
-                    positions: [
-                        ['a', 1],
-                        ['h', 1]
-                    ]
-                },
-                {
-                    playerColor: 'black',
-                    positions: [
-                        ['a', 8],
-                        ['h', 8]
-                    ]
-                }
-            ]
+            startingPositions: {
+                white: [
+                    ['a', 1],
+                    ['h', 1]
+                ],
+                black: [
+                    ['a', 8],
+                    ['h', 8]
+                ]
+            }
         }
     ]
 };

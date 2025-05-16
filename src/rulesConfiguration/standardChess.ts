@@ -172,34 +172,28 @@ export const standardChessConfig: GameRules<
                     ]
                 }
             ],
-            startingPositions: [
-                {
-                    playerColor: 'white',
-                    positions: [
-                        ['a', 2],
-                        ['b', 2],
-                        ['c', 2],
-                        ['d', 2],
-                        ['e', 2],
-                        ['f', 2],
-                        ['g', 2],
-                        ['h', 2]
-                    ]
-                },
-                {
-                    playerColor: 'black',
-                    positions: [
-                        ['a', 7],
-                        ['b', 7],
-                        ['c', 7],
-                        ['d', 7],
-                        ['e', 7],
-                        ['f', 7],
-                        ['g', 7],
-                        ['h', 7]
-                    ]
-                }
-            ]
+            startingPositions: {
+                white: [
+                    ['a', 2],
+                    ['b', 2],
+                    ['c', 2],
+                    ['d', 2],
+                    ['e', 2],
+                    ['f', 2],
+                    ['g', 2],
+                    ['h', 2]
+                ],
+                black: [
+                    ['a', 7],
+                    ['b', 7],
+                    ['c', 7],
+                    ['d', 7],
+                    ['e', 7],
+                    ['f', 7],
+                    ['g', 7],
+                    ['h', 7]
+                ]
+            }
         },
         {
             name: 'king',
@@ -275,16 +269,10 @@ export const standardChessConfig: GameRules<
                     ]
                 }
             ],
-            startingPositions: [
-                {
-                    playerColor: 'white',
-                    positions: [['e', 1]]
-                },
-                {
-                    playerColor: 'black',
-                    positions: [['e', 8]]
-                }
-            ]
+            startingPositions: {
+                white: [['e', 1]],
+                black: [['e', 8]]
+            }
         },
         {
             name: 'queen',
@@ -302,16 +290,10 @@ export const standardChessConfig: GameRules<
                     captureAvailability: 'optional'
                 }
             ],
-            startingPositions: [
-                {
-                    playerColor: 'white',
-                    positions: [['d', 1]]
-                },
-                {
-                    playerColor: 'black',
-                    positions: [['d', 8]]
-                }
-            ]
+            startingPositions: {
+                white: [['d', 1]],
+                black: [['d', 8]]
+            }
         },
         {
             name: 'rook',
@@ -329,22 +311,16 @@ export const standardChessConfig: GameRules<
                     captureAvailability: 'optional'
                 }
             ],
-            startingPositions: [
-                {
-                    playerColor: 'white',
-                    positions: [
-                        ['a', 1],
-                        ['h', 1]
-                    ]
-                },
-                {
-                    playerColor: 'black',
-                    positions: [
-                        ['a', 8],
-                        ['h', 8]
-                    ]
-                }
-            ]
+            startingPositions: {
+                white: [
+                    ['a', 1],
+                    ['h', 1]
+                ],
+                black: [
+                    ['a', 8],
+                    ['h', 8]
+                ]
+            }
         },
         {
             name: 'bishop',
@@ -367,22 +343,16 @@ export const standardChessConfig: GameRules<
                     captureAvailability: 'optional'
                 }
             ],
-            startingPositions: [
-                {
-                    playerColor: 'white',
-                    positions: [
-                        ['c', 1],
-                        ['f', 1]
-                    ]
-                },
-                {
-                    playerColor: 'black',
-                    positions: [
-                        ['c', 8],
-                        ['f', 8]
-                    ]
-                }
-            ]
+            startingPositions: {
+                white: [
+                    ['c', 1],
+                    ['f', 1]
+                ],
+                black: [
+                    ['c', 8],
+                    ['f', 8]
+                ]
+            }
         },
         {
             name: 'knight',
@@ -408,22 +378,16 @@ export const standardChessConfig: GameRules<
                     ]
                 }
             ],
-            startingPositions: [
-                {
-                    playerColor: 'white',
-                    positions: [
-                        ['b', 1],
-                        ['g', 1]
-                    ]
-                },
-                {
-                    playerColor: 'black',
-                    positions: [
-                        ['b', 8],
-                        ['g', 8]
-                    ]
-                }
-            ]
+            startingPositions: {
+                white: [
+                    ['b', 1],
+                    ['g', 1]
+                ],
+                black: [
+                    ['b', 8],
+                    ['g', 8]
+                ]
+            }
         }
     ]
 };

@@ -6,10 +6,7 @@ export type PieceConfig<PieceNames extends string[]> = {
     notation: string;
     displayCharacters: Partial<Record<PlayerColor, string>>;
     moves: Move<PieceNames>[];
-    startingPositions: {
-        playerColor: PlayerColor;
-        positions: BoardPosition[];
-    }[];
+    startingPositions: Partial<Record<PlayerColor, BoardPosition[]>>;
 };
 
 type MoveBase<PieceNames extends string[]> = {

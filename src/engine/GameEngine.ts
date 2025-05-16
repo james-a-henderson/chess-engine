@@ -3,7 +3,8 @@ import {
     GameRules,
     MAXIMUM_BOARD_SIZE,
     PieceConfig,
-    Player
+    Player,
+    PlayerColor
 } from '../types';
 import { Piece } from './piece';
 import {
@@ -68,27 +69,30 @@ export class GameEngine<PieceNames extends string[]> {
 
     private placePieces() {
         this._config.pieces.forEach((pieceConfig: PieceConfig<PieceNames>) => {
-            pieceConfig.startingPositions.forEach((startingPositions) => {
-                startingPositions.positions.forEach((position) => {
-                    const piece = new Piece(
-                        pieceConfig,
-                        startingPositions.playerColor,
-                        position
-                    );
-                    const [fileIndex, rankIndex] =
-                        this.coordinatesToIndicies(position);
-
-                    const boardPosition = this._board[fileIndex][rankIndex];
-
-                    if (boardPosition.piece) {
-                        throw new PieceConfigurationError(
-                            pieceConfig.name,
-                            'Multiple pieces cannot have the same starting position'
+            Object.entries(pieceConfig.startingPositions).forEach(
+                ([k, startingPositions]) => {
+                    const playerColor = k as PlayerColor;
+                    startingPositions.forEach((position) => {
+                        const piece = new Piece(
+                            pieceConfig,
+                            playerColor,
+                            position
                         );
-                    }
-                    boardPosition.piece = piece;
-                });
-            });
+                        const [fileIndex, rankIndex] =
+                            this.coordinatesToIndicies(position);
+
+                        const boardPosition = this._board[fileIndex][rankIndex];
+
+                        if (boardPosition.piece) {
+                            throw new PieceConfigurationError(
+                                pieceConfig.name,
+                                'Multiple pieces cannot have the same starting position'
+                            );
+                        }
+                        boardPosition.piece = piece;
+                    });
+                }
+            );
         });
     }
 
