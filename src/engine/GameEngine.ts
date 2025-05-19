@@ -14,6 +14,7 @@ import {
     InvalidSpaceError
 } from '../types/errors';
 import { fileLetterToIndex, indexToFileLetter } from '../common';
+import { styleText } from 'node:util';
 
 type BoardSpace<PieceNames extends string[]> = {
     position: BoardPosition;
@@ -37,6 +38,32 @@ export class GameEngine<PieceNames extends string[]> {
 
     get board() {
         return this._board;
+    }
+
+    //outputs the board to the console in a human-readable format
+    //note that the output quality may vary based on console settings
+    public printBoard() {
+        let outputString = '';
+        for (let i = this._config.board.height - 1; i >= 0; i--) {
+            let rowString = '';
+            for (let j = 0; j < this._config.board.width; j++) {
+                const space = this._board[j][i];
+
+                const backGroundColor =
+                    (i + j) % 2 === 0 ? 'bgGray' : 'bgWhite';
+
+                if (!space.piece) {
+                    rowString += styleText(backGroundColor, '   ');
+                } else {
+                    rowString += styleText(
+                        [backGroundColor, 'black'],
+                        ' ' + space.piece.getDisplayCharacter() + ' '
+                    );
+                }
+            }
+            outputString += rowString + '\n';
+        }
+        console.log(outputString);
     }
 
     private generateEmptyBoard(): Board<PieceNames> {
