@@ -10,7 +10,7 @@ import { assertBoardPosition } from '../testHelpers';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];
 
-describe('validateRulesConfiguration', () => {
+describe('initialize engine', () => {
     const genericPiece: PieceConfig<testPieceNames> = {
         name: 'testPiece',
         notation: 'A',
