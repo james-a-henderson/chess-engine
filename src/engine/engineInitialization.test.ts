@@ -1,11 +1,12 @@
 import { GameEngine } from './GameEngine';
 import { standardChessConfig, testConfig } from '../rulesConfiguration';
-import { GameRules, InvalidSpaceError, PieceConfig, Player } from '../types';
+import { GameRules, PieceConfig, Player } from '../types/configuration';
 import {
     BoardConfigurationError,
     PieceConfigurationError,
-    PlayerConfigurationError
-} from '../types/errors/validationErrors';
+    PlayerConfigurationError,
+    InvalidSpaceError
+} from '../types/errors';
 import { assertBoardPosition } from '../testHelpers';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];

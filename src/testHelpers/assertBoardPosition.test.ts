@@ -1,7 +1,7 @@
 //Tests for the tests, what fun!
 
 import { GameEngine } from '../engine';
-import { GameRules, PieceConfig } from '../types';
+import { GameRules, PieceConfig } from '../types/configuration';
 import { assertBoardPosition } from './assertBoardPosition';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];
@@ -14,16 +14,10 @@ describe('assertBoardPosition', () => {
             black: 't'
         },
         moves: [],
-        startingPositions: [
-            {
-                playerColor: 'white',
-                positions: [['a', 1]]
-            },
-            {
-                playerColor: 'black',
-                positions: [['a', 3]]
-            }
-        ]
+        startingPositions: {
+            white: [['a', 1]],
+            black: [['a', 3]]
+        }
     };
 
     const fooPiece: PieceConfig<testPieceNames> = {
@@ -34,16 +28,10 @@ describe('assertBoardPosition', () => {
             black: 'f'
         },
         moves: [],
-        startingPositions: [
-            {
-                playerColor: 'white',
-                positions: [['c', 1]]
-            },
-            {
-                playerColor: 'black',
-                positions: [['c', 3]]
-            }
-        ]
+        startingPositions: {
+            white: [['c', 1]],
+            black: [['c', 3]]
+        }
     };
 
     const barPiece: PieceConfig<testPieceNames> = {
@@ -54,16 +42,13 @@ describe('assertBoardPosition', () => {
             black: 'b'
         },
         moves: [],
-        startingPositions: [
-            {
-                playerColor: 'white',
-                positions: [
-                    ['b', 1],
-                    ['b', 2],
-                    ['b', 3]
-                ]
-            }
-        ]
+        startingPositions: {
+            white: [
+                ['b', 1],
+                ['b', 2],
+                ['b', 3]
+            ]
+        }
     };
 
     const genericRulesConfig: GameRules<testPieceNames> = {

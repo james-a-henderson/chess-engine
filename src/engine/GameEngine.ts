@@ -1,11 +1,10 @@
 import {
-    BoardPosition,
     GameRules,
-    MAXIMUM_BOARD_SIZE,
     PieceConfig,
     Player,
     PlayerColor
-} from '../types';
+} from '../types/configuration';
+import { BoardPosition, MAXIMUM_BOARD_SIZE } from '../types';
 import { Piece } from './piece';
 import {
     BoardConfigurationError,

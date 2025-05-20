@@ -1,4 +1,4 @@
-import { GameRules } from '../types';
+import { GameRules } from '../types/configuration';
 
 export const standardChessConfig: GameRules<
     ['pawn', 'king', 'queen', 'rook', 'bishop', 'knight']

@@ -16,7 +16,7 @@ type MoveBase<PieceNames extends string[]> = {
     moveConditions?: MoveCondition<PieceNames>[];
 };
 
-type StandardMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
+export type StandardMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'standard';
     directions: Direction[] | 'all';
     maxSpaces: number | 'unlimited';
@@ -28,7 +28,7 @@ type StandardMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     }[];
 };
 
-type JumpMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
+export type JumpMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'jump';
     jumpCoordinates: {
         horizontalSpaces: number;
@@ -36,19 +36,20 @@ type JumpMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     }[];
 };
 
-type PromotionMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
-    type: 'promotion';
-    directions: Direction[] | 'all';
-    maxSpaces: number | 'unlimited';
-    minSpaces?: number;
-    promotionSquares: {
-        playerColor: PlayerColor;
-        positions: BoardPosition[];
-    }[];
-    promotionTargets: (PieceNames[keyof PieceNames] & string)[];
-};
+export type PromotionMove<PieceNames extends string[]> =
+    MoveBase<PieceNames> & {
+        type: 'promotion';
+        directions: Direction[] | 'all';
+        maxSpaces: number | 'unlimited';
+        minSpaces?: number;
+        promotionSquares: {
+            playerColor: PlayerColor;
+            positions: BoardPosition[];
+        }[];
+        promotionTargets: (PieceNames[keyof PieceNames] & string)[];
+    };
 
-type CastleMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
+export type CastleMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'castle';
     targetPiece: {
         name: PieceNames[keyof PieceNames] & string;
@@ -62,7 +63,7 @@ type CastleMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     }[];
 };
 
-type Move<PieceNames extends string[]> =
+export type Move<PieceNames extends string[]> =
     | StandardMove<PieceNames>
     | JumpMove<PieceNames>
     | PromotionMove<PieceNames>
@@ -104,7 +105,7 @@ type MoveCondition<PieceNames extends string[]> =
     | ConditionOtherPieceHasNotMoved<PieceNames>;
 
 //directions are relative to the player's position
-type Direction =
+export type Direction =
     | 'forward'
     | 'backward'
     | 'left'

@@ -1,4 +1,4 @@
-import { GameRules } from '../types';
+import { GameRules } from '../types/configuration';
 
 export const testConfig: GameRules<['rook']> = {
     name: 'test',

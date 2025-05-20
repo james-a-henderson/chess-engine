@@ -1,4 +1,4 @@
-import { InvalidSpaceError } from '../types/errors/gameErrors';
+import { InvalidSpaceError } from '../types';
 import { fileLetterToIndex, indexToFileLetter } from './indexLetterConversion';
 
 describe('indexToFileLetter', () => {
