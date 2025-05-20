@@ -59,6 +59,25 @@ export class GameEngine<PieceNames extends string[]> {
         console.log(outputString);
     }
 
+    public getSpace(
+        position: BoardPosition | [number, number]
+    ): BoardSpace<PieceNames> {
+        let fileIndex: number;
+        let rankIndex: number;
+
+        if (typeof position[0] === 'string') {
+            [fileIndex, rankIndex] = this.coordinatesToIndicies(
+                position as BoardPosition
+            );
+        } else {
+            [fileIndex, rankIndex] = position;
+        }
+
+        this.assertValidIndicies([fileIndex, rankIndex]);
+
+        return this._board[fileIndex][rankIndex];
+    }
+
     private generateEmptyBoard(): Board<PieceNames> {
         if (
             !Number.isSafeInteger(this._config.board.width) ||
@@ -216,7 +235,21 @@ export class GameEngine<PieceNames extends string[]> {
      * For example, [0][4] would translate to a5
      * @param indicies
      */
-    private indiciesToCoordinates(indicies: [number, number]): BoardPosition {
+    public indiciesToCoordinates(indicies: [number, number]): BoardPosition {
+        this.assertValidIndicies(indicies);
+        return [indexToFileLetter(indicies[0]), indicies[1] + 1];
+    }
+
+    public coordinatesToIndicies(coordinates: BoardPosition): [number, number] {
+        this.assertValidCoordinates(coordinates);
+
+        const fileIndex = fileLetterToIndex(coordinates[0]);
+        const rankIndex = coordinates[1] - 1;
+
+        return [fileIndex, rankIndex];
+    }
+
+    private assertValidIndicies(indicies: [number, number]) {
         if (
             indicies[0] >= this._config.board.width ||
             indicies[1] >= this._config.board.height ||
@@ -225,12 +258,9 @@ export class GameEngine<PieceNames extends string[]> {
         ) {
             throw new InvalidSpaceError('Invalid space index');
         }
-        return [indexToFileLetter(indicies[0]), indicies[1] + 1];
     }
 
-    private coordinatesToIndicies(
-        coordinates: BoardPosition
-    ): [number, number] {
+    private assertValidCoordinates(coordinates: BoardPosition) {
         const fileIndex = fileLetterToIndex(coordinates[0]);
         const rankIndex = coordinates[1] - 1;
 
@@ -242,7 +272,5 @@ export class GameEngine<PieceNames extends string[]> {
         ) {
             throw new InvalidSpaceError('Invalid coordinates');
         }
-
-        return [fileIndex, rankIndex];
     }
 }
