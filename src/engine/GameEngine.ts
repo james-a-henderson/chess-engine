@@ -12,15 +12,9 @@ import {
     PlayerConfigurationError,
     InvalidSpaceError
 } from '../types/errors';
+import { BoardSpace, Board } from '../types/engine';
 import { fileLetterToIndex, indexToFileLetter } from '../common';
 import { styleText } from 'node:util';
-
-type BoardSpace<PieceNames extends string[]> = {
-    position: BoardPosition;
-    piece?: Piece<PieceNames>;
-};
-
-type Board<PieceNames extends string[]> = BoardSpace<PieceNames>[][];
 
 export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
