@@ -4,7 +4,8 @@ import {
     RectangularBoard,
     StandardMove,
     PlayerColor,
-    BoardPosition
+    BoardPosition,
+    InvalidSpaceError
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
@@ -496,6 +497,61 @@ describe('generateVerifyStandardMoveFunctions', () => {
                 );
             });
         });
+
+        describe('throws error when destination is invalid', () => {
+            test.each([
+                {
+                    startFile: 'a',
+                    startRank: 1,
+                    color: 'white',
+                    destinationFile: 'a',
+                    destinationRank: 10
+                },
+                {
+                    startFile: 'f',
+                    startRank: 2,
+                    color: 'black',
+                    destinationFile: 'k',
+                    destinationRank: 3
+                },
+                {
+                    startFile: 'g',
+                    startRank: 4,
+                    color: 'white',
+                    destinationFile: '',
+                    destinationRank: 5
+                },
+                {
+                    startFile: 'h',
+                    startRank: 8,
+                    color: 'black',
+                    destinationFile: 'a',
+                    destinationRank: -2
+                }
+            ])(
+                'Throws error when destination is invalid space $destinationFile$destinationRank',
+                ({
+                    startFile,
+                    startRank,
+                    color,
+                    destinationFile,
+                    destinationRank
+                }: {
+                    startFile: string;
+                    startRank: number;
+                    color: string;
+                    destinationFile: string;
+                    destinationRank: number;
+                }) => {
+                    generateThrowsErrorWhenDestinationIsInvalidTest(
+                        testForwardMove,
+                        color as PlayerColor,
+                        [startFile, startRank],
+                        [destinationFile, destinationRank]
+                    );
+                }
+            );
+        });
     });
 
     describe('backward move', () => {
@@ -910,6 +966,61 @@ describe('generateVerifyStandardMoveFunctions', () => {
                 );
             });
         });
+
+        describe('throws error when destination is invalid', () => {
+            test.each([
+                {
+                    startFile: 'a',
+                    startRank: 1,
+                    color: 'white',
+                    destinationFile: 'a',
+                    destinationRank: 10
+                },
+                {
+                    startFile: 'f',
+                    startRank: 2,
+                    color: 'black',
+                    destinationFile: 'k',
+                    destinationRank: 3
+                },
+                {
+                    startFile: 'g',
+                    startRank: 4,
+                    color: 'white',
+                    destinationFile: '',
+                    destinationRank: 5
+                },
+                {
+                    startFile: 'h',
+                    startRank: 8,
+                    color: 'black',
+                    destinationFile: 'a',
+                    destinationRank: -2
+                }
+            ])(
+                'Throws error when destination is invalid space $destinationFile$destinationRank',
+                ({
+                    startFile,
+                    startRank,
+                    color,
+                    destinationFile,
+                    destinationRank
+                }: {
+                    startFile: string;
+                    startRank: number;
+                    color: string;
+                    destinationFile: string;
+                    destinationRank: number;
+                }) => {
+                    generateThrowsErrorWhenDestinationIsInvalidTest(
+                        testBackwardMove,
+                        color as PlayerColor,
+                        [startFile, startRank],
+                        [destinationFile, destinationRank]
+                    );
+                }
+            );
+        });
     });
 });
 
@@ -1086,4 +1197,43 @@ function generateSameColorPieceOnDestinationTest(
     const moveFunction = verifyMoveFunctions[0];
 
     expect(moveFunction(engine, piece, destinationPosition)).toEqual(expected);
+}
+
+function generateThrowsErrorWhenDestinationIsInvalidTest(
+    moveConfig: StandardMove<testPieceNames>,
+    playerColor: PlayerColor,
+    startingPosition: BoardPosition,
+    destinationPosition: BoardPosition
+) {
+    const pieceConfig: PieceConfig<testPieceNames> = {
+        name: 'generic',
+        notation: 'P',
+        displayCharacters: {
+            white: 'P',
+            black: 'p'
+        },
+        moves: [moveConfig],
+        startingPositions: {
+            [playerColor]: [startingPosition]
+        }
+    };
+
+    const config: GameRules<testPieceNames> = {
+        ...rulesConfig,
+        pieces: [pieceConfig]
+    };
+    const engine = new GameEngine(config);
+    const piece = engine.getSpace(startingPosition).piece!;
+
+    const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
+        moveConfig,
+        playerColor,
+        boardConfig
+    );
+    expect(verifyMoveFunctions).toHaveLength(1);
+    const moveFunction = verifyMoveFunctions[0];
+
+    expect(() => moveFunction(engine, piece, destinationPosition)).toThrow(
+        InvalidSpaceError
+    );
 }
