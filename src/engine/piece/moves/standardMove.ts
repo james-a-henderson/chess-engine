@@ -18,7 +18,8 @@ export function generateVerifyStandardMoveFunctions<
     boardConfig: RectangularBoard
 ): verifyLegalMoveFunction<PieceNames>[] {
     if (move.alternateCaptureLocations) {
-        throw new Error('alternate capture locations not supported yet');
+        //todo: add alternate capture locations
+        return [];
     }
 
     const directions: Direction[] =
@@ -89,8 +90,7 @@ export function generateVerifyStandardMoveFunctions<
                     );
                 }
                 break;
-            default:
-                throw new Error('Other move directions not supported');
+            //todo: implement other move directions
         }
     }
 

@@ -4,6 +4,7 @@ import {
     PlayerColor,
     RectangularBoard
 } from '../../types/configuration';
+import { generateVerifyLegalMoveFunctions } from './moves';
 
 export class Piece<PieceNames extends string[]> {
     private _config: PieceConfig<PieceNames>;
@@ -42,11 +43,15 @@ export class Piece<PieceNames extends string[]> {
         return this._config.displayCharacters[this._playerColor]!;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private registerMoves(boardConfig: RectangularBoard) {
-        //commented out because these functions aren't fully implemented, and will throw errors
-        // this._config.moves.forEach((move) => {
-        //     this._verifyLegalMoveFunctions.push(...generateVerifyLegalMoveFunctions(move, this._playerColor, boardConfig))
-        // })
+        this._config.moves.forEach((move) => {
+            this._verifyLegalMoveFunctions.push(
+                ...generateVerifyLegalMoveFunctions(
+                    move,
+                    this._playerColor,
+                    boardConfig
+                )
+            );
+        });
     }
 }
