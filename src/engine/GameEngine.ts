@@ -115,7 +115,8 @@ export class GameEngine<PieceNames extends string[]> {
                         const piece = new Piece(
                             pieceConfig,
                             playerColor,
-                            position
+                            position,
+                            this._config.board
                         );
                         const [fileIndex, rankIndex] =
                             this.coordinatesToIndicies(position);

@@ -69,7 +69,7 @@ export type Move<PieceNames extends string[]> =
     | PromotionMove<PieceNames>
     | CastleMove<PieceNames>;
 
-type CaptureAvailability = 'optional' | 'required' | 'forbidden';
+export type CaptureAvailability = 'optional' | 'required' | 'forbidden';
 
 type MoveConditionBase = {
     condition: string;
