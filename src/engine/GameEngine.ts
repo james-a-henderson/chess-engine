@@ -132,6 +132,25 @@ export class GameEngine<PieceNames extends string[]> {
 
         destinationSpace.piece = targetSpace.piece;
         targetSpace.piece = undefined;
+        this.updateCurrentPlayer();
+    }
+
+    private updateCurrentPlayer() {
+        let currentPlayerIndex = this._players.findIndex((player: Player) => {
+            return player.color === this._currentPlayer;
+        });
+
+        if (currentPlayerIndex === -1) {
+            //can't find current player
+            throw new Error('Cannot find current player');
+        }
+
+        currentPlayerIndex++;
+        if (currentPlayerIndex >= this._players.length) {
+            currentPlayerIndex = 0;
+        }
+
+        this._currentPlayer = this._players[currentPlayerIndex].color;
     }
 
     private capturePiece(position: BoardPosition) {

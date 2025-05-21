@@ -141,4 +141,30 @@ describe('GameEngine gameplay', () => {
             expect(engine.capturedPieces.black![0]).toEqual('foo');
         });
     });
+
+    describe('updateCurrentPlayer', () => {
+        let engine: GameEngine<testPieceNames>;
+
+        beforeEach(() => {
+            engine = new GameEngine(testConfig);
+        });
+        test('current player starts as white', () => {
+            expect(engine.currentPlayer).toEqual('white');
+        });
+
+        test('current player is black after one move', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+            engine.makeMove(['a', 1], ['a', 2]);
+            expect(engine.currentPlayer).toEqual('black');
+        });
+
+        test('current player is white after two moves', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+            engine.makeMove(['a', 1], ['a', 2]);
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+            engine.makeMove(['a', 8], ['a', 3]);
+
+            expect(engine.currentPlayer).toEqual('white');
+        });
+    });
 });
