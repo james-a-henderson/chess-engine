@@ -20,17 +20,30 @@ export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
     private _board: Board<PieceNames>;
     private _config: GameRules<PieceNames>;
+    private _capturedPieces: Partial<Record<PlayerColor, PieceNames[]>> = {};
+    private _currentPlayer: PlayerColor;
 
     constructor(rules: GameRules<PieceNames>) {
         this._config = rules;
         this._board = this.generateEmptyBoard();
         this._players = this.validatePlayerConfiguration();
+
+        this._currentPlayer = this._players[0].color;
+
+        this._players.forEach((player: Player) => {
+            this._capturedPieces[player.color] = [];
+        });
+
         this.registerPieces();
         this.placePieces();
     }
 
     get board() {
         return this._board;
+    }
+
+    get currentPlayer() {
+        return this._currentPlayer;
     }
 
     //outputs the board to the console in a human-readable format

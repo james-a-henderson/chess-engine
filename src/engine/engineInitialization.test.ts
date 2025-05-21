@@ -218,6 +218,41 @@ describe('initialize engine', () => {
                 PlayerConfigurationError
             );
         });
+
+        test.each([
+            [
+                [
+                    { color: 'white', order: 0 } as Player,
+                    { color: 'black', order: 1 } as Player
+                ],
+                'white'
+            ],
+            [
+                [
+                    { color: 'white', order: 10 } as Player,
+                    { color: 'black', order: 1 } as Player
+                ],
+                'black'
+            ],
+            [
+                [
+                    { color: 'white', order: 5 } as Player,
+                    { color: 'black', order: 100 } as Player
+                ],
+                'white'
+            ]
+        ])(
+            'player configuration %o has starting player %s',
+            (players: Player[], expected: string) => {
+                const config: GameRules<testPieceNames> = {
+                    ...genericRulesConfig,
+                    players: players
+                };
+
+                const engine = new GameEngine(config);
+                expect(engine.currentPlayer).toEqual(expected);
+            }
+        );
     });
 
     describe('piece config', () => {
