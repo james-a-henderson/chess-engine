@@ -1,0 +1,144 @@
+import { GameRules, IllegalMoveError, PieceConfig } from '../types';
+import { GameEngine } from './GameEngine';
+import { Piece } from './piece';
+
+type testPieceNames = ['foo'];
+const testPiece: PieceConfig<testPieceNames> = {
+    name: 'foo',
+    displayCharacters: {
+        white: 'F',
+        black: 'f'
+    },
+    notation: 'F',
+    moves: [],
+    startingPositions: {
+        white: [
+            ['a', 1],
+            ['b', 1]
+        ],
+        black: [
+            ['a', 8],
+            ['b', 8]
+        ]
+    }
+};
+const testConfig: GameRules<testPieceNames> = {
+    name: 'test',
+    players: [
+        {
+            color: 'white',
+            order: 0
+        },
+        {
+            color: 'black',
+            order: 1
+        }
+    ],
+    board: {
+        height: 8,
+        width: 8
+    },
+    winConditions: [],
+    drawConditions: [],
+    pieces: [testPiece]
+};
+
+describe('GameEngine gameplay', () => {
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
+
+    describe('verifyMove', () => {
+        let engine: GameEngine<testPieceNames>;
+
+        beforeEach(() => {
+            engine = new GameEngine(testConfig);
+        });
+
+        test('returns false if target space does not have a piece', () => {
+            expect(engine.verifyMove(['d', 5], ['a', 3])).toEqual(false);
+        });
+
+        test('returns false if piece color does not match current player color', () => {
+            expect(engine.verifyMove(['a', 8], ['a', 7])).toEqual(false);
+        });
+
+        test('returns false if target piece verifyMove function returns false', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                false
+            );
+            expect(engine.verifyMove(['a', 1], ['a', 2])).toEqual(false);
+        });
+
+        test('returns true if target piece verifyMove function returns true', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+            expect(engine.verifyMove(['a', 1], ['a', 2])).toEqual(true);
+        });
+    });
+
+    describe('makeMove', () => {
+        let engine: GameEngine<testPieceNames>;
+
+        beforeEach(() => {
+            engine = new GameEngine(testConfig);
+        });
+        test('throws error if move is not valid', () => {
+            expect(() => {
+                engine.makeMove(['d', 5], ['a', 4]);
+            }).toThrow(IllegalMoveError);
+        });
+
+        test('destination space contains piece after move', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+
+            expect(engine.getSpace(['a', 2]).piece).toBeUndefined();
+
+            engine.makeMove(['a', 1], ['a', 2]);
+
+            expect(engine.getSpace(['a', 2]).piece?.pieceName).toEqual('foo');
+            expect(engine.getSpace(['a', 2]).piece?.playerColor).toEqual(
+                'white'
+            );
+        });
+
+        test('original space does not contain piece after move', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+
+            expect(engine.getSpace(['a', 1]).piece?.pieceName).toEqual('foo');
+            expect(engine.getSpace(['a', 1]).piece?.playerColor).toEqual(
+                'white'
+            );
+
+            engine.makeMove(['a', 1], ['a', 2]);
+
+            expect(engine.getSpace(['a', 1]).piece).toBeUndefined();
+        });
+
+        test('destination space contains piece after capture move', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+
+            expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual('foo');
+            expect(engine.getSpace(['a', 8]).piece?.playerColor).toEqual(
+                'black'
+            );
+
+            engine.makeMove(['a', 1], ['a', 8]);
+
+            expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual('foo');
+            expect(engine.getSpace(['a', 8]).piece?.playerColor).toEqual(
+                'white'
+            );
+        });
+
+        test('captured piece added to capturedPieces after capture', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+
+            expect(engine.capturedPieces.black).toHaveLength(0);
+
+            engine.makeMove(['a', 1], ['a', 8]);
+
+            expect(engine.capturedPieces.black).toHaveLength(1);
+            expect(engine.capturedPieces.black![0]).toEqual('foo');
+        });
+    });
+});

@@ -13,3 +13,11 @@ export class InvalidSpaceError extends GameError {
         Object.setPrototypeOf(this, InvalidSpaceError.prototype);
     }
 }
+
+export class IllegalMoveError extends GameError {
+    constructor(message: string) {
+        super(message);
+        this.name = 'InvalidMoveError';
+        Object.setPrototypeOf(this, IllegalMoveError.prototype);
+    }
+}

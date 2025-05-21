@@ -4,6 +4,7 @@ import {
     PlayerColor,
     RectangularBoard
 } from '../../types/configuration';
+import { GameEngine } from '../GameEngine';
 import { generateVerifyLegalMoveFunctions } from './moves';
 
 export class Piece<PieceNames extends string[]> {
@@ -38,9 +39,28 @@ export class Piece<PieceNames extends string[]> {
         return this._position;
     }
 
+    set position(position: BoardPosition) {
+        this._position = position;
+    }
+
     public getDisplayCharacter(): string {
         //we check in the game engine to make sure the display character player colors exist
         return this._config.displayCharacters[this._playerColor]!;
+    }
+
+    public verifyMove(
+        engine: GameEngine<PieceNames>,
+        destination: BoardPosition
+    ): boolean {
+        this._verifyLegalMoveFunctions.forEach((func) => {
+            if (func(engine, this, destination)) {
+                //move is legal if one move function returns true
+                //todo: ensure no move conflict
+                return true;
+            }
+        });
+
+        return false;
     }
 
     private registerMoves(boardConfig: RectangularBoard) {

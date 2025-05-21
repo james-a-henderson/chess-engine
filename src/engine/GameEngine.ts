@@ -10,7 +10,8 @@ import {
     BoardConfigurationError,
     PieceConfigurationError,
     PlayerConfigurationError,
-    InvalidSpaceError
+    InvalidSpaceError,
+    IllegalMoveError
 } from '../types/errors';
 import { BoardSpace, Board } from '../types/engine';
 import { fileLetterToIndex, indexToFileLetter } from '../common';
@@ -44,6 +45,10 @@ export class GameEngine<PieceNames extends string[]> {
 
     get currentPlayer() {
         return this._currentPlayer;
+    }
+
+    get capturedPieces() {
+        return this._capturedPieces;
     }
 
     //outputs the board to the console in a human-readable format
@@ -89,6 +94,58 @@ export class GameEngine<PieceNames extends string[]> {
         this.assertValidIndicies([fileIndex, rankIndex]);
 
         return this._board[fileIndex][rankIndex];
+    }
+
+    public verifyMove(
+        targetPosition: BoardPosition,
+        destinationPosition: BoardPosition
+    ): boolean {
+        const targetSpace = this.getSpace(targetPosition);
+
+        if (!targetSpace.piece) {
+            return false;
+        }
+
+        if (targetSpace.piece.playerColor !== this._currentPlayer) {
+            return false;
+        }
+
+        return targetSpace.piece.verifyMove(this, destinationPosition);
+    }
+
+    public makeMove(
+        targetPosition: BoardPosition,
+        destinationPosition: BoardPosition
+    ) {
+        if (!this.verifyMove(targetPosition, destinationPosition)) {
+            throw new IllegalMoveError('Move is not legal');
+        }
+
+        const targetSpace = this.getSpace(targetPosition);
+        const destinationSpace = this.getSpace(destinationPosition);
+
+        if (destinationSpace.piece) {
+            //we assume if we get to this point, the capture is valid
+            //todo: handle en passant capture
+            this.capturePiece(destinationPosition);
+        }
+
+        destinationSpace.piece = targetSpace.piece;
+        targetSpace.piece = undefined;
+    }
+
+    private capturePiece(position: BoardPosition) {
+        const space = this.getSpace(position);
+
+        if (!space.piece) {
+            throw new IllegalMoveError('Cannot capture an empty space');
+        }
+
+        this._capturedPieces[space.piece.playerColor]?.push(
+            space.piece.pieceName as PieceNames
+        );
+
+        space.piece = undefined;
     }
 
     private generateEmptyBoard(): Board<PieceNames> {
