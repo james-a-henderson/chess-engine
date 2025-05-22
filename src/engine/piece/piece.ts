@@ -52,13 +52,13 @@ export class Piece<PieceNames extends string[]> {
         engine: GameEngine<PieceNames>,
         destination: BoardPosition
     ): boolean {
-        this._verifyLegalMoveFunctions.forEach((func) => {
+        for (const func of this._verifyLegalMoveFunctions) {
             if (func(engine, this, destination)) {
                 //move is legal if one move function returns true
                 //todo: ensure no move conflict
                 return true;
             }
-        });
+        }
 
         return false;
     }
