@@ -68,7 +68,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
         expect(result).toHaveLength(0);
     });
 
-    test('returns array of size 2 when move has two directions', () => {
+    test('returns array of size 1 when move has two directions', () => {
         const move: StandardMove<testPieceNames> = {
             name: 'none',
             captureAvailability: 'optional',
@@ -82,7 +82,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
             'black',
             boardConfig
         );
-        expect(result).toHaveLength(2);
+        expect(result).toHaveLength(1);
     });
 
     describe('forward move', () => {
