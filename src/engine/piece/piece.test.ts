@@ -6,8 +6,8 @@ const generateVerifyLegalMoveFunctionsMock = jest.fn();
 
 jest.mock('./moves', () => {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         generateVerifyLegalMoveFunctions: () =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             generateVerifyLegalMoveFunctionsMock()
     };
 });
@@ -37,6 +37,11 @@ describe('piece', () => {
         }
     };
 
+    const pieceConfigNoMoves: PieceConfig<testPieceNames> = {
+        ...pieceConfig,
+        moves: []
+    };
+
     const boardConfig = {
         height: 8,
         width: 8
@@ -52,7 +57,7 @@ describe('piece', () => {
     describe('getDisplayCharacter', () => {
         test('returns correct character when player is white', () => {
             const piece = new Piece(
-                pieceConfig,
+                pieceConfigNoMoves,
                 'white',
                 ['a', 1],
                 boardConfig
@@ -62,7 +67,7 @@ describe('piece', () => {
 
         test('returns correct character when player is black', () => {
             const piece = new Piece(
-                pieceConfig,
+                pieceConfigNoMoves,
                 'black',
                 ['a', 8],
                 boardConfig
@@ -80,11 +85,12 @@ describe('piece', () => {
         };
 
         test('returns false with no moves', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                moves: []
-            };
-            const piece = new Piece(config, 'white', ['a', 1], boardConfig);
+            const piece = new Piece(
+                pieceConfigNoMoves,
+                'white',
+                ['a', 1],
+                boardConfig
+            );
             const result = piece.verifyMove({} as GameEngine<testPieceNames>, [
                 'a',
                 4
