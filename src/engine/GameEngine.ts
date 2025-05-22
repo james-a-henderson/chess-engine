@@ -130,6 +130,8 @@ export class GameEngine<PieceNames extends string[]> {
             this.capturePiece(destinationPosition);
         }
 
+        targetSpace.piece!.position = targetPosition;
+
         destinationSpace.piece = targetSpace.piece;
         targetSpace.piece = undefined;
         this.updateCurrentPlayer();
