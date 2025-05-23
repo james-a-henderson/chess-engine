@@ -50,6 +50,22 @@ const rulesConfig: GameRules<testPieceNames> = {
     pieces: [] //override on tests
 };
 
+const testForwardMove: StandardMove<testPieceNames> = {
+    type: 'standard',
+    name: 'forward',
+    directions: ['forward'],
+    maxSpaces: 'unlimited',
+    captureAvailability: 'optional'
+};
+
+const testBackwardMove: StandardMove<testPieceNames> = {
+    type: 'standard',
+    name: 'backward',
+    directions: ['backward'],
+    maxSpaces: 'unlimited',
+    captureAvailability: 'optional'
+};
+
 describe('generateVerifyStandardMoveFunctions', () => {
     test('returns empty array when move has no directions', () => {
         const move: StandardMove<testPieceNames> = {
@@ -85,484 +101,468 @@ describe('generateVerifyStandardMoveFunctions', () => {
         expect(result).toHaveLength(1);
     });
 
-    describe('forward move', () => {
-        const testForwardMove: StandardMove<testPieceNames> = {
-            type: 'standard',
-            name: 'forward',
-            directions: ['forward'],
-            maxSpaces: 'unlimited',
-            captureAvailability: 'optional'
-        };
+    describe('capture availability', () => {
+        describe('required', () => {
+            const testMoveCaptureRequired: StandardMove<testPieceNames> = {
+                ...testBackwardMove,
+                captureAvailability: 'required'
+            };
 
-        test.each([
-            {
-                startFile: 'a',
-                startRank: 1,
-                color: 'white',
-                destinationFile: 'a',
-                destinationRank: 2,
-                expected: true
-            },
-            {
-                startFile: 'c',
-                startRank: 5,
-                color: 'white',
-                destinationFile: 'c',
-                destinationRank: 4,
-                expected: false
-            },
-            {
-                startFile: 'd',
-                startRank: 1,
-                color: 'white',
-                destinationFile: 'c',
-                destinationRank: 2,
-                expected: false
-            },
-            {
-                startFile: 'a',
-                startRank: 1,
-                color: 'white',
-                destinationFile: 'a',
-                destinationRank: 3,
-                expected: false,
-                maxSpaces: 1
-            },
-            {
-                startFile: 'a',
-                startRank: 1,
-                color: 'white',
-                destinationFile: 'a',
-                destinationRank: 2,
-                expected: true,
-                maxSpaces: 1
-            },
-            {
-                startFile: 'a',
-                startRank: 1,
-                color: 'white',
-                destinationFile: 'a',
-                destinationRank: 2,
-                expected: false,
-                minSpaces: 2
-            },
-            {
-                startFile: 'a',
-                startRank: 1,
-                color: 'white',
-                destinationFile: 'a',
-                destinationRank: 3,
-                expected: true,
-                minSpaces: 2
-            },
-            {
-                startFile: 'h',
-                startRank: 7,
-                color: 'white',
-                destinationFile: 'h',
-                destinationRank: 8,
-                expected: true
-            },
-            {
-                startFile: 'e',
-                startRank: 4,
-                color: 'white',
-                destinationFile: 'e',
-                destinationRank: 4,
-                expected: false
-            },
-            {
-                startFile: 'a',
-                startRank: 8,
-                color: 'black',
-                destinationFile: 'a',
-                destinationRank: 2,
-                expected: true
-            },
-            {
-                startFile: 'c',
-                startRank: 5,
-                color: 'black',
-                destinationFile: 'c',
-                destinationRank: 6,
-                expected: false
-            },
-            {
-                startFile: 'd',
-                startRank: 3,
-                color: 'black',
-                destinationFile: 'c',
-                destinationRank: 2,
-                expected: false
-            },
-            {
-                startFile: 'a',
-                startRank: 8,
-                color: 'black',
-                destinationFile: 'a',
-                destinationRank: 5,
-                expected: false,
-                maxSpaces: 1
-            },
-            {
-                startFile: 'a',
-                startRank: 6,
-                color: 'black',
-                destinationFile: 'a',
-                destinationRank: 5,
-                expected: true,
-                maxSpaces: 1
-            },
-            {
-                startFile: 'a',
-                startRank: 2,
-                color: 'black',
-                destinationFile: 'a',
-                destinationRank: 1,
-                expected: false,
-                minSpaces: 2
-            },
-            {
-                startFile: 'a',
-                startRank: 3,
-                color: 'black',
-                destinationFile: 'a',
-                destinationRank: 1,
-                expected: true,
-                minSpaces: 2
-            },
-            {
-                startFile: 'h',
-                startRank: 2,
-                color: 'black',
-                destinationFile: 'h',
-                destinationRank: 1,
-                expected: true
-            },
-            {
-                startFile: 'e',
-                startRank: 4,
-                color: 'black',
-                destinationFile: 'e',
-                destinationRank: 4,
-                expected: false
-            }
-        ])(
-            'On otherwise empty board, piece at $startFile$startRank moving to $destinationFile$destinationRank has an expected result of $expected',
-            ({
-                startFile,
-                startRank,
-                color,
-                destinationFile,
-                destinationRank,
-                expected,
-                maxSpaces,
-                minSpaces
-            }: {
-                startFile: string;
-                startRank: number;
-                color: string;
-                destinationFile: string;
-                destinationRank: number;
-                expected: boolean;
-                maxSpaces?: number;
-                minSpaces?: number;
-            }) => {
-                const moveConfig: StandardMove<testPieceNames> = {
-                    ...testForwardMove,
-                    maxSpaces: maxSpaces ? maxSpaces : 'unlimited',
-                    minSpaces: minSpaces
-                };
-                generateMoveTest(
-                    moveConfig,
-                    color as PlayerColor,
-                    [startFile, startRank],
-                    [destinationFile, destinationRank],
-                    expected
-                );
-            }
-        );
-
-        describe('capture availability', () => {
-            describe('required', () => {
-                const testMoveCaptureRequired: StandardMove<testPieceNames> = {
-                    ...testForwardMove,
-                    captureAvailability: 'required'
-                };
-
-                test('returns true if piece is white and destination space contains black piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureRequired,
-                        'white',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns false if piece is white and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureRequired,
-                        'white',
-                        ['c', 3],
-                        ['c', 5],
-                        false
-                    );
-                });
-
-                test('returns true if piece is black and destination space contains white piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureRequired,
-                        'black',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-
-                test('returns false if piece is black and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureRequired,
-                        'black',
-                        ['c', 5],
-                        ['c', 3],
-                        false
-                    );
-                });
-            });
-
-            describe('optional', () => {
-                const testMoveCaptureOptional: StandardMove<testPieceNames> = {
-                    ...testForwardMove,
-                    captureAvailability: 'optional'
-                };
-
-                test('returns true if piece is white and destination space contains black piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureOptional,
-                        'white',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns true if piece is white and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureOptional,
-                        'white',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns true if piece is black and destination space contains white piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureOptional,
-                        'black',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-
-                test('returns true if piece is black and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureOptional,
-                        'black',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-            });
-
-            describe('forbidden', () => {
-                const testMoveCaptureForbidden: StandardMove<testPieceNames> = {
-                    ...testForwardMove,
-                    captureAvailability: 'forbidden'
-                };
-
-                test('returns false if piece is white and destination space contains black piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureForbidden,
-                        'white',
-                        ['c', 3],
-                        ['c', 5],
-                        false
-                    );
-                });
-
-                test('returns true if piece is white and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureForbidden,
-                        'white',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns false if piece is black and destination space contains white piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureForbidden,
-                        'black',
-                        ['c', 5],
-                        ['c', 3],
-                        false
-                    );
-                });
-
-                test('returns true if piece is black and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureForbidden,
-                        'black',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-            });
-        });
-
-        describe('Piece in between starting position and destination position', () => {
-            test('Returns false if piece is white and black piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testForwardMove,
-                    'white',
+            test('returns true if piece is black and destination space contains white piece', () => {
+                generateCaptureTest(
+                    testMoveCaptureRequired,
                     'black',
                     ['c', 3],
                     ['c', 5],
-                    ['c', 4],
+                    true
+                );
+            });
+
+            test('returns false if piece is black and destination space contains no piece', () => {
+                generateMoveTest(
+                    testMoveCaptureRequired,
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
                     false
                 );
             });
 
-            test('Returns false if piece is white and white piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testForwardMove,
+            test('returns true if piece is white and destination space contains black piece', () => {
+                generateCaptureTest(
+                    testMoveCaptureRequired,
                     'white',
-                    'white',
-                    ['a', 2],
-                    ['a', 8],
-                    ['a', 5],
-                    false
+                    ['c', 5],
+                    ['c', 3],
+                    true
                 );
             });
 
-            test('Returns false if piece is black and white piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testForwardMove,
-                    'black',
+            test('returns false if piece is white and destination space contains no piece', () => {
+                generateMoveTest(
+                    testMoveCaptureRequired,
                     'white',
-                    ['f', 6],
-                    ['f', 1],
-                    ['f', 4],
-                    false
-                );
-            });
-
-            test('Returns false if piece is black and black piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testForwardMove,
-                    'black',
-                    'black',
-                    ['b', 3],
-                    ['b', 1],
-                    ['b', 2],
+                    ['c', 5],
+                    ['c', 3],
                     false
                 );
             });
         });
 
-        describe('Piece of same color on destination', () => {
-            test('Returns false if piece is white and white piece is on destination', () => {
-                generateSameColorPieceOnDestinationTest(
-                    testForwardMove,
-                    'white',
-                    ['a', 4],
-                    ['a', 7],
-                    false
+        describe('optional', () => {
+            const testMoveCaptureOptional: StandardMove<testPieceNames> = {
+                ...testBackwardMove,
+                captureAvailability: 'optional'
+            };
+
+            test('returns true if piece is black and destination space contains white piece', () => {
+                generateCaptureTest(
+                    testMoveCaptureOptional,
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    true
                 );
             });
 
-            test('Returns false if piece is black and black piece is on destination', () => {
-                generateSameColorPieceOnDestinationTest(
-                    testForwardMove,
+            test('returns true if piece is black and destination space contains no piece', () => {
+                generateMoveTest(
+                    testMoveCaptureOptional,
                     'black',
-                    ['h', 4],
-                    ['h', 2],
-                    false
+                    ['c', 3],
+                    ['c', 5],
+                    true
+                );
+            });
+
+            test('returns true if piece is white and destination space contains black piece', () => {
+                generateCaptureTest(
+                    testMoveCaptureOptional,
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    true
+                );
+            });
+
+            test('returns true if piece is white and destination space contains no piece', () => {
+                generateMoveTest(
+                    testMoveCaptureOptional,
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    true
                 );
             });
         });
 
-        describe('throws error when destination is invalid', () => {
-            test.each([
-                {
-                    startFile: 'a',
-                    startRank: 1,
-                    color: 'white',
-                    destinationFile: 'a',
-                    destinationRank: 10
-                },
-                {
-                    startFile: 'f',
-                    startRank: 2,
-                    color: 'black',
-                    destinationFile: 'k',
-                    destinationRank: 3
-                },
-                {
-                    startFile: 'g',
-                    startRank: 4,
-                    color: 'white',
-                    destinationFile: '',
-                    destinationRank: 5
-                },
-                {
-                    startFile: 'h',
-                    startRank: 8,
-                    color: 'black',
-                    destinationFile: 'a',
-                    destinationRank: -2
-                }
-            ])(
-                'Throws error when destination is invalid space $destinationFile$destinationRank',
-                ({
-                    startFile,
-                    startRank,
-                    color,
-                    destinationFile,
-                    destinationRank
-                }: {
-                    startFile: string;
-                    startRank: number;
-                    color: string;
-                    destinationFile: string;
-                    destinationRank: number;
-                }) => {
-                    generateThrowsErrorWhenDestinationIsInvalidTest(
-                        testForwardMove,
-                        color as PlayerColor,
-                        [startFile, startRank],
-                        [destinationFile, destinationRank]
-                    );
-                }
+        describe('forbidden', () => {
+            const testMoveCaptureForbidden: StandardMove<testPieceNames> = {
+                ...testBackwardMove,
+                captureAvailability: 'forbidden'
+            };
+
+            test('returns false if piece is black and destination space contains white piece', () => {
+                generateCaptureTest(
+                    testMoveCaptureForbidden,
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    false
+                );
+            });
+
+            test('returns true if piece is black and destination space contains no piece', () => {
+                generateMoveTest(
+                    testMoveCaptureForbidden,
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    true
+                );
+            });
+
+            test('returns false if piece is white and destination space contains black piece', () => {
+                generateCaptureTest(
+                    testMoveCaptureForbidden,
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    false
+                );
+            });
+
+            test('returns true if piece is white and destination space contains no piece', () => {
+                generateMoveTest(
+                    testMoveCaptureForbidden,
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    true
+                );
+            });
+        });
+    });
+
+    describe('Piece in between starting position and destination position', () => {
+        test('Returns false if piece is black and white piece is in the way', () => {
+            generatePieceInBetweenTest(
+                testBackwardMove,
+                'black',
+                'white',
+                ['c', 3],
+                ['c', 5],
+                ['c', 4],
+                false
+            );
+        });
+
+        test('Returns false if piece is black and black piece is in the way', () => {
+            generatePieceInBetweenTest(
+                testBackwardMove,
+                'black',
+                'black',
+                ['a', 2],
+                ['a', 8],
+                ['a', 5],
+                false
+            );
+        });
+
+        test('Returns false if piece is white and black piece is in the way', () => {
+            generatePieceInBetweenTest(
+                testBackwardMove,
+                'white',
+                'black',
+                ['f', 6],
+                ['f', 1],
+                ['f', 4],
+                false
+            );
+        });
+
+        test('Returns false if piece is white and white piece is in the way', () => {
+            generatePieceInBetweenTest(
+                testBackwardMove,
+                'white',
+                'white',
+                ['b', 3],
+                ['b', 1],
+                ['b', 2],
+                false
             );
         });
     });
 
-    describe('backward move', () => {
-        const testBackwardMove: StandardMove<testPieceNames> = {
-            type: 'standard',
-            name: 'backward',
-            directions: ['backward'],
-            maxSpaces: 'unlimited',
-            captureAvailability: 'optional'
-        };
+    describe('Piece of same color on destination', () => {
+        test('Returns false if piece is white and white piece is on destination', () => {
+            generateSameColorPieceOnDestinationTest(
+                testForwardMove,
+                'white',
+                ['a', 4],
+                ['a', 7],
+                false
+            );
+        });
 
+        test('Returns false if piece is black and black piece is on destination', () => {
+            generateSameColorPieceOnDestinationTest(
+                testForwardMove,
+                'black',
+                ['h', 4],
+                ['h', 2],
+                false
+            );
+        });
+    });
+
+    describe('throws error when destination is invalid', () => {
+        test.each([
+            {
+                startFile: 'a',
+                startRank: 1,
+                color: 'white',
+                destinationFile: 'a',
+                destinationRank: 10
+            },
+            {
+                startFile: 'f',
+                startRank: 2,
+                color: 'black',
+                destinationFile: 'k',
+                destinationRank: 3
+            },
+            {
+                startFile: 'g',
+                startRank: 4,
+                color: 'white',
+                destinationFile: '',
+                destinationRank: 5
+            },
+            {
+                startFile: 'h',
+                startRank: 8,
+                color: 'black',
+                destinationFile: 'a',
+                destinationRank: -2
+            }
+        ])(
+            'Throws error when destination is invalid space $destinationFile$destinationRank',
+            ({
+                startFile,
+                startRank,
+                color,
+                destinationFile,
+                destinationRank
+            }: {
+                startFile: string;
+                startRank: number;
+                color: string;
+                destinationFile: string;
+                destinationRank: number;
+            }) => {
+                generateThrowsErrorWhenDestinationIsInvalidTest(
+                    testForwardMove,
+                    color as PlayerColor,
+                    [startFile, startRank],
+                    [destinationFile, destinationRank]
+                );
+            }
+        );
+    });
+
+    describe('forward move', () => {
+        test.each([
+            {
+                startFile: 'a',
+                startRank: 1,
+                color: 'white',
+                destinationFile: 'a',
+                destinationRank: 2,
+                expected: true
+            },
+            {
+                startFile: 'c',
+                startRank: 5,
+                color: 'white',
+                destinationFile: 'c',
+                destinationRank: 4,
+                expected: false
+            },
+            {
+                startFile: 'd',
+                startRank: 1,
+                color: 'white',
+                destinationFile: 'c',
+                destinationRank: 2,
+                expected: false
+            },
+            {
+                startFile: 'a',
+                startRank: 1,
+                color: 'white',
+                destinationFile: 'a',
+                destinationRank: 3,
+                expected: false,
+                maxSpaces: 1
+            },
+            {
+                startFile: 'a',
+                startRank: 1,
+                color: 'white',
+                destinationFile: 'a',
+                destinationRank: 2,
+                expected: true,
+                maxSpaces: 1
+            },
+            {
+                startFile: 'a',
+                startRank: 1,
+                color: 'white',
+                destinationFile: 'a',
+                destinationRank: 2,
+                expected: false,
+                minSpaces: 2
+            },
+            {
+                startFile: 'a',
+                startRank: 1,
+                color: 'white',
+                destinationFile: 'a',
+                destinationRank: 3,
+                expected: true,
+                minSpaces: 2
+            },
+            {
+                startFile: 'h',
+                startRank: 7,
+                color: 'white',
+                destinationFile: 'h',
+                destinationRank: 8,
+                expected: true
+            },
+            {
+                startFile: 'e',
+                startRank: 4,
+                color: 'white',
+                destinationFile: 'e',
+                destinationRank: 4,
+                expected: false
+            },
+            {
+                startFile: 'a',
+                startRank: 8,
+                color: 'black',
+                destinationFile: 'a',
+                destinationRank: 2,
+                expected: true
+            },
+            {
+                startFile: 'c',
+                startRank: 5,
+                color: 'black',
+                destinationFile: 'c',
+                destinationRank: 6,
+                expected: false
+            },
+            {
+                startFile: 'd',
+                startRank: 3,
+                color: 'black',
+                destinationFile: 'c',
+                destinationRank: 2,
+                expected: false
+            },
+            {
+                startFile: 'a',
+                startRank: 8,
+                color: 'black',
+                destinationFile: 'a',
+                destinationRank: 5,
+                expected: false,
+                maxSpaces: 1
+            },
+            {
+                startFile: 'a',
+                startRank: 6,
+                color: 'black',
+                destinationFile: 'a',
+                destinationRank: 5,
+                expected: true,
+                maxSpaces: 1
+            },
+            {
+                startFile: 'a',
+                startRank: 2,
+                color: 'black',
+                destinationFile: 'a',
+                destinationRank: 1,
+                expected: false,
+                minSpaces: 2
+            },
+            {
+                startFile: 'a',
+                startRank: 3,
+                color: 'black',
+                destinationFile: 'a',
+                destinationRank: 1,
+                expected: true,
+                minSpaces: 2
+            },
+            {
+                startFile: 'h',
+                startRank: 2,
+                color: 'black',
+                destinationFile: 'h',
+                destinationRank: 1,
+                expected: true
+            },
+            {
+                startFile: 'e',
+                startRank: 4,
+                color: 'black',
+                destinationFile: 'e',
+                destinationRank: 4,
+                expected: false
+            }
+        ])(
+            'On otherwise empty board, piece at $startFile$startRank moving to $destinationFile$destinationRank has an expected result of $expected',
+            ({
+                startFile,
+                startRank,
+                color,
+                destinationFile,
+                destinationRank,
+                expected,
+                maxSpaces,
+                minSpaces
+            }: {
+                startFile: string;
+                startRank: number;
+                color: string;
+                destinationFile: string;
+                destinationRank: number;
+                expected: boolean;
+                maxSpaces?: number;
+                minSpaces?: number;
+            }) => {
+                const moveConfig: StandardMove<testPieceNames> = {
+                    ...testForwardMove,
+                    maxSpaces: maxSpaces ? maxSpaces : 'unlimited',
+                    minSpaces: minSpaces
+                };
+                generateMoveTest(
+                    moveConfig,
+                    color as PlayerColor,
+                    [startFile, startRank],
+                    [destinationFile, destinationRank],
+                    expected
+                );
+            }
+        );
+    });
+
+    describe('backward move', () => {
         test.each([
             {
                 startFile: 'a',
@@ -751,276 +751,6 @@ describe('generateVerifyStandardMoveFunctions', () => {
                 );
             }
         );
-
-        describe('capture availability', () => {
-            describe('required', () => {
-                const testMoveCaptureRequired: StandardMove<testPieceNames> = {
-                    ...testBackwardMove,
-                    captureAvailability: 'required'
-                };
-
-                test('returns true if piece is black and destination space contains white piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureRequired,
-                        'black',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns false if piece is black and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureRequired,
-                        'black',
-                        ['c', 3],
-                        ['c', 5],
-                        false
-                    );
-                });
-
-                test('returns true if piece is white and destination space contains black piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureRequired,
-                        'white',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-
-                test('returns false if piece is white and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureRequired,
-                        'white',
-                        ['c', 5],
-                        ['c', 3],
-                        false
-                    );
-                });
-            });
-
-            describe('optional', () => {
-                const testMoveCaptureOptional: StandardMove<testPieceNames> = {
-                    ...testBackwardMove,
-                    captureAvailability: 'optional'
-                };
-
-                test('returns true if piece is black and destination space contains white piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureOptional,
-                        'black',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns true if piece is black and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureOptional,
-                        'black',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns true if piece is white and destination space contains black piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureOptional,
-                        'white',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-
-                test('returns true if piece is white and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureOptional,
-                        'white',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-            });
-
-            describe('forbidden', () => {
-                const testMoveCaptureForbidden: StandardMove<testPieceNames> = {
-                    ...testBackwardMove,
-                    captureAvailability: 'forbidden'
-                };
-
-                test('returns false if piece is black and destination space contains white piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureForbidden,
-                        'black',
-                        ['c', 3],
-                        ['c', 5],
-                        false
-                    );
-                });
-
-                test('returns true if piece is black and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureForbidden,
-                        'black',
-                        ['c', 3],
-                        ['c', 5],
-                        true
-                    );
-                });
-
-                test('returns false if piece is white and destination space contains black piece', () => {
-                    generateCaptureTest(
-                        testMoveCaptureForbidden,
-                        'white',
-                        ['c', 5],
-                        ['c', 3],
-                        false
-                    );
-                });
-
-                test('returns true if piece is white and destination space contains no piece', () => {
-                    generateMoveTest(
-                        testMoveCaptureForbidden,
-                        'white',
-                        ['c', 5],
-                        ['c', 3],
-                        true
-                    );
-                });
-            });
-        });
-
-        describe('Piece in between starting position and destination position', () => {
-            test('Returns false if piece is black and white piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testBackwardMove,
-                    'black',
-                    'white',
-                    ['c', 3],
-                    ['c', 5],
-                    ['c', 4],
-                    false
-                );
-            });
-
-            test('Returns false if piece is black and black piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testBackwardMove,
-                    'black',
-                    'black',
-                    ['a', 2],
-                    ['a', 8],
-                    ['a', 5],
-                    false
-                );
-            });
-
-            test('Returns false if piece is white and black piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testBackwardMove,
-                    'white',
-                    'black',
-                    ['f', 6],
-                    ['f', 1],
-                    ['f', 4],
-                    false
-                );
-            });
-
-            test('Returns false if piece is white and white piece is in the way', () => {
-                generatePieceInBetweenTest(
-                    testBackwardMove,
-                    'white',
-                    'white',
-                    ['b', 3],
-                    ['b', 1],
-                    ['b', 2],
-                    false
-                );
-            });
-        });
-
-        describe('Piece of same color on destination', () => {
-            test('Returns false if piece is black and black piece is on destination', () => {
-                generateSameColorPieceOnDestinationTest(
-                    testBackwardMove,
-                    'black',
-                    ['a', 4],
-                    ['a', 7],
-                    false
-                );
-            });
-
-            test('Returns false if piece is white and white piece is on destination', () => {
-                generateSameColorPieceOnDestinationTest(
-                    testBackwardMove,
-                    'white',
-                    ['h', 4],
-                    ['h', 2],
-                    false
-                );
-            });
-        });
-
-        describe('throws error when destination is invalid', () => {
-            test.each([
-                {
-                    startFile: 'a',
-                    startRank: 1,
-                    color: 'white',
-                    destinationFile: 'a',
-                    destinationRank: 10
-                },
-                {
-                    startFile: 'f',
-                    startRank: 2,
-                    color: 'black',
-                    destinationFile: 'k',
-                    destinationRank: 3
-                },
-                {
-                    startFile: 'g',
-                    startRank: 4,
-                    color: 'white',
-                    destinationFile: '',
-                    destinationRank: 5
-                },
-                {
-                    startFile: 'h',
-                    startRank: 8,
-                    color: 'black',
-                    destinationFile: 'a',
-                    destinationRank: -2
-                }
-            ])(
-                'Throws error when destination is invalid space $destinationFile$destinationRank',
-                ({
-                    startFile,
-                    startRank,
-                    color,
-                    destinationFile,
-                    destinationRank
-                }: {
-                    startFile: string;
-                    startRank: number;
-                    color: string;
-                    destinationFile: string;
-                    destinationRank: number;
-                }) => {
-                    generateThrowsErrorWhenDestinationIsInvalidTest(
-                        testBackwardMove,
-                        color as PlayerColor,
-                        [startFile, startRank],
-                        [destinationFile, destinationRank]
-                    );
-                }
-            );
-        });
     });
 });
 
