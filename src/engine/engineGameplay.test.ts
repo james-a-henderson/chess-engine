@@ -140,6 +140,13 @@ describe('GameEngine gameplay', () => {
             expect(engine.capturedPieces.black).toHaveLength(1);
             expect(engine.capturedPieces.black![0]).toEqual('foo');
         });
+
+        test("Update piece's internal position after move", () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(true);
+
+            engine.makeMove(['a', 1], ['a', 8]);
+            expect(engine.getSpace(['a', 8]).piece?.position).toEqual(['a', 8]);
+        });
     });
 
     describe('updateCurrentPlayer', () => {
