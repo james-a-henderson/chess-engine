@@ -2200,17 +2200,38 @@ describe('generateVerifyStandardMoveFunctions', () => {
                 startingPosition: ['d', 3],
                 destinationPosition: ['f', 1],
                 expected: false
-            },
-        ])('Multiple directions test %#', ({directions, color, startingPosition, destinationPosition, expected}: {directions: string[] | string, color: string, startingPosition: (number | string)[], destinationPosition:(string | number)[], expected: boolean}) => {
-            const moveConfig: StandardMove<testPieceNames> = {
-                ...testMoveBase,
-                name: 'testMove',
-                directions: directions as Direction[] | 'all'
-            };
+            }
+        ])(
+            'Multiple directions test %#',
+            ({
+                directions,
+                color,
+                startingPosition,
+                destinationPosition,
+                expected
+            }: {
+                directions: string[] | string;
+                color: string;
+                startingPosition: (number | string)[];
+                destinationPosition: (string | number)[];
+                expected: boolean;
+            }) => {
+                const moveConfig: StandardMove<testPieceNames> = {
+                    ...testMoveBase,
+                    name: 'testMove',
+                    directions: directions as Direction[] | 'all'
+                };
 
-            generateMoveTest(moveConfig, color as PlayerColor, startingPosition as BoardPosition, destinationPosition as BoardPosition, expected);
-        })
-    })
+                generateMoveTest(
+                    moveConfig,
+                    color as PlayerColor,
+                    startingPosition as BoardPosition,
+                    destinationPosition as BoardPosition,
+                    expected
+                );
+            }
+        );
+    });
 });
 
 function generateMoveTest(
