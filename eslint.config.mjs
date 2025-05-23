@@ -17,5 +17,15 @@ export default tseslint.config(
     {
         ignores: ['**/*.js', '**/*.mjs', '**/*.config.ts']
     },
-    eslintConfigPretteir
+    eslintConfigPretteir,
+    {
+        rules: {
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    caughtErrors: 'none'
+                }
+            ]
+        }
+    }
 );
