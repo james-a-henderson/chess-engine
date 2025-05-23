@@ -6,7 +6,8 @@ import {
     PlayerColor,
     BoardPosition,
     InvalidSpaceError,
-    CaptureAvailability
+    CaptureAvailability,
+    Direction
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
@@ -2106,6 +2107,110 @@ describe('generateVerifyStandardMoveFunctions', () => {
             }
         );
     });
+
+    describe('multiple directions', () => {
+        test.each([
+            {
+                directions: 'all',
+                color: 'white',
+                startingPosition: ['c', 3],
+                destinationPosition: ['d', 3],
+                expected: true
+            },
+            {
+                directions: 'all',
+                color: 'white',
+                startingPosition: ['c', 3],
+                destinationPosition: ['e', 5],
+                expected: true
+            },
+            {
+                directions: 'all',
+                color: 'black',
+                startingPosition: ['c', 3],
+                destinationPosition: ['a', 1],
+                expected: true
+            },
+            {
+                directions: 'all',
+                color: 'black',
+                startingPosition: ['c', 3],
+                destinationPosition: ['e', 4],
+                expected: false
+            },
+            {
+                directions: ['left', 'forward'],
+                color: 'black',
+                startingPosition: ['c', 3],
+                destinationPosition: ['d', 3],
+                expected: true
+            },
+            {
+                directions: ['left', 'forward'],
+                color: 'black',
+                startingPosition: ['c', 3],
+                destinationPosition: ['c', 2],
+                expected: true
+            },
+            {
+                directions: ['left', 'forward'],
+                color: 'black',
+                startingPosition: ['c', 3],
+                destinationPosition: ['b', 3],
+                expected: false
+            },
+            {
+                directions: ['left', 'forward'],
+                color: 'black',
+                startingPosition: ['c', 3],
+                destinationPosition: ['c', 4],
+                expected: false
+            },
+            {
+                directions: ['left', 'forward'],
+                color: 'black',
+                startingPosition: ['c', 3],
+                destinationPosition: ['d', 3],
+                expected: true
+            },
+            {
+                directions: ['leftForward', 'rightForward'],
+                color: 'white',
+                startingPosition: ['d', 3],
+                destinationPosition: ['c', 4],
+                expected: true
+            },
+            {
+                directions: ['leftForward', 'rightForward'],
+                color: 'white',
+                startingPosition: ['d', 3],
+                destinationPosition: ['f', 5],
+                expected: true
+            },
+            {
+                directions: ['leftForward', 'rightForward'],
+                color: 'white',
+                startingPosition: ['d', 3],
+                destinationPosition: ['c', 2],
+                expected: false
+            },
+            {
+                directions: ['leftForward', 'rightForward'],
+                color: 'white',
+                startingPosition: ['d', 3],
+                destinationPosition: ['f', 1],
+                expected: false
+            },
+        ])('Multiple directions test %#', ({directions, color, startingPosition, destinationPosition, expected}: {directions: string[] | string, color: string, startingPosition: (number | string)[], destinationPosition:(string | number)[], expected: boolean}) => {
+            const moveConfig: StandardMove<testPieceNames> = {
+                ...testMoveBase,
+                name: 'testMove',
+                directions: directions as Direction[] | 'all'
+            };
+
+            generateMoveTest(moveConfig, color as PlayerColor, startingPosition as BoardPosition, destinationPosition as BoardPosition, expected);
+        })
+    })
 });
 
 function generateMoveTest(
