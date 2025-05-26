@@ -372,6 +372,30 @@ export const standardChessConfig: GameRules<
                             verticalSpaces: 1
                         },
                         {
+                            horizontalSpaces: 2,
+                            verticalSpaces: -1
+                        },
+                        {
+                            horizontalSpaces: 1,
+                            verticalSpaces: -2
+                        },
+                        {
+                            horizontalSpaces: -1,
+                            verticalSpaces: -2
+                        },
+                        {
+                            horizontalSpaces: -2,
+                            verticalSpaces: -1
+                        },
+                        {
+                            horizontalSpaces: -2,
+                            verticalSpaces: 1
+                        },
+                        {
+                            horizontalSpaces: -1,
+                            verticalSpaces: 2
+                        },
+                        {
                             horizontalSpaces: 1,
                             verticalSpaces: 2
                         }
