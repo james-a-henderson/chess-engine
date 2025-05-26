@@ -112,11 +112,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
             type: 'standard'
         };
 
-        const result = generateVerifyStandardMoveFunctions(
-            move,
-            'white',
-            boardConfig
-        );
+        const result = generateVerifyStandardMoveFunctions(move, boardConfig);
         expect(result).toHaveLength(0);
     });
 
@@ -129,11 +125,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
             type: 'standard'
         };
 
-        const result = generateVerifyStandardMoveFunctions(
-            move,
-            'black',
-            boardConfig
-        );
+        const result = generateVerifyStandardMoveFunctions(move, boardConfig);
         expect(result).toHaveLength(1);
     });
 
@@ -2264,7 +2256,6 @@ function generateMoveTest(
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
         moveConfig,
-        playerColor,
         boardConfig
     );
     expect(verifyMoveFunctions).toHaveLength(1);
@@ -2310,7 +2301,6 @@ function generateCaptureTest(
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
         moveConfig,
-        playerColor,
         boardConfig
     );
     expect(verifyMoveFunctions).toHaveLength(1);
@@ -2355,7 +2345,6 @@ function generatePieceInBetweenTest(
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
         moveConfig,
-        testPieceColor,
         boardConfig
     );
     expect(verifyMoveFunctions).toHaveLength(1);
@@ -2399,7 +2388,6 @@ function generateSameColorPieceOnDestinationTest(
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
         moveConfig,
-        playerColor,
         boardConfig
     );
     expect(verifyMoveFunctions).toHaveLength(1);
@@ -2436,7 +2424,6 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
         moveConfig,
-        playerColor,
         boardConfig
     );
     expect(verifyMoveFunctions).toHaveLength(1);

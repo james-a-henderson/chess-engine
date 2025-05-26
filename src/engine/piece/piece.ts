@@ -66,11 +66,7 @@ export class Piece<PieceNames extends string[]> {
     private registerMoves(boardConfig: RectangularBoard) {
         this._config.moves.forEach((move) => {
             this._verifyLegalMoveFunctions.push(
-                ...generateVerifyLegalMoveFunctions(
-                    move,
-                    this._playerColor,
-                    boardConfig
-                )
+                ...generateVerifyLegalMoveFunctions(move, boardConfig)
             );
         });
     }

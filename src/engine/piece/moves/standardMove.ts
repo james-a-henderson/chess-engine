@@ -9,12 +9,12 @@ import {
 import { verifyLegalMoveFunction } from '../../../types/moves';
 import { GameEngine } from '../../GameEngine';
 import { Piece } from '../piece';
+import { pieceIsOnPosition, validateCaptureRules } from './helpers';
 
 export function generateVerifyStandardMoveFunctions<
     PieceNames extends string[]
 >(
     move: StandardMove<PieceNames>,
-    color: PlayerColor,
     boardConfig: RectangularBoard
 ): verifyLegalMoveFunction<PieceNames>[] {
     if (move.alternateCaptureLocations) {
@@ -134,33 +134,6 @@ function generateFunction<PieceNames extends string[]>(
     };
 }
 
-function validateCaptureRules<PieceNames extends string[]>(
-    piece: Piece<PieceNames>,
-    engine: GameEngine<PieceNames>,
-    destination: BoardPosition,
-    captureAvailability: CaptureAvailability
-): boolean {
-    const destinationSpace = engine.getSpace(destination);
-
-    if (destinationSpace.piece) {
-        const destinationPiece = destinationSpace.piece;
-        if (destinationPiece.playerColor === piece.playerColor) {
-            //cannot move a piece onto the same space as piece of same color
-            return false;
-        }
-
-        if (captureAvailability === 'forbidden') {
-            //captures not allowed
-            return false;
-        }
-    } else if (captureAvailability === 'required') {
-        //cannot move to empty space, must capture
-        return false;
-    }
-
-    return true;
-}
-
 function determineMoveDirection(
     currentFileIndex: number,
     currentRankIndex: number,
@@ -264,15 +237,6 @@ function calculateMoveLength(
             //diagonal move length is equivilent to the number of spaces moved horizontally or vertically
             return Math.abs(currentFileIndex - destinationFileIndex);
     }
-}
-
-function pieceIsOnPosition<PieceNames extends string[]>(
-    piece: Piece<PieceNames>,
-    position: BoardPosition
-): boolean {
-    return (
-        piece.position[0] === position[0] && piece.position[1] === position[1]
-    );
 }
 
 function* makeNextSpaceIterator(
