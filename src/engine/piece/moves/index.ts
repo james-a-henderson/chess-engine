@@ -1,1 +1,2 @@
-export * from './verifyLegalMove';
+export * from './verifyMove';
+export * from './restrictions';

@@ -5,7 +5,7 @@ import {
     RectangularBoard
 } from '../../types/configuration';
 import { GameEngine } from '../GameEngine';
-import { generateVerifyLegalMoveFunctions } from './moves';
+import { generateVerifyLegalMoveFunctions } from './moves/verifyMove';
 
 export class Piece<PieceNames extends string[]> {
     private _config: PieceConfig<PieceNames>;

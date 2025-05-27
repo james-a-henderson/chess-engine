@@ -2,7 +2,7 @@ import {
     Move,
     RectangularBoard,
     verifyLegalMoveFunction
-} from '../../../types';
+} from '../../../../types';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
 

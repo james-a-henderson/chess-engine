@@ -4,7 +4,7 @@ import { Piece } from './piece';
 
 const generateVerifyLegalMoveFunctionsMock = jest.fn();
 
-jest.mock('./moves', () => {
+jest.mock('./moves/verifyMove', () => {
     return {
         generateVerifyLegalMoveFunctions: () =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return

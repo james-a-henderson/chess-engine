@@ -5,9 +5,9 @@ import {
     moveConditionFunction,
     PlayerColor,
     verifyLegalMoveFunction
-} from '../../../types';
-import { GameEngine } from '../../GameEngine';
-import { Piece } from '../piece';
+} from '../../../../types';
+import { GameEngine } from '../../../GameEngine';
+import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
     pieceIsOnPosition,

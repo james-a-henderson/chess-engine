@@ -8,8 +8,8 @@ import {
     InvalidSpaceError,
     CaptureAvailability,
     Direction
-} from '../../../types';
-import { GameEngine } from '../../GameEngine';
+} from '../../../../types';
+import { GameEngine } from '../../../GameEngine';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
 
 type testPieceNames = ['generic', 'forward', 'dummy'];

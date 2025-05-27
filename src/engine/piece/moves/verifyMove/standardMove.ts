@@ -1,17 +1,17 @@
-import { BoardPosition } from '../../../types';
+import { BoardPosition } from '../../../../types';
 import {
     CaptureAvailability,
     Direction,
     PlayerColor,
     RectangularBoard,
     StandardMove
-} from '../../../types/configuration';
+} from '../../../../types/configuration';
 import {
     moveConditionFunction,
     verifyLegalMoveFunction
-} from '../../../types/moves';
-import { GameEngine } from '../../GameEngine';
-import { Piece } from '../piece';
+} from '../../../../types/moves';
+import { GameEngine } from '../../../GameEngine';
+import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
     pieceIsOnPosition,

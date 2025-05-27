@@ -5,8 +5,8 @@ import {
     PieceConfig,
     PlayerColor,
     RectangularBoard
-} from '../../../types';
-import { GameEngine } from '../../GameEngine';
+} from '../../../../types';
+import { GameEngine } from '../../../GameEngine';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
 
 type testPieceNames = ['foo'];
