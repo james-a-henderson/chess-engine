@@ -193,6 +193,49 @@ describe('integration tests', () => {
                     ['♙', '♙', '♙', '♙', ' ', '♙', '♙', '♙'],
                     ['♖', ' ', '♗', '♕', '♔', '♗', ' ', '♖']
                 ]
+            },
+            {
+                rulesConfig: standardChessConfig,
+                moves: [
+                    [
+                        ['e', 2],
+                        ['e', 4]
+                    ],
+                    [
+                        ['e', 7],
+                        ['e', 5]
+                    ],
+                    [
+                        ['g', 1],
+                        ['f', 3]
+                    ],
+                    [
+                        ['b', 8],
+                        ['c', 6]
+                    ],
+                    [
+                        ['f', 1],
+                        ['c', 4]
+                    ],
+                    [
+                        ['f', 8],
+                        ['c', 5]
+                    ],
+                    [
+                        ['b', 2],
+                        ['b', 4]
+                    ]
+                ] as gameMove[],
+                expectedBoard: [
+                    ['♜', ' ', '♝', '♛', '♚', ' ', '♞', '♜'],
+                    ['♟', '♟', '♟', '♟', ' ', '♟', '♟', '♟'],
+                    [' ', ' ', '♞', ' ', ' ', ' ', ' ', ' '],
+                    [' ', ' ', '♝', ' ', '♟', ' ', ' ', ' '],
+                    [' ', '♙', '♗', ' ', '♙', ' ', ' ', ' '],
+                    [' ', ' ', ' ', ' ', ' ', '♘', ' ', ' '],
+                    ['♙', ' ', '♙', '♙', ' ', '♙', '♙', '♙'],
+                    ['♖', '♘', '♗', '♕', '♔', ' ', ' ', '♖']
+                ]
             }
         ])(
             'Standard rules general test %#',
@@ -206,6 +249,37 @@ describe('integration tests', () => {
                 expectedBoard: (string | undefined)[][];
             }) => {
                 runGeneralTest(rulesConfig, moves, expectedBoard);
+            }
+        );
+
+        test.each([
+            {
+                rulesConfig: standardChessConfig,
+                moves: [
+                    [
+                        ['a', 2],
+                        ['a', 3]
+                    ],
+                    [
+                        ['c', 7],
+                        ['c', 6]
+                    ],
+                    [
+                        ['a', 3],
+                        ['a', 5]
+                    ]
+                ] as gameMove[]
+            }
+        ])(
+            'Standard rules error test %#',
+            <PieceNames extends string[]>({
+                rulesConfig,
+                moves
+            }: {
+                rulesConfig: GameRules<PieceNames>;
+                moves: gameMove[];
+            }) => {
+                runErrorTest(rulesConfig, moves);
             }
         );
     });
