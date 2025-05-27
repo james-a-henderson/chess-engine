@@ -7,3 +7,8 @@ export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
     destination: BoardPosition
 ) => boolean;
+
+export type moveConditionFunction<PieceNames extends string[]> = (
+    piece: Piece<PieceNames>,
+    engine: GameEngine<PieceNames>
+) => boolean;

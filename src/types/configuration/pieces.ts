@@ -99,7 +99,7 @@ type SpecificPreviousMove<PieceNames extends string[]> = MoveConditionBase & {
     }[];
 };
 
-type MoveCondition<PieceNames extends string[]> =
+export type MoveCondition<PieceNames extends string[]> =
     | ConditionFirstPieceMove
     | SpecificPreviousMove<PieceNames>
     | ConditionOtherPieceHasNotMoved<PieceNames>;

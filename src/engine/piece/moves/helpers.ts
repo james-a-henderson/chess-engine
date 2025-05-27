@@ -1,6 +1,12 @@
-import { BoardPosition, CaptureAvailability } from '../../../types';
+import {
+    BoardPosition,
+    CaptureAvailability,
+    MoveCondition,
+    moveConditionFunction
+} from '../../../types';
 import { GameEngine } from '../../GameEngine';
 import { Piece } from '../piece';
+import { firstPieceMove } from './restrictions';
 
 export function validateCaptureRules<PieceNames extends string[]>(
     piece: Piece<PieceNames>,
@@ -36,4 +42,23 @@ export function pieceIsOnPosition<PieceNames extends string[]>(
     return (
         piece.position[0] === position[0] && piece.position[1] === position[1]
     );
+}
+
+export function getMoveConditionFunctions<PieceNames extends string[]>(
+    conditions: MoveCondition<PieceNames>[]
+): moveConditionFunction<PieceNames>[] {
+    const conditionFunctions: moveConditionFunction<PieceNames>[] = [];
+
+    for (const condition of conditions) {
+        switch (condition.condition) {
+            case 'firstPieceMove':
+                conditionFunctions.push(firstPieceMove);
+                break;
+            case 'specificPreviousMove':
+            case 'otherPieceHasNotMoved':
+            //not implemented yet
+        }
+    }
+
+    return conditionFunctions;
 }

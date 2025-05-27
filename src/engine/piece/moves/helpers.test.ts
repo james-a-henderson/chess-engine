@@ -2,13 +2,19 @@ import {
     BoardPosition,
     CaptureAvailability,
     GameRules,
+    MoveCondition,
     PieceConfig,
     PlayerColor,
     RectangularBoard
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
 import { Piece } from '../piece';
-import { pieceIsOnPosition, validateCaptureRules } from './helpers';
+import {
+    getMoveConditionFunctions,
+    pieceIsOnPosition,
+    validateCaptureRules
+} from './helpers';
+import { firstPieceMove } from './restrictions';
 
 type testPieceNames = ['foo', 'bar'];
 
@@ -269,6 +275,25 @@ describe('helpers', () => {
                 expect(result).toEqual(expected);
             }
         );
+    });
+
+    describe('getMoveConditionFunctions', () => {
+        test('returns empty array with no conditions', () => {
+            const result = getMoveConditionFunctions([]);
+
+            expect(result).toHaveLength(0);
+        });
+
+        test('returns firstPieceMove function with ConditionFirstPieceMove input', () => {
+            const input = [
+                { condition: 'firstPieceMove' }
+            ] as MoveCondition<testPieceNames>[];
+
+            const result = getMoveConditionFunctions(input);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toEqual(firstPieceMove);
+        });
     });
 });
 
