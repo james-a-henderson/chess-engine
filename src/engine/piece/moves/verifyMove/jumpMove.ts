@@ -12,7 +12,7 @@ import {
     getMoveConditionFunctions,
     pieceIsOnPosition,
     validateCaptureRules
-} from './helpers';
+} from '../helpers';
 
 export function generateVerifyJumpMoveFunctions<PieceNames extends string[]>(
     move: JumpMove<PieceNames>

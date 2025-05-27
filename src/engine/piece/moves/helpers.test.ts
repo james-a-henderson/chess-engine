@@ -6,15 +6,15 @@ import {
     PieceConfig,
     PlayerColor,
     RectangularBoard
-} from '../../../../types';
-import { GameEngine } from '../../../GameEngine';
-import { Piece } from '../../piece';
+} from '../../../types';
+import { GameEngine } from '../../GameEngine';
+import { Piece } from '../piece';
 import {
     getMoveConditionFunctions,
     pieceIsOnPosition,
     validateCaptureRules
 } from './helpers';
-import { firstPieceMove } from '../restrictions';
+import { firstPieceMove } from './restrictions';
 
 type testPieceNames = ['foo', 'bar'];
 

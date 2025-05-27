@@ -3,10 +3,10 @@ import {
     CaptureAvailability,
     MoveCondition,
     moveConditionFunction
-} from '../../../../types';
-import { GameEngine } from '../../../GameEngine';
-import { Piece } from '../../piece';
-import { firstPieceMove } from '../restrictions';
+} from '../../../types';
+import { GameEngine } from '../../GameEngine';
+import { Piece } from '../piece';
+import { firstPieceMove } from './restrictions';
 
 export function validateCaptureRules<PieceNames extends string[]>(
     piece: Piece<PieceNames>,

@@ -16,7 +16,7 @@ import {
     getMoveConditionFunctions,
     pieceIsOnPosition,
     validateCaptureRules
-} from './helpers';
+} from '../helpers';
 
 export function generateVerifyStandardMoveFunctions<
     PieceNames extends string[]
