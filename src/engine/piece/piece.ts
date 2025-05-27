@@ -13,6 +13,7 @@ export class Piece<PieceNames extends string[]> {
     private _position: BoardPosition;
     private _verifyLegalMoveFunctions: verifyLegalMoveFunction<PieceNames>[] =
         [];
+    private _moveCount = 0;
 
     constructor(
         config: PieceConfig<PieceNames>,
@@ -41,6 +42,11 @@ export class Piece<PieceNames extends string[]> {
 
     set position(position: BoardPosition) {
         this._position = position;
+        this._moveCount++;
+    }
+
+    get moveCount() {
+        return this._moveCount;
     }
 
     public getDisplayCharacter(): string {

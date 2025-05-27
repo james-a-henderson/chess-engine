@@ -166,4 +166,43 @@ describe('piece', () => {
             expect(result).toEqual(false);
         });
     });
+
+    describe('moveCount', () => {
+        test('moveCount is initialized to 0', () => {
+            const piece = new Piece(
+                pieceConfigNoMoves,
+                'white',
+                ['a', 1],
+                boardConfig
+            );
+            expect(piece.moveCount).toEqual(0);
+        });
+
+        test('moveCount is 1 after one move', () => {
+            const piece = new Piece(
+                pieceConfigNoMoves,
+                'white',
+                ['a', 1],
+                boardConfig
+            );
+
+            piece.position = ['a', 2];
+            expect(piece.moveCount).toEqual(1);
+        });
+
+        test('moveCount is 3 after three moves', () => {
+            const piece = new Piece(
+                pieceConfigNoMoves,
+                'white',
+                ['a', 1],
+                boardConfig
+            );
+
+            piece.position = ['a', 2];
+            piece.position = ['a', 3];
+            piece.position = ['a', 4];
+
+            expect(piece.moveCount).toEqual(3);
+        });
+    });
 });
