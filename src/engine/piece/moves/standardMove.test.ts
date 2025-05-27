@@ -129,6 +129,53 @@ describe('generateVerifyStandardMoveFunctions', () => {
         expect(result).toHaveLength(1);
     });
 
+    test('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
+        const move: StandardMove<testPieceNames> = {
+            name: 'condition',
+            captureAvailability: 'optional',
+            directions: ['forward'],
+            maxSpaces: 'unlimited',
+            type: 'standard',
+            moveConditions: [
+                {
+                    condition: 'firstPieceMove'
+                }
+            ]
+        };
+
+        const pieceConfig: PieceConfig<testPieceNames> = {
+            name: 'generic',
+            notation: 'P',
+            displayCharacters: {
+                white: 'P',
+                black: 'p'
+            },
+            moves: [move],
+            startingPositions: {
+                white: [['a', 1]]
+            }
+        };
+
+        const config: GameRules<testPieceNames> = {
+            ...rulesConfig,
+            pieces: [pieceConfig]
+        };
+        const engine = new GameEngine(config);
+        const piece = engine.getSpace(['a', 1]).piece!;
+
+        const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
+            move,
+            boardConfig
+        );
+        expect(verifyMoveFunctions).toHaveLength(1);
+        const moveFunction = verifyMoveFunctions[0];
+
+        //move piece
+        piece.position = ['a', 2];
+        const result = moveFunction(engine, piece, ['a', 3]);
+        expect(result).toEqual(false);
+    });
+
     describe('Piece in between starting position and destination position', () => {
         test.each([
             {

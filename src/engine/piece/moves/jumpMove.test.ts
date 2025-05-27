@@ -7,7 +7,7 @@ import {
     RectangularBoard
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
-import { generateVerifyJumMoveFunctions } from './jumpMove';
+import { generateVerifyJumpMoveFunctions } from './jumpMove';
 
 type testPieceNames = ['foo'];
 
@@ -41,6 +41,54 @@ const rulesConfig: GameRules<testPieceNames> = {
 };
 
 describe('generateVerifyJumpMoveFunctions', () => {
+    test('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
+        const move: JumpMove<testPieceNames> = {
+            name: 'condition',
+            captureAvailability: 'optional',
+            type: 'jump',
+            jumpCoordinates: [
+                {
+                    horizontalSpaces: 2,
+                    verticalSpaces: 2
+                }
+            ],
+            moveConditions: [
+                {
+                    condition: 'firstPieceMove'
+                }
+            ]
+        };
+
+        const pieceConfig: PieceConfig<testPieceNames> = {
+            name: 'foo',
+            notation: 'P',
+            displayCharacters: {
+                white: 'P',
+                black: 'p'
+            },
+            moves: [move],
+            startingPositions: {
+                white: [['a', 1]]
+            }
+        };
+
+        const config: GameRules<testPieceNames> = {
+            ...rulesConfig,
+            pieces: [pieceConfig]
+        };
+        const engine = new GameEngine(config);
+        const piece = engine.getSpace(['a', 1]).piece!;
+
+        const verifyMoveFunctions = generateVerifyJumpMoveFunctions(move);
+        expect(verifyMoveFunctions).toHaveLength(1);
+        const moveFunction = verifyMoveFunctions[0];
+
+        //move piece
+        piece.position = ['c', 3];
+        const result = moveFunction(engine, piece, ['e', 5]);
+        expect(result).toEqual(false);
+    });
+
     test.each([
         {
             coordinates: [[2, 1]] as jumpCoordinate[],
@@ -157,7 +205,7 @@ function generateMoveTest(
     const engine = new GameEngine(config);
     const piece = engine.getSpace(startingPosition).piece!;
 
-    const verifyMoveFunctions = generateVerifyJumMoveFunctions(moveConfig);
+    const verifyMoveFunctions = generateVerifyJumpMoveFunctions(moveConfig);
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 

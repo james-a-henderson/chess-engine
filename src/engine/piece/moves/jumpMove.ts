@@ -2,17 +2,32 @@ import {
     BoardPosition,
     CaptureAvailability,
     JumpMove,
+    moveConditionFunction,
     PlayerColor,
     verifyLegalMoveFunction
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
 import { Piece } from '../piece';
-import { pieceIsOnPosition, validateCaptureRules } from './helpers';
+import {
+    getMoveConditionFunctions,
+    pieceIsOnPosition,
+    validateCaptureRules
+} from './helpers';
 
-export function generateVerifyJumMoveFunctions<PieceNames extends string[]>(
+export function generateVerifyJumpMoveFunctions<PieceNames extends string[]>(
     move: JumpMove<PieceNames>
 ): verifyLegalMoveFunction<PieceNames>[] {
-    return [generateFunction(move.captureAvailability, move.jumpCoordinates)];
+    const conditionFunctions = getMoveConditionFunctions(
+        move.moveConditions ?? []
+    );
+
+    return [
+        generateFunction(
+            move.captureAvailability,
+            move.jumpCoordinates,
+            conditionFunctions
+        )
+    ];
 }
 
 function generateFunction<PieceNames extends string[]>(
@@ -20,7 +35,8 @@ function generateFunction<PieceNames extends string[]>(
     jumpCoordinates: {
         horizontalSpaces: number;
         verticalSpaces: number;
-    }[]
+    }[],
+    conditionFunctions: moveConditionFunction<PieceNames>[]
 ): verifyLegalMoveFunction<PieceNames> {
     return (
         engine: GameEngine<PieceNames>,
@@ -41,6 +57,12 @@ function generateFunction<PieceNames extends string[]>(
             )
         ) {
             return false;
+        }
+
+        for (const conditionFunction of conditionFunctions) {
+            if (!conditionFunction(piece, engine)) {
+                return false;
+            }
         }
 
         //these engine functions throw if destination space is invalid, so we don't need to check that here

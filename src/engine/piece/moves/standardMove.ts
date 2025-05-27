@@ -6,10 +6,17 @@ import {
     RectangularBoard,
     StandardMove
 } from '../../../types/configuration';
-import { verifyLegalMoveFunction } from '../../../types/moves';
+import {
+    moveConditionFunction,
+    verifyLegalMoveFunction
+} from '../../../types/moves';
 import { GameEngine } from '../../GameEngine';
 import { Piece } from '../piece';
-import { pieceIsOnPosition, validateCaptureRules } from './helpers';
+import {
+    getMoveConditionFunctions,
+    pieceIsOnPosition,
+    validateCaptureRules
+} from './helpers';
 
 export function generateVerifyStandardMoveFunctions<
     PieceNames extends string[]
@@ -39,6 +46,10 @@ export function generateVerifyStandardMoveFunctions<
         return [];
     }
 
+    const conditionFunctions = getMoveConditionFunctions(
+        move.moveConditions ?? []
+    );
+
     const maxSpaces =
         move.maxSpaces === 'unlimited'
             ? Math.max(boardConfig.height, boardConfig.width)
@@ -49,7 +60,8 @@ export function generateVerifyStandardMoveFunctions<
             move.captureAvailability,
             directions,
             maxSpaces,
-            minSpaces
+            minSpaces,
+            conditionFunctions
         )
     ];
 }
@@ -59,7 +71,8 @@ function generateFunction<PieceNames extends string[]>(
     captureAvailability: CaptureAvailability,
     directions: Direction[],
     maxSpaces: number,
-    minSpaces: number
+    minSpaces: number,
+    conditionFunctions: moveConditionFunction<PieceNames>[]
 ): verifyLegalMoveFunction<PieceNames> {
     return (
         engine: GameEngine<PieceNames>,
@@ -80,6 +93,12 @@ function generateFunction<PieceNames extends string[]>(
             )
         ) {
             return false;
+        }
+
+        for (const conditionFunction of conditionFunctions) {
+            if (!conditionFunction(piece, engine)) {
+                return false;
+            }
         }
 
         //the engine functions automatically throw if the destination space is invalid, so we don't need to check that here

@@ -3,7 +3,7 @@ import {
     RectangularBoard,
     verifyLegalMoveFunction
 } from '../../../types';
-import { generateVerifyJumMoveFunctions } from './jumpMove';
+import { generateVerifyJumpMoveFunctions } from './jumpMove';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
 
 export function generateVerifyLegalMoveFunctions<PieceNames extends string[]>(
@@ -14,7 +14,7 @@ export function generateVerifyLegalMoveFunctions<PieceNames extends string[]>(
         case 'standard':
             return generateVerifyStandardMoveFunctions(move, boardConfig);
         case 'jump':
-            return generateVerifyJumMoveFunctions(move);
+            return generateVerifyJumpMoveFunctions(move);
         default:
             return [];
     }
