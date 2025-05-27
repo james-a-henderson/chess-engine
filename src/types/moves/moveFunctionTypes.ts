@@ -8,13 +8,15 @@ export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     destination: BoardPosition
 ) => boolean;
 
+export type LegalMove = {
+    position: BoardPosition;
+    captureStatus: 'canCapture' | 'cannotCapture' | 'isCaptureMove'; //used for determining if move causes king to move into check
+};
+
 export type getLegalMovesFunction<PieceNames extends string[]> = (
     engine: GameEngine<PieceNames>,
     piece: Piece<PieceNames>
-) => {
-    position: BoardPosition;
-    captureStatus: 'canCapture' | 'cannotCapture' | 'isCaptureMove'; //used for determining if move causes king to move into check
-}[];
+) => LegalMove[];
 
 export type moveConditionFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,

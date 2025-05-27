@@ -28,12 +28,14 @@ export type StandardMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     }[];
 };
 
+export type JumpCoordinate = {
+    horizontalSpaces: number;
+    verticalSpaces: number;
+};
+
 export type JumpMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'jump';
-    jumpCoordinates: {
-        horizontalSpaces: number;
-        verticalSpaces: number;
-    }[];
+    jumpCoordinates: JumpCoordinate[];
 };
 
 export type PromotionMove<PieceNames extends string[]> =
