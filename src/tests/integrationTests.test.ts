@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-unused-vars */ //disabling this becuase it throws for testName, which isn't used directly in code
+
 import { GameEngine } from '../engine';
 import { standardChessConfig, testConfig } from '../rulesConfiguration';
 import { assertBoardPosition } from '../testHelpers';
@@ -11,7 +13,7 @@ describe('integration tests', () => {
     describe('Rook only configuration', () => {
         test.each([
             {
-                rulesConfig: testConfig,
+                testName: 'Rook test 1',
                 moves: [
                     [
                         ['a', 1],
@@ -38,23 +40,23 @@ describe('integration tests', () => {
                 ]
             }
         ])(
-            'Rook only general test %#',
-            <PieceNames extends string[]>({
-                rulesConfig,
+            'Rook only general test: $testName',
+            ({
+                testName,
                 moves,
                 expectedBoard
             }: {
-                rulesConfig: GameRules<PieceNames>;
+                testName: string;
                 moves: gameMove[];
                 expectedBoard: (string | undefined)[][];
             }) => {
-                runGeneralTest(rulesConfig, moves, expectedBoard);
+                runGeneralTest(testConfig, moves, expectedBoard);
             }
         );
 
         test.each([
             {
-                rulesConfig: testConfig,
+                testName: 'Moving captured piece throws error',
                 moves: [
                     [
                         ['a', 1],
@@ -67,15 +69,9 @@ describe('integration tests', () => {
                 ] as gameMove[]
             }
         ])(
-            'Rook only error test %#',
-            <PieceNames extends string[]>({
-                rulesConfig,
-                moves
-            }: {
-                rulesConfig: GameRules<PieceNames>;
-                moves: gameMove[];
-            }) => {
-                runErrorTest(rulesConfig, moves);
+            'Rook only error test: $testName',
+            ({ testName, moves }: { testName: string; moves: gameMove[] }) => {
+                runErrorTest(testConfig, moves);
             }
         );
     });
@@ -83,7 +79,7 @@ describe('integration tests', () => {
     describe('standard chess rules', () => {
         test.each([
             {
-                rulesConfig: standardChessConfig,
+                testName: 'starting board matches expected',
                 moves: [],
                 expectedBoard: [
                     ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
@@ -97,7 +93,7 @@ describe('integration tests', () => {
                 ]
             },
             {
-                rulesConfig: standardChessConfig,
+                testName: 'standard move test',
                 moves: [
                     [
                         ['e', 2],
@@ -148,7 +144,7 @@ describe('integration tests', () => {
                 ]
             },
             {
-                rulesConfig: standardChessConfig,
+                testName: 'knight moves',
                 moves: [
                     [
                         ['b', 1],
@@ -195,7 +191,7 @@ describe('integration tests', () => {
                 ]
             },
             {
-                rulesConfig: standardChessConfig,
+                testName: "Evan's gambit",
                 moves: [
                     [
                         ['e', 2],
@@ -238,23 +234,23 @@ describe('integration tests', () => {
                 ]
             }
         ])(
-            'Standard rules general test %#',
-            <PieceNames extends string[]>({
-                rulesConfig,
+            'Standard rules general test: $testName',
+            ({
+                testName,
                 moves,
                 expectedBoard
             }: {
-                rulesConfig: GameRules<PieceNames>;
+                testName: string;
                 moves: gameMove[];
                 expectedBoard: (string | undefined)[][];
             }) => {
-                runGeneralTest(rulesConfig, moves, expectedBoard);
+                runGeneralTest(standardChessConfig, moves, expectedBoard);
             }
         );
 
         test.each([
             {
-                rulesConfig: standardChessConfig,
+                testName: "can only double pawn move on pawn's first move",
                 moves: [
                     [
                         ['a', 2],
@@ -271,15 +267,9 @@ describe('integration tests', () => {
                 ] as gameMove[]
             }
         ])(
-            'Standard rules error test %#',
-            <PieceNames extends string[]>({
-                rulesConfig,
-                moves
-            }: {
-                rulesConfig: GameRules<PieceNames>;
-                moves: gameMove[];
-            }) => {
-                runErrorTest(rulesConfig, moves);
+            'Standard rules error test: $testName',
+            ({ testName, moves }: { testName: string; moves: gameMove[] }) => {
+                runErrorTest(standardChessConfig, moves);
             }
         );
     });
