@@ -12,6 +12,7 @@ import { GameEngine } from '../../GameEngine';
 import { Piece } from '../piece';
 import {
     getMoveConditionFunctions,
+    makeNextSpaceIterator,
     pieceIsOnPosition,
     reverseDirection,
     validateCaptureRules
@@ -312,6 +313,243 @@ describe('helpers', () => {
             expect(result).toHaveLength(1);
             expect(result[0]).toEqual(firstPieceMove);
         });
+    });
+
+    describe('makeNextSpaceIterator', () => {
+        describe.each([
+            {
+                direction: 'forward',
+                color: 'white',
+                startingFileIndex: 3,
+                startingRankIndex: 3,
+                maxLength: 5,
+                firstIterationExpectedFile: 3,
+                firstIterationExpectedRank: 4,
+                finalIterationExpectedFile: 3,
+                finalIterationExpectedRank: 8
+            },
+            {
+                direction: 'backward',
+                color: 'white',
+                startingFileIndex: 3,
+                startingRankIndex: 3,
+                maxLength: 3,
+                firstIterationExpectedFile: 3,
+                firstIterationExpectedRank: 2,
+                finalIterationExpectedFile: 3,
+                finalIterationExpectedRank: 0
+            },
+            {
+                direction: 'left',
+                color: 'white',
+                startingFileIndex: 4,
+                startingRankIndex: 4,
+                maxLength: 2,
+                firstIterationExpectedFile: 3,
+                firstIterationExpectedRank: 4,
+                finalIterationExpectedFile: 2,
+                finalIterationExpectedRank: 4
+            },
+            {
+                direction: 'right',
+                color: 'white',
+                startingFileIndex: 3,
+                startingRankIndex: 3,
+                maxLength: 5,
+                firstIterationExpectedFile: 4,
+                firstIterationExpectedRank: 3,
+                finalIterationExpectedFile: 8,
+                finalIterationExpectedRank: 3
+            },
+            {
+                direction: 'leftForward',
+                color: 'white',
+                startingFileIndex: 5,
+                startingRankIndex: 3,
+                maxLength: 3,
+                firstIterationExpectedFile: 4,
+                firstIterationExpectedRank: 4,
+                finalIterationExpectedFile: 2,
+                finalIterationExpectedRank: 6
+            },
+            {
+                direction: 'rightForward',
+                color: 'white',
+                startingFileIndex: 0,
+                startingRankIndex: 2,
+                maxLength: 6,
+                firstIterationExpectedFile: 1,
+                firstIterationExpectedRank: 3,
+                finalIterationExpectedFile: 6,
+                finalIterationExpectedRank: 8
+            },
+            {
+                direction: 'leftBackward',
+                color: 'white',
+                startingFileIndex: 6,
+                startingRankIndex: 7,
+                maxLength: 4,
+                firstIterationExpectedFile: 5,
+                firstIterationExpectedRank: 6,
+                finalIterationExpectedFile: 2,
+                finalIterationExpectedRank: 3
+            },
+            {
+                direction: 'rightBackward',
+                color: 'white',
+                startingFileIndex: 0,
+                startingRankIndex: 3,
+                maxLength: 3,
+                firstIterationExpectedFile: 1,
+                firstIterationExpectedRank: 2,
+                finalIterationExpectedFile: 3,
+                finalIterationExpectedRank: 0
+            },
+            {
+                direction: 'backward',
+                color: 'black',
+                startingFileIndex: 3,
+                startingRankIndex: 3,
+                maxLength: 5,
+                firstIterationExpectedFile: 3,
+                firstIterationExpectedRank: 4,
+                finalIterationExpectedFile: 3,
+                finalIterationExpectedRank: 8
+            },
+            {
+                direction: 'forward',
+                color: 'black',
+                startingFileIndex: 3,
+                startingRankIndex: 3,
+                maxLength: 3,
+                firstIterationExpectedFile: 3,
+                firstIterationExpectedRank: 2,
+                finalIterationExpectedFile: 3,
+                finalIterationExpectedRank: 0
+            },
+            {
+                direction: 'right',
+                color: 'black',
+                startingFileIndex: 4,
+                startingRankIndex: 4,
+                maxLength: 2,
+                firstIterationExpectedFile: 3,
+                firstIterationExpectedRank: 4,
+                finalIterationExpectedFile: 2,
+                finalIterationExpectedRank: 4
+            },
+            {
+                direction: 'left',
+                color: 'black',
+                startingFileIndex: 3,
+                startingRankIndex: 3,
+                maxLength: 5,
+                firstIterationExpectedFile: 4,
+                firstIterationExpectedRank: 3,
+                finalIterationExpectedFile: 8,
+                finalIterationExpectedRank: 3
+            },
+            {
+                direction: 'rightBackward',
+                color: 'black',
+                startingFileIndex: 5,
+                startingRankIndex: 3,
+                maxLength: 3,
+                firstIterationExpectedFile: 4,
+                firstIterationExpectedRank: 4,
+                finalIterationExpectedFile: 2,
+                finalIterationExpectedRank: 6
+            },
+            {
+                direction: 'leftBackward',
+                color: 'black',
+                startingFileIndex: 0,
+                startingRankIndex: 2,
+                maxLength: 6,
+                firstIterationExpectedFile: 1,
+                firstIterationExpectedRank: 3,
+                finalIterationExpectedFile: 6,
+                finalIterationExpectedRank: 8
+            },
+            {
+                direction: 'rightForward',
+                color: 'black',
+                startingFileIndex: 6,
+                startingRankIndex: 7,
+                maxLength: 4,
+                firstIterationExpectedFile: 5,
+                firstIterationExpectedRank: 6,
+                finalIterationExpectedFile: 2,
+                finalIterationExpectedRank: 3
+            },
+            {
+                direction: 'leftForward',
+                color: 'black',
+                startingFileIndex: 0,
+                startingRankIndex: 3,
+                maxLength: 3,
+                firstIterationExpectedFile: 1,
+                firstIterationExpectedRank: 2,
+                finalIterationExpectedFile: 3,
+                finalIterationExpectedRank: 0
+            }
+        ])(
+            'direction: $direction, color: $color, starting position: [$startingFileIndex, $startingRankIndex]',
+            ({
+                direction,
+                color,
+                startingFileIndex,
+                startingRankIndex,
+                maxLength,
+                firstIterationExpectedFile,
+                firstIterationExpectedRank,
+                finalIterationExpectedFile,
+                finalIterationExpectedRank
+            }: {
+                direction: string;
+                color: string;
+                startingFileIndex: number;
+                startingRankIndex: number;
+                maxLength: number;
+                firstIterationExpectedFile: number;
+                firstIterationExpectedRank: number;
+                finalIterationExpectedFile: number;
+                finalIterationExpectedRank: number;
+            }) => {
+                test(`First iteration is at [${firstIterationExpectedFile}, ${firstIterationExpectedRank}]`, () => {
+                    const iterator = makeNextSpaceIterator(
+                        direction as Direction,
+                        startingFileIndex,
+                        startingRankIndex,
+                        maxLength,
+                        color as PlayerColor
+                    );
+                    const result = iterator.next();
+                    expect(result.value).toEqual([
+                        firstIterationExpectedFile,
+                        firstIterationExpectedRank
+                    ]);
+                });
+
+                test(`Final iteration after ${maxLength} is at [${finalIterationExpectedFile}, ${finalIterationExpectedRank}]`, () => {
+                    let result;
+                    for (const space of makeNextSpaceIterator(
+                        direction as Direction,
+                        startingFileIndex,
+                        startingRankIndex,
+                        maxLength,
+                        color as PlayerColor
+                    )) {
+                        result = space;
+                    }
+
+                    expect(result).toEqual([
+                        finalIterationExpectedFile,
+                        finalIterationExpectedRank
+                    ]);
+                });
+            }
+        );
     });
 });
 

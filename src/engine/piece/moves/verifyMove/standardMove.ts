@@ -14,6 +14,7 @@ import { GameEngine } from '../../../GameEngine';
 import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
+    makeNextSpaceIterator,
     pieceIsOnPosition,
     reverseDirection,
     validateCaptureRules
@@ -142,7 +143,7 @@ function generateFunction<PieceNames extends string[]>(
             direction,
             currentFileIndex,
             currentRankIndex,
-            moveLength,
+            moveLength - 1, //no need to calculate final destination space
             piece.playerColor
         )) {
             if (engine.getSpace(space).piece !== undefined) {
@@ -235,54 +236,5 @@ function calculateMoveLength(
         default:
             //diagonal move length is equivilent to the number of spaces moved horizontally or vertically
             return Math.abs(currentFileIndex - destinationFileIndex);
-    }
-}
-
-function* makeNextSpaceIterator(
-    direction: Direction,
-    startFileIndex: number,
-    startRankIndex: number,
-    moveLength: number,
-    color: PlayerColor
-) {
-    if (color === 'black') {
-        direction = reverseDirection(direction);
-    }
-
-    let currentFileIndex = startFileIndex;
-    let currentRankIndex = startRankIndex;
-
-    for (let i = 0; i < moveLength - 1; i++) {
-        [currentFileIndex, currentRankIndex] = getNextSpace(
-            direction,
-            currentFileIndex,
-            currentRankIndex
-        );
-        yield [currentFileIndex, currentRankIndex] as [number, number];
-    }
-}
-
-function getNextSpace(
-    direction: Direction,
-    currentFileIndex: number,
-    currentRankIndex: number
-): [number, number] {
-    switch (direction) {
-        case 'forward':
-            return [currentFileIndex, currentRankIndex + 1];
-        case 'backward':
-            return [currentFileIndex, currentRankIndex - 1];
-        case 'left':
-            return [currentFileIndex - 1, currentRankIndex];
-        case 'right':
-            return [currentFileIndex + 1, currentRankIndex];
-        case 'leftForward':
-            return [currentFileIndex - 1, currentRankIndex + 1];
-        case 'leftBackward':
-            return [currentFileIndex - 1, currentRankIndex - 1];
-        case 'rightForward':
-            return [currentFileIndex + 1, currentRankIndex + 1];
-        case 'rightBackward':
-            return [currentFileIndex + 1, currentRankIndex - 1];
     }
 }

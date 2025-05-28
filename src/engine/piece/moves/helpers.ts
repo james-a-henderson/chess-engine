@@ -3,7 +3,8 @@ import {
     CaptureAvailability,
     Direction,
     MoveCondition,
-    moveConditionFunction
+    moveConditionFunction,
+    PlayerColor
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
 import { Piece } from '../piece';
@@ -83,4 +84,53 @@ export function getMoveConditionFunctions<PieceNames extends string[]>(
     }
 
     return conditionFunctions;
+}
+
+export function* makeNextSpaceIterator(
+    direction: Direction,
+    startFileIndex: number,
+    startRankIndex: number,
+    moveLength: number,
+    color: PlayerColor
+) {
+    if (color === 'black') {
+        direction = reverseDirection(direction);
+    }
+
+    let currentFileIndex = startFileIndex;
+    let currentRankIndex = startRankIndex;
+
+    for (let i = 0; i < moveLength; i++) {
+        [currentFileIndex, currentRankIndex] = getNextSpace(
+            direction,
+            currentFileIndex,
+            currentRankIndex
+        );
+        yield [currentFileIndex, currentRankIndex] as [number, number];
+    }
+}
+
+function getNextSpace(
+    direction: Direction,
+    currentFileIndex: number,
+    currentRankIndex: number
+): [number, number] {
+    switch (direction) {
+        case 'forward':
+            return [currentFileIndex, currentRankIndex + 1];
+        case 'backward':
+            return [currentFileIndex, currentRankIndex - 1];
+        case 'left':
+            return [currentFileIndex - 1, currentRankIndex];
+        case 'right':
+            return [currentFileIndex + 1, currentRankIndex];
+        case 'leftForward':
+            return [currentFileIndex - 1, currentRankIndex + 1];
+        case 'leftBackward':
+            return [currentFileIndex - 1, currentRankIndex - 1];
+        case 'rightForward':
+            return [currentFileIndex + 1, currentRankIndex + 1];
+        case 'rightBackward':
+            return [currentFileIndex + 1, currentRankIndex - 1];
+    }
 }
