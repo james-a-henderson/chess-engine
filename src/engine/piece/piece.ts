@@ -1,10 +1,16 @@
-import { BoardPosition, verifyLegalMoveFunction } from '../../types';
+import {
+    BoardPosition,
+    getLegalMovesFunction,
+    LegalMove,
+    verifyLegalMoveFunction
+} from '../../types';
 import {
     PieceConfig,
     PlayerColor,
     RectangularBoard
 } from '../../types/configuration';
 import { GameEngine } from '../GameEngine';
+import { generateGetLegalMoveFunctions } from './moves';
 import { generateVerifyLegalMoveFunctions } from './moves/verifyMove';
 
 export class Piece<PieceNames extends string[]> {
@@ -13,6 +19,7 @@ export class Piece<PieceNames extends string[]> {
     private _position: BoardPosition;
     private _verifyLegalMoveFunctions: verifyLegalMoveFunction<PieceNames>[] =
         [];
+    private _getLegalMoveFunctions: getLegalMovesFunction<PieceNames>[] = [];
     private _moveCount = 0;
 
     constructor(
@@ -49,6 +56,27 @@ export class Piece<PieceNames extends string[]> {
         return this._moveCount;
     }
 
+    public getLegalMoves(engine: GameEngine<PieceNames>): LegalMove[] {
+        const moves: LegalMove[] = [];
+
+        for (const func of this._getLegalMoveFunctions) {
+            moves.push(...func(engine, this));
+        }
+
+        return moves;
+    }
+
+    public hasLegalMove(engine: GameEngine<PieceNames>): boolean {
+        for (const func of this._getLegalMoveFunctions) {
+            const moves = func(engine, this);
+            if (moves.length > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public getDisplayCharacter(): string {
         //we check in the game engine to make sure the display character player colors exist
         return this._config.displayCharacters[this._playerColor]!;
@@ -73,6 +101,9 @@ export class Piece<PieceNames extends string[]> {
         this._config.moves.forEach((move) => {
             this._verifyLegalMoveFunctions.push(
                 ...generateVerifyLegalMoveFunctions(move, boardConfig)
+            );
+            this._getLegalMoveFunctions.push(
+                generateGetLegalMoveFunctions(move, boardConfig)
             );
         });
     }
