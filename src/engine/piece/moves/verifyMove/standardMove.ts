@@ -15,6 +15,7 @@ import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
     pieceIsOnPosition,
+    reverseDirection,
     validateCaptureRules
 } from '../helpers';
 
@@ -218,27 +219,6 @@ function determineMoveDirectionForWhite(
     }
 
     return 'invalid';
-}
-
-function reverseDirection(direction: Direction): Direction {
-    switch (direction) {
-        case 'forward':
-            return 'backward';
-        case 'backward':
-            return 'forward';
-        case 'left':
-            return 'right';
-        case 'right':
-            return 'left';
-        case 'leftForward':
-            return 'rightBackward';
-        case 'rightForward':
-            return 'leftBackward';
-        case 'leftBackward':
-            return 'rightForward';
-        case 'rightBackward':
-            return 'leftForward';
-    }
 }
 
 function calculateMoveLength(

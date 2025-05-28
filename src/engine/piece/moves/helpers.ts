@@ -1,6 +1,7 @@
 import {
     BoardPosition,
     CaptureAvailability,
+    Direction,
     MoveCondition,
     moveConditionFunction
 } from '../../../types';
@@ -42,6 +43,27 @@ export function pieceIsOnPosition<PieceNames extends string[]>(
     return (
         piece.position[0] === position[0] && piece.position[1] === position[1]
     );
+}
+
+export function reverseDirection(direction: Direction): Direction {
+    switch (direction) {
+        case 'forward':
+            return 'backward';
+        case 'backward':
+            return 'forward';
+        case 'left':
+            return 'right';
+        case 'right':
+            return 'left';
+        case 'leftForward':
+            return 'rightBackward';
+        case 'rightForward':
+            return 'leftBackward';
+        case 'leftBackward':
+            return 'rightForward';
+        case 'rightBackward':
+            return 'leftForward';
+    }
 }
 
 export function getMoveConditionFunctions<PieceNames extends string[]>(

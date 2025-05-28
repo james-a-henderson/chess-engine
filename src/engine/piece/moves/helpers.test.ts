@@ -1,6 +1,7 @@
 import {
     BoardPosition,
     CaptureAvailability,
+    Direction,
     GameRules,
     MoveCondition,
     PieceConfig,
@@ -12,6 +13,7 @@ import { Piece } from '../piece';
 import {
     getMoveConditionFunctions,
     pieceIsOnPosition,
+    reverseDirection,
     validateCaptureRules
 } from './helpers';
 import { firstPieceMove } from './restrictions';
@@ -275,6 +277,22 @@ describe('helpers', () => {
                 expect(result).toEqual(expected);
             }
         );
+    });
+
+    describe('reverseDirection', () => {
+        test.each([
+            ['forward', 'backward'],
+            ['backward', 'forward'],
+            ['left', 'right'],
+            ['right', 'left'],
+            ['leftForward', 'rightBackward'],
+            ['rightForward', 'leftBackward'],
+            ['leftBackward', 'rightForward'],
+            ['rightBackward', 'leftForward']
+        ])('input: %s expected: %s', (input: string, expected: string) => {
+            const result = reverseDirection(input as Direction);
+            expect(result).toEqual(expected);
+        });
     });
 
     describe('getMoveConditionFunctions', () => {
