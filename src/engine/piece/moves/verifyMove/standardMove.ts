@@ -63,7 +63,8 @@ export function generateVerifyStandardMoveFunctions<
             directions,
             maxSpaces,
             minSpaces,
-            conditionFunctions
+            conditionFunctions,
+            move.name
         )
     ];
 }
@@ -74,7 +75,8 @@ function generateFunction<PieceNames extends string[]>(
     directions: Direction[],
     maxSpaces: number,
     minSpaces: number,
-    conditionFunctions: moveConditionFunction<PieceNames>[]
+    conditionFunctions: moveConditionFunction<PieceNames>[],
+    moveName: string
 ): verifyLegalMoveFunction<PieceNames> {
     return (
         engine: GameEngine<PieceNames>,
@@ -151,7 +153,13 @@ function generateFunction<PieceNames extends string[]>(
             }
         }
 
-        return true;
+        return {
+            originSpace: piece.position,
+            destinationSpace: destination,
+            pieceName: piece.pieceName,
+            pieceColor: piece.playerColor,
+            moveName: moveName
+        };
     };
 }
 

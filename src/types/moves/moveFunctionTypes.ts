@@ -1,12 +1,13 @@
 import { GameEngine } from '../../engine';
 import { Piece } from '../../engine/piece';
 import { BoardPosition } from '../common';
+import { MoveRecord } from './moveRecord';
 
 export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     engine: GameEngine<PieceNames>,
     piece: Piece<PieceNames>,
     destination: BoardPosition
-) => boolean;
+) => MoveRecord<PieceNames> | false;
 
 export type LegalMove = {
     position: BoardPosition;

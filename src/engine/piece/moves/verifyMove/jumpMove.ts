@@ -25,7 +25,8 @@ export function generateVerifyJumpMoveFunctions<PieceNames extends string[]>(
         generateFunction(
             move.captureAvailability,
             move.jumpCoordinates,
-            conditionFunctions
+            conditionFunctions,
+            move.name
         )
     ];
 }
@@ -36,7 +37,8 @@ function generateFunction<PieceNames extends string[]>(
         horizontalSpaces: number;
         verticalSpaces: number;
     }[],
-    conditionFunctions: moveConditionFunction<PieceNames>[]
+    conditionFunctions: moveConditionFunction<PieceNames>[],
+    moveName: string
 ): verifyLegalMoveFunction<PieceNames> {
     return (
         engine: GameEngine<PieceNames>,
@@ -83,7 +85,13 @@ function generateFunction<PieceNames extends string[]>(
                     piece.playerColor
                 )
             ) {
-                return true;
+                return {
+                    originSpace: piece.position,
+                    destinationSpace: destination,
+                    moveName: moveName,
+                    pieceColor: piece.playerColor,
+                    pieceName: piece.pieceName
+                };
             }
         }
 

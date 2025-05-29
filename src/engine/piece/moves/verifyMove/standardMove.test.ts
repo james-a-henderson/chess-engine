@@ -2165,7 +2165,19 @@ function generateMoveTest(
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
-    expect(moveFunction(engine, piece, destinationPosition)).toEqual(expected);
+    const result = moveFunction(engine, piece, destinationPosition);
+
+    if (expected) {
+        expect(result).toEqual({
+            destinationSpace: destinationPosition,
+            originSpace: startingPosition,
+            moveName: moveConfig.name,
+            pieceColor: playerColor,
+            pieceName: pieceConfig.name
+        });
+    } else {
+        expect(result).toEqual(false);
+    }
 }
 
 function generatePieceInBetweenTest(
@@ -2252,7 +2264,19 @@ function generateSameColorPieceOnDestinationTest(
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
-    expect(moveFunction(engine, piece, destinationPosition)).toEqual(expected);
+    const result = moveFunction(engine, piece, destinationPosition);
+
+    if (expected) {
+        expect(result).toEqual({
+            destinationSpace: destinationPosition,
+            originSpace: startingPosition,
+            moveName: moveConfig.name,
+            pieceColor: playerColor,
+            pieceName: pieceConfig.name
+        });
+    } else {
+        expect(result).toEqual(false);
+    }
 }
 
 function generateThrowsErrorWhenDestinationIsInvalidTest(
