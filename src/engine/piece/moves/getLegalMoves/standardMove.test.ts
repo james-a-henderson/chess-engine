@@ -466,5 +466,5 @@ function getTestResult(
         boardConfig
     );
 
-    return getMovesFunction(engine, piece);
+    return getMovesFunction(engine, piece, startingPosition);
 }

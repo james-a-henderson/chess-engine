@@ -69,7 +69,7 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfigNoMoves,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
             expect(piece.getDisplayCharacter()).toEqual('F');
@@ -79,7 +79,7 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfigNoMoves,
                 'black',
-                ['a', 8],
+
                 boardConfig
             );
             expect(piece.getDisplayCharacter()).toEqual('f');
@@ -96,11 +96,12 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfigNoMoves,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
             );
             expect(result).toEqual({
                 moves: [],
@@ -120,11 +121,12 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfig,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
             );
             expect(result).toEqual({
                 moves: [],
@@ -144,11 +146,12 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfig,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
             );
             expect(result).toEqual({
                 moves: [['a', 3]],
@@ -192,10 +195,11 @@ describe('piece', () => {
                         spacesThreatened: [['a', 2]]
                     };
                 });
-            const piece = new Piece(config, 'white', ['a', 1], boardConfig);
+            const piece = new Piece(config, 'white', boardConfig);
 
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
             );
             expect(result.moves).toHaveLength(2);
             expect(result.moves).toContainEqual(['a', 3]);
@@ -217,10 +221,13 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfigNoMoves,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
-            const result = piece.hasLegalMove({} as GameEngine<testPieceNames>);
+            const result = piece.hasLegalMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
+            );
             expect(result).toEqual(false);
         });
 
@@ -235,10 +242,13 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfig,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
-            const result = piece.hasLegalMove({} as GameEngine<testPieceNames>);
+            const result = piece.hasLegalMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
+            );
             expect(result).toEqual(false);
         });
 
@@ -253,10 +263,13 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfig,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
-            const result = piece.hasLegalMove({} as GameEngine<testPieceNames>);
+            const result = piece.hasLegalMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
+            );
             expect(result).toEqual(true);
         });
 
@@ -295,9 +308,12 @@ describe('piece', () => {
                         spacesThreatened: [['a', 2]]
                     };
                 });
-            const piece = new Piece(config, 'white', ['a', 1], boardConfig);
+            const piece = new Piece(config, 'white', boardConfig);
 
-            const result = piece.hasLegalMove({} as GameEngine<testPieceNames>);
+            const result = piece.hasLegalMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
+            );
             expect(result).toEqual(true);
         });
 
@@ -336,9 +352,12 @@ describe('piece', () => {
                         spacesThreatened: [['a', 3]]
                     };
                 });
-            const piece = new Piece(config, 'white', ['a', 1], boardConfig);
+            const piece = new Piece(config, 'white', boardConfig);
 
-            const result = piece.hasLegalMove({} as GameEngine<testPieceNames>);
+            const result = piece.hasLegalMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1]
+            );
             expect(result).toEqual(true);
         });
     });
@@ -362,13 +381,14 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfigNoMoves,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
-            const result = piece.verifyMove({} as GameEngine<testPieceNames>, [
-                'a',
-                4
-            ]);
+            const result = piece.verifyMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1],
+                ['a', 4]
+            );
             expect(result).toEqual(false);
         });
 
@@ -377,13 +397,14 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfig,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
-            const result = piece.verifyMove({} as GameEngine<testPieceNames>, [
-                'a',
-                4
-            ]);
+            const result = piece.verifyMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1],
+                ['a', 4]
+            );
             expect(result).toEqual(testMoveResult);
         });
 
@@ -392,13 +413,14 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfig,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
-            const result = piece.verifyMove({} as GameEngine<testPieceNames>, [
-                'a',
-                4
-            ]);
+            const result = piece.verifyMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1],
+                ['a', 4]
+            );
             expect(result).toEqual(false);
         });
 
@@ -411,13 +433,14 @@ describe('piece', () => {
             const piece = new Piece(
                 pieceConfig,
                 'white',
-                ['a', 1],
+
                 boardConfig
             );
-            const result = piece.verifyMove({} as GameEngine<testPieceNames>, [
-                'a',
-                4
-            ]);
+            const result = piece.verifyMove(
+                {} as GameEngine<testPieceNames>,
+                ['a', 1],
+                ['a', 4]
+            );
             expect(result).toEqual(testMoveResult);
         });
 
@@ -427,55 +450,35 @@ describe('piece', () => {
                 illegalMove,
                 illegalMove
             ]);
-            const piece = new Piece(
-                pieceConfig,
-                'white',
+            const piece = new Piece(pieceConfig, 'white', boardConfig);
+            const result = piece.verifyMove(
+                {} as GameEngine<testPieceNames>,
                 ['a', 1],
-                boardConfig
+                ['a', 4]
             );
-            const result = piece.verifyMove({} as GameEngine<testPieceNames>, [
-                'a',
-                4
-            ]);
             expect(result).toEqual(false);
         });
     });
 
     describe('moveCount', () => {
         test('moveCount is initialized to 0', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'white',
-                ['a', 1],
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
             expect(piece.moveCount).toEqual(0);
         });
 
         test('moveCount is 1 after one move', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'white',
-                ['a', 1],
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
 
-            piece.position = ['a', 2];
+            piece.increaseMoveCount();
             expect(piece.moveCount).toEqual(1);
         });
 
         test('moveCount is 3 after three moves', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'white',
-                ['a', 1],
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
 
-            piece.position = ['a', 2];
-            piece.position = ['a', 3];
-            piece.position = ['a', 4];
-
+            piece.increaseMoveCount();
+            piece.increaseMoveCount();
+            piece.increaseMoveCount();
             expect(piece.moveCount).toEqual(3);
         });
     });

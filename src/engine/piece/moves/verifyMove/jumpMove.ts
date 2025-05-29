@@ -10,7 +10,7 @@ import { GameEngine } from '../../../GameEngine';
 import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
-    pieceIsOnPosition,
+    positionsAreEqual,
     validateCaptureRules
 } from '../helpers';
 
@@ -43,9 +43,10 @@ function generateFunction<PieceNames extends string[]>(
     return (
         engine: GameEngine<PieceNames>,
         piece: Piece<PieceNames>,
+        currentSpace: BoardPosition,
         destination: BoardPosition
     ) => {
-        if (pieceIsOnPosition(piece, destination)) {
+        if (positionsAreEqual(currentSpace, destination)) {
             //destination space can't be the space the piece currently occupies
             return false;
         }
@@ -69,7 +70,7 @@ function generateFunction<PieceNames extends string[]>(
 
         //these engine functions throw if destination space is invalid, so we don't need to check that here
         const [currentFileIndex, currentRankIndex] =
-            engine.coordinatesToIndicies(piece.position);
+            engine.coordinatesToIndicies(currentSpace);
         const [destinationFileIndex, destinationRankIndex] =
             engine.coordinatesToIndicies(destination);
 
@@ -86,7 +87,7 @@ function generateFunction<PieceNames extends string[]>(
                 )
             ) {
                 return {
-                    originSpace: piece.position,
+                    originSpace: currentSpace,
                     destinationSpace: destination,
                     moveName: moveName,
                     pieceColor: piece.playerColor,

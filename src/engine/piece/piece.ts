@@ -17,7 +17,6 @@ import { generateVerifyLegalMoveFunctions } from './moves/verifyMove';
 export class Piece<PieceNames extends string[]> {
     private _config: PieceConfig<PieceNames>;
     private _playerColor: PlayerColor;
-    private _position: BoardPosition;
     private _verifyLegalMoveFunctions: verifyLegalMoveFunction<PieceNames>[] =
         [];
     private _getLegalMoveFunctions: getLegalMovesFunction<PieceNames>[] = [];
@@ -26,12 +25,10 @@ export class Piece<PieceNames extends string[]> {
     constructor(
         config: PieceConfig<PieceNames>,
         playerColor: PlayerColor,
-        startingPosition: BoardPosition,
         boardConfig: RectangularBoard
     ) {
         this._config = config;
         this._playerColor = playerColor;
-        this._position = startingPosition;
 
         this.registerMoves(boardConfig);
     }
@@ -44,20 +41,18 @@ export class Piece<PieceNames extends string[]> {
         return this._playerColor;
     }
 
-    get position() {
-        return this._position;
-    }
-
-    set position(position: BoardPosition) {
-        this._position = position;
-        this._moveCount++;
-    }
-
     get moveCount() {
         return this._moveCount;
     }
 
-    public getLegalMoves(engine: GameEngine<PieceNames>): AvailableMoves {
+    public increaseMoveCount() {
+        this._moveCount++;
+    }
+
+    public getLegalMoves(
+        engine: GameEngine<PieceNames>,
+        currentSpace: BoardPosition
+    ): AvailableMoves {
         const availableMoves: AvailableMoves = {
             moves: [],
             captureMoves: [],
@@ -65,7 +60,7 @@ export class Piece<PieceNames extends string[]> {
         };
 
         for (const func of this._getLegalMoveFunctions) {
-            const result = func(engine, this);
+            const result = func(engine, this, currentSpace);
 
             availableMoves.moves.push(...result.moves);
             availableMoves.captureMoves.push(...result.captureMoves);
@@ -75,9 +70,12 @@ export class Piece<PieceNames extends string[]> {
         return availableMoves;
     }
 
-    public hasLegalMove(engine: GameEngine<PieceNames>): boolean {
+    public hasLegalMove(
+        engine: GameEngine<PieceNames>,
+        currentSpace: BoardPosition
+    ): boolean {
         for (const func of this._getLegalMoveFunctions) {
-            const availableMoves = func(engine, this);
+            const availableMoves = func(engine, this, currentSpace);
             if (availableMoves.moves.length > 0) {
                 return true;
             }
@@ -93,10 +91,11 @@ export class Piece<PieceNames extends string[]> {
 
     public verifyMove(
         engine: GameEngine<PieceNames>,
+        currentSpace: BoardPosition,
         destination: BoardPosition
     ): MoveRecord<PieceNames> | false {
         for (const func of this._verifyLegalMoveFunctions) {
-            const result = func(engine, this, destination);
+            const result = func(engine, this, currentSpace, destination);
 
             if (result) {
                 //move is legal if one move function returns true

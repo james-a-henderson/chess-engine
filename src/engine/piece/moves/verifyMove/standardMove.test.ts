@@ -170,9 +170,9 @@ describe('generateVerifyStandardMoveFunctions', () => {
         expect(verifyMoveFunctions).toHaveLength(1);
         const moveFunction = verifyMoveFunctions[0];
 
-        //move piece
-        piece.position = ['a', 2];
-        const result = moveFunction(engine, piece, ['a', 3]);
+        //simulate piece move
+        piece.increaseMoveCount();
+        const result = moveFunction(engine, piece, ['a', 2], ['a', 3]);
         expect(result).toEqual(false);
     });
 
@@ -2165,7 +2165,12 @@ function generateMoveTest(
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
-    const result = moveFunction(engine, piece, destinationPosition);
+    const result = moveFunction(
+        engine,
+        piece,
+        startingPosition,
+        destinationPosition
+    );
 
     if (expected) {
         expect(result).toEqual({
@@ -2221,7 +2226,9 @@ function generatePieceInBetweenTest(
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
-    expect(moveFunction(engine, piece, destinationPosition)).toEqual(false);
+    expect(
+        moveFunction(engine, piece, startingPosition, destinationPosition)
+    ).toEqual(false);
 }
 
 function generateSameColorPieceOnDestinationTest(
@@ -2264,7 +2271,12 @@ function generateSameColorPieceOnDestinationTest(
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
-    const result = moveFunction(engine, piece, destinationPosition);
+    const result = moveFunction(
+        engine,
+        piece,
+        startingPosition,
+        destinationPosition
+    );
 
     if (expected) {
         expect(result).toEqual({
@@ -2312,7 +2324,7 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
-    expect(() => moveFunction(engine, piece, destinationPosition)).toThrow(
-        InvalidSpaceError
-    );
+    expect(() =>
+        moveFunction(engine, piece, startingPosition, destinationPosition)
+    ).toThrow(InvalidSpaceError);
 }

@@ -119,7 +119,11 @@ export class GameEngine<PieceNames extends string[]> {
             return false;
         }
 
-        return targetSpace.piece.verifyMove(this, destinationPosition);
+        return targetSpace.piece.verifyMove(
+            this,
+            targetPosition,
+            destinationPosition
+        );
     }
 
     public makeMove(
@@ -141,7 +145,7 @@ export class GameEngine<PieceNames extends string[]> {
             this.capturePiece(destinationPosition);
         }
 
-        targetSpace.piece!.position = destinationPosition;
+        targetSpace.piece!.increaseMoveCount();
 
         destinationSpace.piece = targetSpace.piece;
         targetSpace.piece = undefined;
@@ -218,7 +222,6 @@ export class GameEngine<PieceNames extends string[]> {
                         const piece = new Piece(
                             pieceConfig,
                             playerColor,
-                            position,
                             this._config.board
                         );
                         const [fileIndex, rankIndex] =

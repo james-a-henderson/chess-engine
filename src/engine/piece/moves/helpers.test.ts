@@ -5,15 +5,13 @@ import {
     GameRules,
     MoveCondition,
     PieceConfig,
-    PlayerColor,
-    RectangularBoard
+    PlayerColor
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
-import { Piece } from '../piece';
 import {
     getMoveConditionFunctions,
     makeNextSpaceIterator,
-    pieceIsOnPosition,
+    positionsAreEqual,
     reverseDirection,
     validateCaptureRules
 } from './helpers';
@@ -177,104 +175,83 @@ describe('helpers', () => {
         });
     });
 
-    describe('pieceIsOnPosition', () => {
+    describe('positionsAreEqual', () => {
         test.each([
             {
-                pieceFile: 'a',
-                pieceRank: 3,
-                inputFile: 'a',
-                inputRank: 3,
+                position1File: 'a',
+                position1Rank: 3,
+                position2File: 'a',
+                position2Rank: 3,
                 expected: true
             },
             {
-                pieceFile: 'f',
-                pieceRank: 4,
-                inputFile: 'f',
-                inputRank: 4,
+                position1File: 'f',
+                position1Rank: 4,
+                position2File: 'f',
+                position2Rank: 4,
                 expected: true
             },
             {
-                pieceFile: 'h',
-                pieceRank: 8,
-                inputFile: 'h',
-                inputRank: 8,
+                position1File: 'h',
+                position1Rank: 8,
+                position2File: 'h',
+                position2Rank: 8,
                 expected: true
             },
             {
-                pieceFile: 'b',
-                pieceRank: 3,
-                inputFile: 'c',
-                inputRank: 3,
+                position1File: 'b',
+                position1Rank: 3,
+                position2File: 'c',
+                position2Rank: 3,
                 expected: false
             },
             {
-                pieceFile: 'b',
-                pieceRank: 3,
-                inputFile: 'a',
-                inputRank: 3,
+                position1File: 'b',
+                position1Rank: 3,
+                position2File: 'a',
+                position2Rank: 3,
                 expected: false
             },
             {
-                pieceFile: 'a',
-                pieceRank: 3,
-                inputFile: 'a',
-                inputRank: 2,
+                position1File: 'a',
+                position1Rank: 3,
+                position2File: 'a',
+                position2Rank: 2,
                 expected: false
             },
             {
-                pieceFile: 'a',
-                pieceRank: 3,
-                inputFile: 'a',
-                inputRank: 4,
+                position1File: 'a',
+                position1Rank: 3,
+                position2File: 'a',
+                position2Rank: 4,
                 expected: false
             },
             {
-                pieceFile: 'a',
-                pieceRank: 1,
-                inputFile: 'h',
-                inputRank: 8,
+                position1File: 'a',
+                position1Rank: 1,
+                position2File: 'h',
+                position2Rank: 8,
                 expected: false
             }
         ])(
-            'Piece position: $pieceFile$pieceRank Input Position: $inputFile$inputRank expected: $expected',
+            'Position 1: $position1File$position1Rank position 2: $position2File$position2Rank expected: $expected',
             ({
-                pieceFile,
-                pieceRank,
-                inputFile,
-                inputRank,
+                position1File,
+                position1Rank,
+                position2File,
+                position2Rank,
                 expected
             }: {
-                pieceFile: string;
-                pieceRank: number;
-                inputFile: string;
-                inputRank: number;
+                position1File: string;
+                position1Rank: number;
+                position2File: string;
+                position2Rank: number;
                 expected: boolean;
             }) => {
-                const config: PieceConfig<testPieceNames> = {
-                    name: 'foo',
-                    displayCharacters: {
-                        white: 'F',
-                        black: 'f'
-                    },
-                    moves: [],
-                    notation: 'F',
-                    startingPositions: {
-                        white: [[pieceFile, pieceRank]]
-                    }
-                };
-
-                const board: RectangularBoard = {
-                    height: 8,
-                    width: 8
-                };
-                const piece = new Piece(
-                    config,
-                    'white',
-                    [pieceFile, pieceRank],
-                    board
+                const result = positionsAreEqual(
+                    [position1File, position1Rank],
+                    [position2File, position2Rank]
                 );
-
-                const result = pieceIsOnPosition(piece, [inputFile, inputRank]);
                 expect(result).toEqual(expected);
             }
         );

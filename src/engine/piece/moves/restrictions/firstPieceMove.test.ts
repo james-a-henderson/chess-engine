@@ -25,37 +25,27 @@ describe('firstPieceMove', () => {
     };
 
     test('returns true if piece has not moved', () => {
-        const piece = new Piece(pieceConfig, 'white', ['a', 1], boardConfig);
+        const piece = new Piece(pieceConfig, 'white', boardConfig);
 
         const result = firstPieceMove(piece);
         expect(result).toEqual(true);
     });
 
     test('returns false if piece has moved once', () => {
-        const piece = new Piece(pieceConfig, 'white', ['a', 1], boardConfig);
+        const piece = new Piece(pieceConfig, 'white', boardConfig);
 
-        piece.position = ['a', 2];
+        piece.increaseMoveCount();
 
         const result = firstPieceMove(piece);
         expect(result).toEqual(false);
     });
 
     test('returns false if piece has moved three times', () => {
-        const piece = new Piece(pieceConfig, 'white', ['a', 1], boardConfig);
+        const piece = new Piece(pieceConfig, 'white', boardConfig);
 
-        piece.position = ['a', 2];
-        piece.position = ['a', 3];
-        piece.position = ['a', 4];
-
-        const result = firstPieceMove(piece);
-        expect(result).toEqual(false);
-    });
-
-    test('returns false if piece moves, then moves back to its starting position', () => {
-        const piece = new Piece(pieceConfig, 'white', ['a', 1], boardConfig);
-
-        piece.position = ['a', 2];
-        piece.position = ['a', 1];
+        piece.increaseMoveCount();
+        piece.increaseMoveCount();
+        piece.increaseMoveCount();
 
         const result = firstPieceMove(piece);
         expect(result).toEqual(false);

@@ -83,9 +83,9 @@ describe('generateVerifyJumpMoveFunctions', () => {
         expect(verifyMoveFunctions).toHaveLength(1);
         const moveFunction = verifyMoveFunctions[0];
 
-        //move piece
-        piece.position = ['c', 3];
-        const result = moveFunction(engine, piece, ['e', 5]);
+        //simulate piece move
+        piece.increaseMoveCount();
+        const result = moveFunction(engine, piece, ['c', 3], ['e', 5]);
         expect(result).toEqual(false);
     });
 
@@ -209,7 +209,12 @@ function generateMoveTest(
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
-    const result = moveFunction(engine, piece, destinationPosition);
+    const result = moveFunction(
+        engine,
+        piece,
+        startingPosition,
+        destinationPosition
+    );
 
     if (expected) {
         expect(result).toEqual({

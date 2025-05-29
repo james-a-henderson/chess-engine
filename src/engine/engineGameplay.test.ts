@@ -173,7 +173,7 @@ describe('GameEngine gameplay', () => {
             expect(engine.capturedPieces.black![0]).toEqual('foo');
         });
 
-        test("Update piece's internal position after move", () => {
+        test("Update piece's internal move count after move", () => {
             jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
                 destinationSpace: ['a', 8],
                 originSpace: ['a', 1],
@@ -182,8 +182,10 @@ describe('GameEngine gameplay', () => {
                 moveName: 'test'
             });
 
+            const piece = engine.getSpace(['a', 1]).piece;
+            expect(piece?.moveCount).toEqual(0);
             engine.makeMove(['a', 1], ['a', 8]);
-            expect(engine.getSpace(['a', 8]).piece?.position).toEqual(['a', 8]);
+            expect(piece?.moveCount).toEqual(1);
         });
     });
 

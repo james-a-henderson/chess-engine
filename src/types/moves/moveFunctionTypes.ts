@@ -6,6 +6,7 @@ import { MoveRecord } from './moveRecord';
 export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     engine: GameEngine<PieceNames>,
     piece: Piece<PieceNames>,
+    currentSpace: BoardPosition,
     destination: BoardPosition
 ) => MoveRecord<PieceNames> | false;
 
@@ -17,7 +18,8 @@ export type AvailableMoves = {
 
 export type getLegalMovesFunction<PieceNames extends string[]> = (
     engine: GameEngine<PieceNames>,
-    piece: Piece<PieceNames>
+    piece: Piece<PieceNames>,
+    currentSpace: BoardPosition
 ) => AvailableMoves;
 
 export type moveConditionFunction<PieceNames extends string[]> = (

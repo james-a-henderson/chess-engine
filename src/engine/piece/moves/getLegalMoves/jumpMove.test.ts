@@ -397,5 +397,5 @@ function getTestResult(
 
     const getMovesFunction = generateGetLegalJumpMovesFunction(move);
 
-    return getMovesFunction(engine, piece);
+    return getMovesFunction(engine, piece, startingPosition);
 }

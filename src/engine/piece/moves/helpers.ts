@@ -37,13 +37,11 @@ export function validateCaptureRules<PieceNames extends string[]>(
     return true;
 }
 
-export function pieceIsOnPosition<PieceNames extends string[]>(
-    piece: Piece<PieceNames>,
-    position: BoardPosition
+export function positionsAreEqual(
+    position1: BoardPosition,
+    position2: BoardPosition
 ): boolean {
-    return (
-        piece.position[0] === position[0] && piece.position[1] === position[1]
-    );
+    return position1[0] === position2[0] && position1[1] === position2[1];
 }
 
 export function reverseDirection(direction: Direction): Direction {

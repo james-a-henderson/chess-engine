@@ -15,7 +15,7 @@ import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
     makeNextSpaceIterator,
-    pieceIsOnPosition,
+    positionsAreEqual,
     reverseDirection,
     validateCaptureRules
 } from '../helpers';
@@ -81,9 +81,10 @@ function generateFunction<PieceNames extends string[]>(
     return (
         engine: GameEngine<PieceNames>,
         piece: Piece<PieceNames>,
+        currentSpace: BoardPosition,
         destination: BoardPosition
     ) => {
-        if (pieceIsOnPosition(piece, destination)) {
+        if (positionsAreEqual(currentSpace, destination)) {
             //destination cannot be the space the piece currently occupies
             return false;
         }
@@ -107,7 +108,7 @@ function generateFunction<PieceNames extends string[]>(
 
         //the engine functions automatically throw if the destination space is invalid, so we don't need to check that here
         const [currentFileIndex, currentRankIndex] =
-            engine.coordinatesToIndicies(piece.position);
+            engine.coordinatesToIndicies(currentSpace);
         const [destinationFileIndex, destinationRankIndex] =
             engine.coordinatesToIndicies(destination);
 
@@ -154,7 +155,7 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         return {
-            originSpace: piece.position,
+            originSpace: currentSpace,
             destinationSpace: destination,
             pieceName: piece.pieceName,
             pieceColor: piece.playerColor,

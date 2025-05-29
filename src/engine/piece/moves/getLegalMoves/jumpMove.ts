@@ -1,5 +1,6 @@
 import {
     AvailableMoves,
+    BoardPosition,
     CaptureAvailability,
     getLegalMovesFunction,
     InvalidSpaceError,
@@ -32,7 +33,11 @@ function generateFunction<PieceNames extends string[]>(
     }[],
     conditionFunctions: moveConditionFunction<PieceNames>[]
 ): getLegalMovesFunction<PieceNames> {
-    return (engine: GameEngine<PieceNames>, piece: Piece<PieceNames>) => {
+    return (
+        engine: GameEngine<PieceNames>,
+        piece: Piece<PieceNames>,
+        currentSpace: BoardPosition
+    ) => {
         const availableMoves: AvailableMoves = {
             moves: [],
             captureMoves: [],
@@ -46,7 +51,7 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         const [currentFileIndex, currentRankIndex] =
-            engine.coordinatesToIndicies(piece.position);
+            engine.coordinatesToIndicies(currentSpace);
 
         for (const coordinate of jumpCoordinates) {
             let horizontalSpaces = coordinate.horizontalSpaces;

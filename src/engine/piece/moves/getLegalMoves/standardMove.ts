@@ -1,5 +1,6 @@
 import {
     AvailableMoves,
+    BoardPosition,
     CaptureAvailability,
     Direction,
     getLegalMovesFunction,
@@ -64,7 +65,11 @@ function generateFunction<PieceNames extends string[]>(
     minSpaces: number,
     conditionFunctions: moveConditionFunction<PieceNames>[]
 ): getLegalMovesFunction<PieceNames> {
-    return (engine: GameEngine<PieceNames>, piece: Piece<PieceNames>) => {
+    return (
+        engine: GameEngine<PieceNames>,
+        piece: Piece<PieceNames>,
+        currentSpace: BoardPosition
+    ) => {
         const availableMoves: AvailableMoves = {
             moves: [],
             captureMoves: [],
@@ -81,6 +86,7 @@ function generateFunction<PieceNames extends string[]>(
             const directionMoves = getMovesForDirection(
                 direction,
                 piece,
+                currentSpace,
                 engine,
                 captureAvailability,
                 maxSpaces,
@@ -101,6 +107,7 @@ function generateFunction<PieceNames extends string[]>(
 function getMovesForDirection<PieceNames extends string[]>(
     direction: Direction,
     piece: Piece<PieceNames>,
+    currentSpace: BoardPosition,
     engine: GameEngine<PieceNames>,
     captureAvailability: CaptureAvailability,
     maxSpaces: number,
@@ -114,9 +121,8 @@ function getMovesForDirection<PieceNames extends string[]>(
 
     let spaceCount = 0;
 
-    const [currentFileIndex, currentRankIndex] = engine.coordinatesToIndicies(
-        piece.position
-    );
+    const [currentFileIndex, currentRankIndex] =
+        engine.coordinatesToIndicies(currentSpace);
 
     for (const spaceIndicies of makeNextSpaceIterator(
         direction,
