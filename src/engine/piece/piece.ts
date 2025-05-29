@@ -2,6 +2,7 @@ import {
     BoardPosition,
     getLegalMovesFunction,
     LegalMove,
+    MoveRecord,
     verifyLegalMoveFunction
 } from '../../types';
 import {
@@ -85,12 +86,14 @@ export class Piece<PieceNames extends string[]> {
     public verifyMove(
         engine: GameEngine<PieceNames>,
         destination: BoardPosition
-    ): boolean {
+    ): MoveRecord<PieceNames> | false {
         for (const func of this._verifyLegalMoveFunctions) {
-            if (func(engine, this, destination)) {
+            const result = func(engine, this, destination);
+
+            if (result) {
                 //move is legal if one move function returns true
                 //todo: ensure no move conflict
-                return true;
+                return result;
             }
         }
 

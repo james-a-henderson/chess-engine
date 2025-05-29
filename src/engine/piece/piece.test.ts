@@ -1,4 +1,4 @@
-import { PieceConfig } from '../../types';
+import { MoveRecord, PieceConfig } from '../../types';
 import { GameEngine } from '../GameEngine';
 import { Piece } from './piece';
 
@@ -308,8 +308,15 @@ describe('piece', () => {
     });
 
     describe('verifyMove', () => {
+        const testMoveResult: MoveRecord<testPieceNames> = {
+            destinationSpace: ['a', 4],
+            originSpace: ['a', 1],
+            moveName: 'test',
+            pieceColor: 'white',
+            pieceName: 'foo'
+        };
         const legalMove = () => {
-            return true;
+            return testMoveResult;
         };
         const illegalMove = () => {
             return false;
@@ -341,7 +348,7 @@ describe('piece', () => {
                 'a',
                 4
             ]);
-            expect(result).toEqual(true);
+            expect(result).toEqual(testMoveResult);
         });
 
         test('returns false with one move that returns false', () => {
@@ -375,7 +382,7 @@ describe('piece', () => {
                 'a',
                 4
             ]);
-            expect(result).toEqual(true);
+            expect(result).toEqual(testMoveResult);
         });
 
         test('returns false if all moves return false', () => {
