@@ -12,10 +12,6 @@ import { GameEngine } from '../../../GameEngine';
 import { Piece } from '../../piece';
 import { getMoveConditionFunctions, makeNextSpaceIterator } from '../helpers';
 
-//todo: determine way to return positions that satisfy the following conditions:
-// 1. capture is required
-// 2. space is currently empty
-// this will be needed to determine spaces a king can't move due to being put in check
 export function generateGetLegalStandardMovesFunction<
     PieceNames extends string[]
 >(
