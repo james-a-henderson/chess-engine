@@ -5,9 +5,9 @@ import {
     PieceConfig,
     JumpCoordinate,
     BoardPosition,
-    LegalMove,
     PlayerColor,
-    CaptureAvailability
+    CaptureAvailability,
+    AvailableMoves
 } from '../../../../types';
 import { GameEngine } from '../../../GameEngine';
 import { generateGetLegalJumpMovesFunction } from './jumpMove';
@@ -73,17 +73,13 @@ describe('generateGetLegalJumMovesFunction', () => {
 
         const result = getTestResult(coordinates, ['d', 4]);
 
-        expect(result).toHaveLength(1);
-        expect(result[0]).toEqual({
-            position: ['f', 6],
-            captureStatus: 'canCapture'
-        });
+        expect(result.moves).toEqual([['f', 6]]);
     });
 
     test('Returns empty array when move has no coordinates', () => {
         const result = getTestResult([], ['d', 4]);
 
-        expect(result).toHaveLength(0);
+        expect(result.moves).toHaveLength(0);
     });
 
     test('Returns multiple multiple values with multiple legal coordinates', () => {
@@ -96,23 +92,11 @@ describe('generateGetLegalJumMovesFunction', () => {
 
         const result = getTestResult(coordinates, ['d', 4]);
 
-        expect(result).toHaveLength(4);
-        expect(result).toContainEqual({
-            position: ['f', 6],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['f', 2],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['b', 2],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['b', 6],
-            captureStatus: 'canCapture'
-        });
+        expect(result.moves).toHaveLength(4);
+        expect(result.moves).toContainEqual(['f', 6]);
+        expect(result.moves).toContainEqual(['f', 2]);
+        expect(result.moves).toContainEqual(['b', 2]);
+        expect(result.moves).toContainEqual(['b', 6]);
     });
 
     test('Reverses coordinates for black piece', () => {
@@ -124,11 +108,7 @@ describe('generateGetLegalJumMovesFunction', () => {
             pieceColor: 'black'
         });
 
-        expect(result).toHaveLength(1);
-        expect(result[0]).toEqual({
-            position: ['b', 6],
-            captureStatus: 'canCapture'
-        });
+        expect(result.moves).toEqual([['b', 6]]);
     });
 
     test('filters out positions that have same color piece', () => {
@@ -140,11 +120,8 @@ describe('generateGetLegalJumMovesFunction', () => {
         const result = getTestResult(coordinates, ['d', 4], {
             sameColorStartingPositions: [['f', 6]]
         });
-        expect(result).toHaveLength(1);
-        expect(result[0]).toEqual({
-            position: ['b', 6],
-            captureStatus: 'canCapture'
-        });
+
+        expect(result.moves).toEqual([['b', 6]]);
     });
 
     describe('returns empty array when coordinates are off board', () => {
@@ -155,7 +132,7 @@ describe('generateGetLegalJumMovesFunction', () => {
             ];
 
             const result = getTestResult(coordinates, ['d', 7]);
-            expect(result).toHaveLength(0);
+            expect(result.moves).toHaveLength(0);
         });
 
         test('bottom side', () => {
@@ -165,7 +142,7 @@ describe('generateGetLegalJumMovesFunction', () => {
             ];
 
             const result = getTestResult(coordinates, ['e', 1]);
-            expect(result).toHaveLength(0);
+            expect(result.moves).toHaveLength(0);
         });
 
         test('left side', () => {
@@ -175,7 +152,7 @@ describe('generateGetLegalJumMovesFunction', () => {
             ];
 
             const result = getTestResult(coordinates, ['b', 5]);
-            expect(result).toHaveLength(0);
+            expect(result.moves).toHaveLength(0);
         });
         test('right side', () => {
             const coordinates: JumpCoordinate[] = [
@@ -184,68 +161,151 @@ describe('generateGetLegalJumMovesFunction', () => {
             ];
 
             const result = getTestResult(coordinates, ['h', 3]);
-            expect(result).toHaveLength(0);
+            expect(result.moves).toHaveLength(0);
         });
     });
 
     describe('capture availability', () => {
-        test('Filters empty spaces when capture is required', () => {
-            const coordinates: JumpCoordinate[] = [
-                { horizontalSpaces: 2, verticalSpaces: 2 },
-                { horizontalSpaces: -2, verticalSpaces: 2 }
-            ];
+        describe('moves property', () => {
+            test('Filters empty spaces when capture is required', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
 
-            const result = getTestResult(coordinates, ['d', 4], {
-                captureAvailability: 'required',
-                otherColorStartingPositions: [['f', 6]]
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'required',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.moves).toEqual([['f', 6]]);
             });
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual({
-                position: ['f', 6],
-                captureStatus: 'isCaptureMove'
+
+            test('Filters spaces with black piece when capture is forbidden', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
+
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'forbidden',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.moves).toEqual([['b', 6]]);
+            });
+
+            test('Filters no spaces when capture is optional', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
+
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'optional',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.moves).toHaveLength(2);
+                expect(result.moves).toContainEqual(['f', 6]);
+                expect(result.moves).toContainEqual(['b', 6]);
             });
         });
 
-        test('Filters spaces with black piece when capture is forbidden', () => {
-            const coordinates: JumpCoordinate[] = [
-                { horizontalSpaces: 2, verticalSpaces: 2 },
-                { horizontalSpaces: -2, verticalSpaces: 2 }
-            ];
+        describe('captureMoves property', () => {
+            test('contains capture move when capture is required', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
 
-            const result = getTestResult(coordinates, ['d', 4], {
-                captureAvailability: 'forbidden',
-                otherColorStartingPositions: [['f', 6]]
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'required',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.captureMoves).toEqual([['f', 6]]);
             });
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual({
-                position: ['b', 6],
-                captureStatus: 'cannotCapture'
+
+            test('contains no spaces when capture is forbidden', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
+
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'forbidden',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.captureMoves).toHaveLength(0);
+            });
+
+            test('contains capture move when capture is optional', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
+
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'optional',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.captureMoves).toEqual([['f', 6]]);
             });
         });
 
-        test('Filters no spaces when capture is optional', () => {
-            const coordinates: JumpCoordinate[] = [
-                { horizontalSpaces: 2, verticalSpaces: 2 },
-                { horizontalSpaces: -2, verticalSpaces: 2 }
-            ];
+        describe('spacesThreatened', () => {
+            test('contains all available spaces when capture is required', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
 
-            const result = getTestResult(coordinates, ['d', 4], {
-                captureAvailability: 'optional',
-                otherColorStartingPositions: [['f', 6]]
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'required',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.spacesThreatened).toHaveLength(2);
+                expect(result.spacesThreatened).toContainEqual(['f', 6]);
+                expect(result.spacesThreatened).toContainEqual(['b', 6]);
             });
-            expect(result).toHaveLength(2);
-            expect(result).toContainEqual({
-                position: ['f', 6],
-                captureStatus: 'isCaptureMove'
+
+            test('contains no spaces when capture is forbidden', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
+
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'forbidden',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.spacesThreatened).toHaveLength(0);
             });
-            expect(result).toContainEqual({
-                position: ['b', 6],
-                captureStatus: 'canCapture'
+
+            test('contains all available spaces when capture is optional', () => {
+                const coordinates: JumpCoordinate[] = [
+                    { horizontalSpaces: 2, verticalSpaces: 2 },
+                    { horizontalSpaces: -2, verticalSpaces: 2 }
+                ];
+
+                const result = getTestResult(coordinates, ['d', 4], {
+                    captureAvailability: 'optional',
+                    otherColorStartingPositions: [['f', 6]]
+                });
+
+                expect(result.spacesThreatened).toHaveLength(2);
+                expect(result.spacesThreatened).toContainEqual(['f', 6]);
+                expect(result.spacesThreatened).toContainEqual(['b', 6]);
             });
         });
     });
 
-    test('Returns empty array when move does not satisfy condition', () => {
+    test('Returns no moves when move does not satisfy condition', () => {
         jest.spyOn(
             helperFunctions,
             'getMoveConditionFunctions'
@@ -260,7 +320,11 @@ describe('generateGetLegalJumMovesFunction', () => {
         ];
 
         const result = getTestResult(coordinates, ['d', 4]);
-        expect(result).toHaveLength(0);
+        expect(result).toEqual({
+            moves: [],
+            captureMoves: [],
+            spacesThreatened: []
+        });
     });
 
     test('Returns expected value when move satisfies conditions', () => {
@@ -278,11 +342,11 @@ describe('generateGetLegalJumMovesFunction', () => {
         ];
 
         const result = getTestResult(coordinates, ['d', 4]);
-        expect(result).toHaveLength(1);
 
-        expect(result[0]).toEqual({
-            position: ['f', 6],
-            captureStatus: 'canCapture'
+        expect(result).toEqual({
+            moves: [['f', 6]],
+            captureMoves: [],
+            spacesThreatened: [['f', 6]]
         });
     });
 });
@@ -296,7 +360,7 @@ function getTestResult(
         sameColorStartingPositions?: BoardPosition[];
         otherColorStartingPositions?: BoardPosition[];
     }
-): LegalMove[] {
+): AvailableMoves {
     const move: JumpMove<testPieceNames> = {
         ...baseMoveConfig,
         captureAvailability: testOptions?.captureAvailability

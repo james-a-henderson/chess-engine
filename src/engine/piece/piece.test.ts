@@ -92,7 +92,7 @@ describe('piece', () => {
             generateVerifyLegalMoveFunctionsMock.mockReturnValue([]);
         });
 
-        test('returns empty array with no moves', () => {
+        test('returns no moves if piece has no moves', () => {
             const piece = new Piece(
                 pieceConfigNoMoves,
                 'white',
@@ -102,12 +102,20 @@ describe('piece', () => {
             const result = piece.getLegalMoves(
                 {} as GameEngine<testPieceNames>
             );
-            expect(result).toHaveLength(0);
+            expect(result).toEqual({
+                moves: [],
+                captureMoves: [],
+                spacesThreatened: []
+            });
         });
 
-        test('returns empty array if getLegalMoves functions returns empty array', () => {
+        test('returns no moves if getLegalMoves functions returns empty array', () => {
             generateGetLegalMoveFunctionsMock.mockReturnValue(() => {
-                return [];
+                return {
+                    moves: [],
+                    captureMoves: [],
+                    spacesThreatened: []
+                };
             });
             const piece = new Piece(
                 pieceConfig,
@@ -118,12 +126,20 @@ describe('piece', () => {
             const result = piece.getLegalMoves(
                 {} as GameEngine<testPieceNames>
             );
-            expect(result).toHaveLength(0);
+            expect(result).toEqual({
+                moves: [],
+                captureMoves: [],
+                spacesThreatened: []
+            });
         });
 
         test('returns array with single value if getLegalMoves function returns single value', () => {
             generateGetLegalMoveFunctionsMock.mockReturnValue(() => {
-                return [{ position: ['a', 3], captureStatus: 'canCapture' }];
+                return {
+                    moves: [['a', 3]],
+                    captureMoves: [],
+                    spacesThreatened: [['a', 3]]
+                };
             });
             const piece = new Piece(
                 pieceConfig,
@@ -134,10 +150,10 @@ describe('piece', () => {
             const result = piece.getLegalMoves(
                 {} as GameEngine<testPieceNames>
             );
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual({
-                position: ['a', 3],
-                captureStatus: 'canCapture'
+            expect(result).toEqual({
+                moves: [['a', 3]],
+                captureMoves: [],
+                spacesThreatened: [['a', 3]]
             });
         });
 
@@ -163,29 +179,31 @@ describe('piece', () => {
             };
             generateGetLegalMoveFunctionsMock
                 .mockReturnValueOnce(() => {
-                    return [
-                        { position: ['a', 3], captureStatus: 'canCapture' }
-                    ];
+                    return {
+                        moves: [['a', 3]],
+                        captureMoves: [],
+                        spacesThreatened: [['a', 3]]
+                    };
                 })
                 .mockReturnValueOnce(() => {
-                    return [
-                        { position: ['a', 2], captureStatus: 'canCapture' }
-                    ];
+                    return {
+                        moves: [['a', 2]],
+                        captureMoves: [],
+                        spacesThreatened: [['a', 2]]
+                    };
                 });
             const piece = new Piece(config, 'white', ['a', 1], boardConfig);
 
             const result = piece.getLegalMoves(
                 {} as GameEngine<testPieceNames>
             );
-            expect(result).toHaveLength(2);
-            expect(result).toContainEqual({
-                position: ['a', 3],
-                captureStatus: 'canCapture'
-            });
-            expect(result).toContainEqual({
-                position: ['a', 2],
-                captureStatus: 'canCapture'
-            });
+            expect(result.moves).toHaveLength(2);
+            expect(result.moves).toContainEqual(['a', 3]);
+            expect(result.moves).toContainEqual(['a', 2]);
+            expect(result.captureMoves).toHaveLength(0);
+            expect(result.spacesThreatened).toHaveLength(2);
+            expect(result.spacesThreatened).toContainEqual(['a', 3]);
+            expect(result.spacesThreatened).toContainEqual(['a', 2]);
         });
     });
 
@@ -208,7 +226,11 @@ describe('piece', () => {
 
         test('returns false if getLegalMoves functions returns empty array', () => {
             generateGetLegalMoveFunctionsMock.mockReturnValue(() => {
-                return [];
+                return {
+                    moves: [],
+                    captureMoves: [],
+                    spacesThreatened: []
+                };
             });
             const piece = new Piece(
                 pieceConfig,
@@ -222,7 +244,11 @@ describe('piece', () => {
 
         test('returns true if getLegalMoves function returns single value', () => {
             generateGetLegalMoveFunctionsMock.mockReturnValue(() => {
-                return [{ position: ['a', 3], captureStatus: 'canCapture' }];
+                return {
+                    moves: [['a', 3]],
+                    captureMoves: [],
+                    spacesThreatened: [['a', 3]]
+                };
             });
             const piece = new Piece(
                 pieceConfig,
@@ -256,14 +282,18 @@ describe('piece', () => {
             };
             generateGetLegalMoveFunctionsMock
                 .mockReturnValueOnce(() => {
-                    return [
-                        { position: ['a', 3], captureStatus: 'canCapture' }
-                    ];
+                    return {
+                        moves: [['a', 3]],
+                        captureMoves: [],
+                        spacesThreatened: [['a', 3]]
+                    };
                 })
                 .mockReturnValueOnce(() => {
-                    return [
-                        { position: ['a', 2], captureStatus: 'canCapture' }
-                    ];
+                    return {
+                        moves: [['a', 2]],
+                        captureMoves: [],
+                        spacesThreatened: [['a', 2]]
+                    };
                 });
             const piece = new Piece(config, 'white', ['a', 1], boardConfig);
 
@@ -293,12 +323,18 @@ describe('piece', () => {
             };
             generateGetLegalMoveFunctionsMock
                 .mockReturnValueOnce(() => {
-                    return [];
+                    return {
+                        moves: [],
+                        captureMoves: [],
+                        spacesThreatened: []
+                    };
                 })
                 .mockReturnValueOnce(() => {
-                    return [
-                        { position: ['a', 2], captureStatus: 'canCapture' }
-                    ];
+                    return {
+                        moves: [['a', 3]],
+                        captureMoves: [],
+                        spacesThreatened: [['a', 3]]
+                    };
                 });
             const piece = new Piece(config, 'white', ['a', 1], boardConfig);
 

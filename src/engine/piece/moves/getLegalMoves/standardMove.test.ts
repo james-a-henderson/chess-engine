@@ -1,9 +1,9 @@
 import {
+    AvailableMoves,
     BoardPosition,
     CaptureAvailability,
     Direction,
     GameRules,
-    LegalMove,
     PieceConfig,
     PlayerColor,
     RectangularBoard,
@@ -235,94 +235,111 @@ describe('generateGetLegalStandardMovesFunction', () => {
                     { pieceColor: color as PlayerColor }
                 );
 
-                expect(result).toHaveLength(3);
+                expect(result.moves).toHaveLength(3);
                 for (const expectedPosition of expectedPositions) {
-                    expect(result).toContainEqual({
-                        position: expectedPosition,
-                        captureStatus: 'canCapture'
-                    });
+                    expect(result.moves).toContainEqual(expectedPosition);
                 }
             }
         );
     });
 
     describe('capture availability', () => {
-        test('filters empty spaces when capture is required', () => {
-            const result = getTestResult(['forward'], 2, 1, ['a', 1], {
-                captureAvailability: 'required',
-                otherColorStartingPositions: [['a', 3]]
+        describe('moves property', () => {
+            test('filters empty spaces when capture is required', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'required',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.moves).toEqual([['a', 3]]);
             });
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual({
-                position: ['a', 3],
-                captureStatus: 'isCaptureMove'
+
+            test('filters spaces with black piece when capture is forbidden', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'forbidden',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.moves).toEqual([['a', 2]]);
+            });
+
+            test('filters no spaces when capture is optional', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'optional',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.moves).toHaveLength(2);
+                expect(result.moves).toContainEqual(['a', 2]);
+                expect(result.moves).toContainEqual(['a', 3]);
             });
         });
 
-        test('filters spaces with black piece when capture is forbidden', () => {
-            const result = getTestResult(['forward'], 2, 1, ['a', 1], {
-                captureAvailability: 'forbidden',
-                otherColorStartingPositions: [['a', 3]]
+        describe('captureMoves property', () => {
+            test('contains space with black piece when capture is required', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'required',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.captureMoves).toEqual([['a', 3]]);
             });
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual({
-                position: ['a', 2],
-                captureStatus: 'cannotCapture'
+
+            test('contains no spaces when capture is forbidden', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'forbidden',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.captureMoves).toHaveLength(0);
+            });
+
+            test('contains space with black piece when capture is optional', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'optional',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.captureMoves).toEqual([['a', 3]]);
             });
         });
 
-        test('filters no spaces when capture is optional', () => {
-            const result = getTestResult(['forward'], 2, 1, ['a', 1], {
-                captureAvailability: 'optional',
-                otherColorStartingPositions: [['a', 3]]
+        describe('spacesThreatened property', () => {
+            test('contains all available spaces capture is required', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'required',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.spacesThreatened).toHaveLength(2);
+                expect(result.spacesThreatened).toContainEqual(['a', 2]);
+                expect(result.spacesThreatened).toContainEqual(['a', 3]);
             });
-            expect(result).toHaveLength(2);
-            expect(result).toContainEqual({
-                position: ['a', 2],
-                captureStatus: 'canCapture'
+
+            test('contains no spaces when capture is forbidden', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'forbidden',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.spacesThreatened).toHaveLength(0);
             });
-            expect(result).toContainEqual({
-                position: ['a', 3],
-                captureStatus: 'isCaptureMove'
+
+            test('contains all available spaces when capture is optional', () => {
+                const result = getTestResult(['forward'], 2, 1, ['a', 1], {
+                    captureAvailability: 'optional',
+                    otherColorStartingPositions: [['a', 3]]
+                });
+                expect(result.spacesThreatened).toHaveLength(2);
+                expect(result.spacesThreatened).toContainEqual(['a', 2]);
+                expect(result.spacesThreatened).toContainEqual(['a', 3]);
             });
         });
     });
 
     test('returns 8 items when directions is set to all and maxSpaces is set to 1', () => {
         const result = getTestResult('all', 1, 1, ['e', 5]);
-        expect(result).toHaveLength(8);
-        expect(result).toContainEqual({
-            position: ['e', 6],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['f', 6],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['f', 5],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['f', 4],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['e', 4],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['d', 4],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['d', 5],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['d', 6],
-            captureStatus: 'canCapture'
-        });
+        expect(result.moves).toHaveLength(8);
+        expect(result.moves).toContainEqual(['e', 6]);
+        expect(result.moves).toContainEqual(['f', 6]);
+        expect(result.moves).toContainEqual(['f', 5]);
+        expect(result.moves).toContainEqual(['f', 4]);
+        expect(result.moves).toContainEqual(['e', 4]);
+        expect(result.moves).toContainEqual(['d', 4]);
+        expect(result.moves).toContainEqual(['d', 5]);
+        expect(result.moves).toContainEqual(['d', 6]);
     });
 
     test('returns empty array when only moves are off the board', () => {
@@ -332,46 +349,28 @@ describe('generateGetLegalStandardMovesFunction', () => {
             1,
             ['a', 8]
         );
-        expect(result).toHaveLength(0);
+        expect(result.moves).toHaveLength(0);
     });
 
     test('returns empty array when piece has no directions', () => {
         const result = getTestResult([], 'unlimited', 1, ['b', 4]);
-        expect(result).toHaveLength(0);
+        expect(result.moves).toHaveLength(0);
     });
 
     test('does not return spaces below minimum number of spaces', () => {
         const result = getTestResult(['forward'], 'unlimited', 6, ['a', 1]);
-        expect(result).toHaveLength(2);
-        expect(result).toContainEqual({
-            position: ['a', 7],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['a', 8],
-            captureStatus: 'canCapture'
-        });
+        expect(result.moves).toHaveLength(2);
+        expect(result.moves).toContainEqual(['a', 7]);
+        expect(result.moves).toContainEqual(['a', 8]);
     });
 
     test('does not return spaces above maximum number of spaces', () => {
         const result = getTestResult(['right'], 4, 1, ['a', 8]);
-        expect(result).toHaveLength(4);
-        expect(result).toContainEqual({
-            position: ['b', 8],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['c', 8],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['d', 8],
-            captureStatus: 'canCapture'
-        });
-        expect(result).toContainEqual({
-            position: ['e', 8],
-            captureStatus: 'canCapture'
-        });
+        expect(result.moves).toHaveLength(4);
+        expect(result.moves).toContainEqual(['b', 8]);
+        expect(result.moves).toContainEqual(['c', 8]);
+        expect(result.moves).toContainEqual(['d', 8]);
+        expect(result.moves).toContainEqual(['e', 8]);
     });
 
     test('returns empty array if piece is on space before minimum number of spaces has been reached', () => {
@@ -382,7 +381,7 @@ describe('generateGetLegalStandardMovesFunction', () => {
             ['a', 1],
             { otherColorStartingPositions: [['c', 3]] }
         );
-        expect(result).toHaveLength(0);
+        expect(result.moves).toHaveLength(0);
     });
 
     test('Returns empty array when move does not satisfy condition', () => {
@@ -396,7 +395,7 @@ describe('generateGetLegalStandardMovesFunction', () => {
         ]);
 
         const result = getTestResult(['backward'], 1, 1, ['f', 4]);
-        expect(result).toHaveLength(0);
+        expect(result.moves).toHaveLength(0);
     });
 
     test('Returns expected value when move satisfies conditions', () => {
@@ -410,11 +409,7 @@ describe('generateGetLegalStandardMovesFunction', () => {
         ]);
 
         const result = getTestResult(['backward'], 1, 1, ['f', 4]);
-        expect(result).toHaveLength(1);
-        expect(result[0]).toEqual({
-            position: ['f', 3],
-            captureStatus: 'canCapture'
-        });
+        expect(result.moves).toEqual([['f', 3]]);
     });
 });
 
@@ -429,7 +424,7 @@ function getTestResult(
         sameColorStartingPositions?: BoardPosition[];
         otherColorStartingPositions?: BoardPosition[];
     }
-): LegalMove[] {
+): AvailableMoves {
     const move: StandardMove<testPieceNames> = {
         ...baseMoveConfig,
         captureAvailability: testOptions?.captureAvailability

@@ -1,9 +1,9 @@
 import {
+    AvailableMoves,
     CaptureAvailability,
     Direction,
     getLegalMovesFunction,
     InvalidSpaceError,
-    LegalMove,
     moveConditionFunction,
     RectangularBoard,
     StandardMove
@@ -41,9 +41,9 @@ export function generateGetLegalStandardMovesFunction<
               ];
 
     if (directions.length === 0) {
-        //return function that returns empty array if move has no directions
+        //return function that returns no moves if move has no directions
         return () => {
-            return [];
+            return { moves: [], captureMoves: [], spacesThreatened: [] };
         };
     }
 
@@ -69,28 +69,36 @@ function generateFunction<PieceNames extends string[]>(
     conditionFunctions: moveConditionFunction<PieceNames>[]
 ): getLegalMovesFunction<PieceNames> {
     return (engine: GameEngine<PieceNames>, piece: Piece<PieceNames>) => {
-        const moves: LegalMove[] = [];
+        const availableMoves: AvailableMoves = {
+            moves: [],
+            captureMoves: [],
+            spacesThreatened: []
+        };
 
         for (const conditionFunction of conditionFunctions) {
             if (!conditionFunction(piece, engine)) {
-                return [];
+                return availableMoves;
             }
         }
 
         for (const direction of directions) {
-            moves.push(
-                ...getMovesForDirection(
-                    direction,
-                    piece,
-                    engine,
-                    captureAvailability,
-                    maxSpaces,
-                    minSpaces
-                )
+            const directionMoves = getMovesForDirection(
+                direction,
+                piece,
+                engine,
+                captureAvailability,
+                maxSpaces,
+                minSpaces
+            );
+
+            availableMoves.moves.push(...directionMoves.moves);
+            availableMoves.captureMoves.push(...directionMoves.captureMoves);
+            availableMoves.spacesThreatened.push(
+                ...directionMoves.spacesThreatened
             );
         }
 
-        return moves;
+        return availableMoves;
     };
 }
 
@@ -101,8 +109,12 @@ function getMovesForDirection<PieceNames extends string[]>(
     captureAvailability: CaptureAvailability,
     maxSpaces: number,
     minSpaces: number
-): LegalMove[] {
-    const moves: LegalMove[] = [];
+): AvailableMoves {
+    const availableMoves: AvailableMoves = {
+        moves: [],
+        captureMoves: [],
+        spacesThreatened: []
+    };
 
     let spaceCount = 0;
 
@@ -139,10 +151,9 @@ function getMovesForDirection<PieceNames extends string[]>(
                     (captureAvailability === 'optional' ||
                         captureAvailability === 'required')
                 ) {
-                    moves.push({
-                        position: space.position,
-                        captureStatus: 'isCaptureMove'
-                    });
+                    availableMoves.moves.push(space.position);
+                    availableMoves.captureMoves.push(space.position);
+                    availableMoves.spacesThreatened.push(space.position);
                 }
 
                 //we cannot continue beyond a piece on the board
@@ -150,18 +161,16 @@ function getMovesForDirection<PieceNames extends string[]>(
             }
 
             //no piece on space
-            if (captureAvailability === 'optional') {
-                moves.push({
-                    position: space.position,
-                    captureStatus: 'canCapture'
-                });
-            }
-
-            if (captureAvailability === 'forbidden') {
-                moves.push({
-                    position: space.position,
-                    captureStatus: 'cannotCapture'
-                });
+            switch (captureAvailability) {
+                case 'optional':
+                    availableMoves.moves.push(space.position);
+                    availableMoves.spacesThreatened.push(space.position);
+                    break;
+                case 'required':
+                    availableMoves.spacesThreatened.push(space.position);
+                    break;
+                case 'forbidden':
+                    availableMoves.moves.push(space.position);
             }
         } catch (error) {
             if (error instanceof InvalidSpaceError) {
@@ -174,5 +183,5 @@ function getMovesForDirection<PieceNames extends string[]>(
         }
     }
 
-    return moves;
+    return availableMoves;
 }

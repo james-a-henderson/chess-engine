@@ -1,7 +1,7 @@
 import {
+    AvailableMoves,
     BoardPosition,
     getLegalMovesFunction,
-    LegalMove,
     MoveRecord,
     verifyLegalMoveFunction
 } from '../../types';
@@ -57,20 +57,28 @@ export class Piece<PieceNames extends string[]> {
         return this._moveCount;
     }
 
-    public getLegalMoves(engine: GameEngine<PieceNames>): LegalMove[] {
-        const moves: LegalMove[] = [];
+    public getLegalMoves(engine: GameEngine<PieceNames>): AvailableMoves {
+        const availableMoves: AvailableMoves = {
+            moves: [],
+            captureMoves: [],
+            spacesThreatened: []
+        };
 
         for (const func of this._getLegalMoveFunctions) {
-            moves.push(...func(engine, this));
+            const result = func(engine, this);
+
+            availableMoves.moves.push(...result.moves);
+            availableMoves.captureMoves.push(...result.captureMoves);
+            availableMoves.spacesThreatened.push(...result.spacesThreatened);
         }
 
-        return moves;
+        return availableMoves;
     }
 
     public hasLegalMove(engine: GameEngine<PieceNames>): boolean {
         for (const func of this._getLegalMoveFunctions) {
-            const moves = func(engine, this);
-            if (moves.length > 0) {
+            const availableMoves = func(engine, this);
+            if (availableMoves.moves.length > 0) {
                 return true;
             }
         }

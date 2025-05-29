@@ -1,14 +1,14 @@
 import {
+    AvailableMoves,
     CaptureAvailability,
     getLegalMovesFunction,
     InvalidSpaceError,
     JumpMove,
-    LegalMove,
     moveConditionFunction
 } from '../../../../types';
 import { GameEngine } from '../../../GameEngine';
 import { Piece } from '../../piece';
-import { getMoveConditionFunctions, validateCaptureRules } from '../helpers';
+import { getMoveConditionFunctions } from '../helpers';
 
 export function generateGetLegalJumpMovesFunction<PieceNames extends string[]>(
     move: JumpMove<PieceNames>
@@ -33,11 +33,15 @@ function generateFunction<PieceNames extends string[]>(
     conditionFunctions: moveConditionFunction<PieceNames>[]
 ): getLegalMovesFunction<PieceNames> {
     return (engine: GameEngine<PieceNames>, piece: Piece<PieceNames>) => {
-        const moves: LegalMove[] = [];
+        const availableMoves: AvailableMoves = {
+            moves: [],
+            captureMoves: [],
+            spacesThreatened: []
+        };
 
         for (const conditionFunction of conditionFunctions) {
             if (!conditionFunction(piece, engine)) {
-                return [];
+                return availableMoves;
             }
         }
 
@@ -60,43 +64,31 @@ function generateFunction<PieceNames extends string[]>(
             try {
                 const space = engine.getSpace([fileIndex, rankIndex]);
 
-                if (
-                    !validateCaptureRules(
-                        piece,
-                        engine,
-                        space.position,
-                        captureAvailability
-                    )
-                ) {
-                    //capture rules make moving to this space illegal
+                if (space.piece?.playerColor === piece.playerColor) {
                     continue;
                 }
 
-                if (space.piece) {
-                    moves.push({
-                        position: space.position,
-                        captureStatus: 'isCaptureMove'
-                    });
-                    continue;
+                switch (captureAvailability) {
+                    case 'required':
+                        //piece is threatening space, even if move is not legal
+                        availableMoves.spacesThreatened.push(space.position);
+                        if (space.piece) {
+                            availableMoves.moves.push(space.position);
+                            availableMoves.captureMoves.push(space.position);
+                        }
+                        break;
+                    case 'optional':
+                        availableMoves.moves.push(space.position);
+                        availableMoves.spacesThreatened.push(space.position);
+                        if (space.piece) {
+                            availableMoves.captureMoves.push(space.position);
+                        }
+                        break;
+                    case 'forbidden':
+                        if (!space.piece) {
+                            availableMoves.moves.push(space.position);
+                        }
                 }
-
-                if (captureAvailability === 'optional') {
-                    moves.push({
-                        position: space.position,
-                        captureStatus: 'canCapture'
-                    });
-                    continue;
-                }
-
-                if (captureAvailability === 'forbidden') {
-                    moves.push({
-                        position: space.position,
-                        captureStatus: 'cannotCapture'
-                    });
-                    continue;
-                }
-
-                //other combinations of piece on space and capture status are filtered by the validateCaptureRules call
             } catch (error) {
                 if (error instanceof InvalidSpaceError) {
                     //space is off the board
@@ -108,6 +100,6 @@ function generateFunction<PieceNames extends string[]>(
             }
         }
 
-        return moves;
+        return availableMoves;
     };
 }
