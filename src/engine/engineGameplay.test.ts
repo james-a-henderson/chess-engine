@@ -230,4 +230,99 @@ describe('GameEngine gameplay', () => {
             expect(engine.currentPlayer).toEqual('white');
         });
     });
+
+    describe('moves', () => {
+        let engine: GameEngine<testPieceNames>;
+
+        const firstMoveRecord: MoveRecord<testPieceNames> = {
+            destinationSpace: ['a', 2],
+            originSpace: ['a', 1],
+            pieceColor: 'white',
+            pieceName: 'foo',
+            moveName: 'test'
+        };
+
+        const secondMoveRecord: MoveRecord<testPieceNames> = {
+            destinationSpace: ['a', 7],
+            originSpace: ['a', 8],
+            pieceColor: 'black',
+            pieceName: 'foo',
+            moveName: 'test'
+        };
+
+        const thridMoveRecord: MoveRecord<testPieceNames> = {
+            destinationSpace: ['a', 4],
+            originSpace: ['a', 2],
+            pieceColor: 'white',
+            pieceName: 'foo',
+            moveName: 'test'
+        };
+
+        beforeEach(() => {
+            engine = new GameEngine(testConfig);
+        });
+
+        test('moves is empty array when engine is initialized', () => {
+            expect(engine.moves).toHaveLength(0);
+        });
+
+        test('moves contains one move after single move', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                firstMoveRecord
+            );
+
+            engine.makeMove(['a', 1], ['a', 2]);
+
+            expect(engine.moves).toHaveLength(1);
+            expect(engine.moves[0]).toEqual(firstMoveRecord);
+        });
+
+        test('last move contains expected move after single move', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                firstMoveRecord
+            );
+
+            engine.makeMove(['a', 1], ['a', 2]);
+
+            expect(engine.lastMove).toEqual(firstMoveRecord);
+        });
+
+        test('moves contains 3 moves after three moves made', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                firstMoveRecord
+            );
+            engine.makeMove(['a', 1], ['a', 2]);
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                secondMoveRecord
+            );
+            engine.makeMove(['a', 8], ['a', 7]);
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                thridMoveRecord
+            );
+            engine.makeMove(['a', 2], ['a', 4]);
+
+            expect(engine.moves).toEqual([
+                firstMoveRecord,
+                secondMoveRecord,
+                thridMoveRecord
+            ]);
+        });
+
+        test('last move contains expected move after three moves', () => {
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                firstMoveRecord
+            );
+            engine.makeMove(['a', 1], ['a', 2]);
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                secondMoveRecord
+            );
+            engine.makeMove(['a', 8], ['a', 7]);
+            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
+                thridMoveRecord
+            );
+            engine.makeMove(['a', 2], ['a', 4]);
+
+            expect(engine.lastMove).toEqual(thridMoveRecord);
+        });
+    });
 });

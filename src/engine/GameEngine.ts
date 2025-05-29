@@ -23,6 +23,7 @@ export class GameEngine<PieceNames extends string[]> {
     private _config: GameRules<PieceNames>;
     private _capturedPieces: Partial<Record<PlayerColor, PieceNames[]>> = {};
     private _currentPlayer: PlayerColor;
+    private _moves: MoveRecord<PieceNames>[] = [];
 
     constructor(rules: GameRules<PieceNames>) {
         this._config = rules;
@@ -49,6 +50,14 @@ export class GameEngine<PieceNames extends string[]> {
 
     get capturedPieces() {
         return this._capturedPieces;
+    }
+
+    get moves() {
+        return this._moves;
+    }
+
+    get lastMove() {
+        return this._moves.at(-1);
     }
 
     //outputs the board to the console in a human-readable format
@@ -137,6 +146,7 @@ export class GameEngine<PieceNames extends string[]> {
         destinationSpace.piece = targetSpace.piece;
         targetSpace.piece = undefined;
         this.updateCurrentPlayer();
+        this._moves.push(move);
     }
 
     private updateCurrentPlayer() {
