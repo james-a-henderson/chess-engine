@@ -4,7 +4,7 @@ import {
     Player,
     PlayerColor
 } from '../types/configuration';
-import { BoardPosition, MAXIMUM_BOARD_SIZE } from '../types';
+import { BoardPosition, MAXIMUM_BOARD_SIZE, MoveRecord } from '../types';
 import { Piece } from './piece';
 import {
     BoardConfigurationError,
@@ -99,7 +99,7 @@ export class GameEngine<PieceNames extends string[]> {
     public verifyMove(
         targetPosition: BoardPosition,
         destinationPosition: BoardPosition
-    ): boolean {
+    ): MoveRecord<PieceNames> | false {
         const targetSpace = this.getSpace(targetPosition);
 
         if (!targetSpace.piece) {
@@ -117,7 +117,9 @@ export class GameEngine<PieceNames extends string[]> {
         targetPosition: BoardPosition,
         destinationPosition: BoardPosition
     ) {
-        if (!this.verifyMove(targetPosition, destinationPosition)) {
+        const move = this.verifyMove(targetPosition, destinationPosition);
+
+        if (!move) {
             throw new IllegalMoveError('Move is not legal');
         }
 
