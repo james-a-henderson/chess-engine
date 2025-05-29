@@ -216,7 +216,7 @@ export class GameEngine<PieceNames extends string[]> {
 
                         if (boardPosition.piece) {
                             throw new PieceConfigurationError(
-                                pieceConfig.name,
+                                pieceConfig.name as string,
                                 'Multiple pieces cannot have the same starting position'
                             );
                         }
@@ -268,7 +268,7 @@ export class GameEngine<PieceNames extends string[]> {
         this._config.pieces.forEach((piece: PieceConfig<PieceNames>) => {
             if (pieceNames.has(piece.name)) {
                 throw new PieceConfigurationError(
-                    piece.name,
+                    piece.name as string,
                     'piece names must be unique'
                 );
             }
@@ -276,7 +276,7 @@ export class GameEngine<PieceNames extends string[]> {
 
             if (notations.has(piece.notation)) {
                 throw new PieceConfigurationError(
-                    piece.name,
+                    piece.name as string,
                     'piece notations must be unique'
                 );
             }
@@ -287,7 +287,7 @@ export class GameEngine<PieceNames extends string[]> {
                 this._players.length
             ) {
                 throw new PieceConfigurationError(
-                    piece.name,
+                    piece.name as string,
                     'piece must have one display character per player'
                 );
             }
@@ -299,7 +299,7 @@ export class GameEngine<PieceNames extends string[]> {
 
                 if (displayCharacters.has(displayCharacter)) {
                     throw new PieceConfigurationError(
-                        piece.name,
+                        piece.name as string,
                         'piece display characters must be unique'
                     );
                 }

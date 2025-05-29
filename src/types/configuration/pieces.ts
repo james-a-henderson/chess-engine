@@ -2,7 +2,7 @@ import { BoardPosition } from '../common';
 import { PlayerColor } from './rules';
 
 export type PieceConfig<PieceNames extends string[]> = {
-    name: PieceNames[keyof PieceNames] & string;
+    name: PieceNames[keyof PieceNames];
     notation: string;
     displayCharacters: Partial<Record<PlayerColor, string>>;
     moves: Move<PieceNames>[];
