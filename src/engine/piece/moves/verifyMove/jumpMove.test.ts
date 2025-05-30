@@ -77,7 +77,8 @@ describe('generateVerifyJumpMoveFunctions', () => {
             pieces: [pieceConfig]
         };
         const engine = new GameEngine(config);
-        const piece = engine.getSpace(['a', 1]).piece!;
+        const board = engine.board;
+        const piece = board.getSpace(['a', 1]).piece!;
 
         const verifyMoveFunctions = generateVerifyJumpMoveFunctions(move);
         expect(verifyMoveFunctions).toHaveLength(1);
@@ -85,7 +86,7 @@ describe('generateVerifyJumpMoveFunctions', () => {
 
         //simulate piece move
         piece.increaseMoveCount();
-        const result = moveFunction(engine, piece, ['c', 3], ['e', 5]);
+        const result = moveFunction(board, piece, ['c', 3], ['e', 5]);
         expect(result).toEqual(false);
     });
 
@@ -203,14 +204,15 @@ function generateMoveTest(
     };
 
     const engine = new GameEngine(config);
-    const piece = engine.getSpace(startingPosition).piece!;
+    const board = engine.board;
+    const piece = board.getSpace(startingPosition).piece!;
 
     const verifyMoveFunctions = generateVerifyJumpMoveFunctions(moveConfig);
     expect(verifyMoveFunctions).toHaveLength(1);
     const moveFunction = verifyMoveFunctions[0];
 
     const result = moveFunction(
-        engine,
+        board,
         piece,
         startingPosition,
         destinationPosition

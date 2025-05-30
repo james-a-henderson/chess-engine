@@ -1,5 +1,5 @@
 import { MoveRecord, PieceConfig } from '../../types';
-import { GameEngine } from '../GameEngine';
+import { RectangularBoard } from '../board';
 import { Piece } from './piece';
 
 const generateVerifyLegalMoveFunctionsMock = jest.fn();
@@ -100,7 +100,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual({
@@ -125,7 +125,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual({
@@ -150,7 +150,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual({
@@ -198,7 +198,7 @@ describe('piece', () => {
             const piece = new Piece(config, 'white', boardConfig);
 
             const result = piece.getLegalMoves(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result.moves).toHaveLength(2);
@@ -225,7 +225,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.hasLegalMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual(false);
@@ -246,7 +246,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.hasLegalMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual(false);
@@ -267,7 +267,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.hasLegalMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual(true);
@@ -311,7 +311,7 @@ describe('piece', () => {
             const piece = new Piece(config, 'white', boardConfig);
 
             const result = piece.hasLegalMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual(true);
@@ -355,7 +355,7 @@ describe('piece', () => {
             const piece = new Piece(config, 'white', boardConfig);
 
             const result = piece.hasLegalMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
             );
             expect(result).toEqual(true);
@@ -385,7 +385,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.verifyMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
                 ['a', 4]
             );
@@ -401,7 +401,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.verifyMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
                 ['a', 4]
             );
@@ -417,7 +417,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.verifyMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
                 ['a', 4]
             );
@@ -437,7 +437,7 @@ describe('piece', () => {
                 boardConfig
             );
             const result = piece.verifyMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
                 ['a', 4]
             );
@@ -452,7 +452,7 @@ describe('piece', () => {
             ]);
             const piece = new Piece(pieceConfig, 'white', boardConfig);
             const result = piece.verifyMove(
-                {} as GameEngine<testPieceNames>,
+                {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
                 ['a', 4]
             );

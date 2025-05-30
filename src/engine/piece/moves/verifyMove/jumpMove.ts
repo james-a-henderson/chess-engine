@@ -6,7 +6,7 @@ import {
     PlayerColor,
     verifyLegalMoveFunction
 } from '../../../../types';
-import { GameEngine } from '../../../GameEngine';
+import { RectangularBoard } from '../../../board';
 import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
@@ -41,7 +41,7 @@ function generateFunction<PieceNames extends string[]>(
     moveName: string
 ): verifyLegalMoveFunction<PieceNames> {
     return (
-        engine: GameEngine<PieceNames>,
+        board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition
@@ -54,7 +54,7 @@ function generateFunction<PieceNames extends string[]>(
         if (
             !validateCaptureRules(
                 piece,
-                engine,
+                board,
                 destination,
                 captureAvailability
             )
@@ -63,16 +63,16 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, engine)) {
+            if (!conditionFunction(piece, board)) {
                 return false;
             }
         }
 
         //these engine functions throw if destination space is invalid, so we don't need to check that here
         const [currentFileIndex, currentRankIndex] =
-            engine.coordinatesToIndicies(currentSpace);
+            board.coordinatesToIndicies(currentSpace);
         const [destinationFileIndex, destinationRankIndex] =
-            engine.coordinatesToIndicies(destination);
+            board.coordinatesToIndicies(destination);
 
         const fileIndexDifference = destinationFileIndex - currentFileIndex;
         const rankIndexDifference = destinationRankIndex - currentRankIndex;

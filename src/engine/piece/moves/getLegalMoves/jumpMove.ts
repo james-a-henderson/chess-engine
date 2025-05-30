@@ -7,7 +7,7 @@ import {
     JumpMove,
     moveConditionFunction
 } from '../../../../types';
-import { GameEngine } from '../../../GameEngine';
+import { RectangularBoard } from '../../../board/rectangularBoard';
 import { Piece } from '../../piece';
 import { getMoveConditionFunctions } from '../helpers';
 
@@ -34,7 +34,7 @@ function generateFunction<PieceNames extends string[]>(
     conditionFunctions: moveConditionFunction<PieceNames>[]
 ): getLegalMovesFunction<PieceNames> {
     return (
-        engine: GameEngine<PieceNames>,
+        board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition
     ) => {
@@ -45,13 +45,13 @@ function generateFunction<PieceNames extends string[]>(
         };
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, engine)) {
+            if (!conditionFunction(piece, board)) {
                 return availableMoves;
             }
         }
 
         const [currentFileIndex, currentRankIndex] =
-            engine.coordinatesToIndicies(currentSpace);
+            board.coordinatesToIndicies(currentSpace);
 
         for (const coordinate of jumpCoordinates) {
             let horizontalSpaces = coordinate.horizontalSpaces;
@@ -67,7 +67,7 @@ function generateFunction<PieceNames extends string[]>(
             const rankIndex = currentRankIndex + verticalSpaces;
 
             try {
-                const space = engine.getSpace([fileIndex, rankIndex]);
+                const space = board.getSpace([fileIndex, rankIndex]);
 
                 if (space.piece?.playerColor === piece.playerColor) {
                     continue;

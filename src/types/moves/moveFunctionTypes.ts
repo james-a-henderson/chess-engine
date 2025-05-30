@@ -1,10 +1,10 @@
-import { GameEngine } from '../../engine';
+import { RectangularBoard } from '../../engine/board/rectangularBoard';
 import { Piece } from '../../engine/piece';
 import { BoardPosition } from '../common';
 import { MoveRecord } from './moveRecord';
 
 export type verifyLegalMoveFunction<PieceNames extends string[]> = (
-    engine: GameEngine<PieceNames>,
+    board: RectangularBoard<PieceNames>,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition,
     destination: BoardPosition
@@ -17,12 +17,12 @@ export type AvailableMoves = {
 };
 
 export type getLegalMovesFunction<PieceNames extends string[]> = (
-    engine: GameEngine<PieceNames>,
+    board: RectangularBoard<PieceNames>,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition
 ) => AvailableMoves;
 
 export type moveConditionFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
-    engine: GameEngine<PieceNames>
+    board: RectangularBoard<PieceNames>
 ) => boolean;

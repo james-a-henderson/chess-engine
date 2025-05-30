@@ -6,17 +6,17 @@ import {
     moveConditionFunction,
     PlayerColor
 } from '../../../types';
-import { GameEngine } from '../../GameEngine';
+import { RectangularBoard } from '../../board';
 import { Piece } from '../piece';
 import { firstPieceMove } from './restrictions';
 
 export function validateCaptureRules<PieceNames extends string[]>(
     piece: Piece<PieceNames>,
-    engine: GameEngine<PieceNames>,
+    board: RectangularBoard<PieceNames>,
     destination: BoardPosition,
     captureAvailability: CaptureAvailability
 ): boolean {
-    const destinationSpace = engine.getSpace(destination);
+    const destinationSpace = board.getSpace(destination);
 
     if (destinationSpace.piece) {
         const destinationPiece = destinationSpace.piece;

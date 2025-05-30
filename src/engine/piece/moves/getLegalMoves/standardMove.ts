@@ -9,7 +9,7 @@ import {
     RectangularBoardConfig,
     StandardMove
 } from '../../../../types';
-import { GameEngine } from '../../../GameEngine';
+import { RectangularBoard } from '../../../board/rectangularBoard';
 import { Piece } from '../../piece';
 import { getMoveConditionFunctions, makeNextSpaceIterator } from '../helpers';
 
@@ -66,7 +66,7 @@ function generateFunction<PieceNames extends string[]>(
     conditionFunctions: moveConditionFunction<PieceNames>[]
 ): getLegalMovesFunction<PieceNames> {
     return (
-        engine: GameEngine<PieceNames>,
+        board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition
     ) => {
@@ -77,7 +77,7 @@ function generateFunction<PieceNames extends string[]>(
         };
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, engine)) {
+            if (!conditionFunction(piece, board)) {
                 return availableMoves;
             }
         }
@@ -87,7 +87,7 @@ function generateFunction<PieceNames extends string[]>(
                 direction,
                 piece,
                 currentSpace,
-                engine,
+                board,
                 captureAvailability,
                 maxSpaces,
                 minSpaces
@@ -108,7 +108,7 @@ function getMovesForDirection<PieceNames extends string[]>(
     direction: Direction,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition,
-    engine: GameEngine<PieceNames>,
+    board: RectangularBoard<PieceNames>,
     captureAvailability: CaptureAvailability,
     maxSpaces: number,
     minSpaces: number
@@ -122,7 +122,7 @@ function getMovesForDirection<PieceNames extends string[]>(
     let spaceCount = 0;
 
     const [currentFileIndex, currentRankIndex] =
-        engine.coordinatesToIndicies(currentSpace);
+        board.coordinatesToIndicies(currentSpace);
 
     for (const spaceIndicies of makeNextSpaceIterator(
         direction,
@@ -134,7 +134,7 @@ function getMovesForDirection<PieceNames extends string[]>(
         spaceCount++;
 
         try {
-            const space = engine.getSpace(spaceIndicies);
+            const space = board.getSpace(spaceIndicies);
 
             if (spaceCount < minSpaces) {
                 if (space.piece) {

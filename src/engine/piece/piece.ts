@@ -10,7 +10,7 @@ import {
     PlayerColor,
     RectangularBoardConfig
 } from '../../types/configuration';
-import { GameEngine } from '../GameEngine';
+import { RectangularBoard } from '../board';
 import { generateGetLegalMoveFunctions } from './moves';
 import { generateVerifyLegalMoveFunctions } from './moves/verifyMove';
 
@@ -50,7 +50,7 @@ export class Piece<PieceNames extends string[]> {
     }
 
     public getLegalMoves(
-        engine: GameEngine<PieceNames>,
+        board: RectangularBoard<PieceNames>,
         currentSpace: BoardPosition
     ): AvailableMoves {
         const availableMoves: AvailableMoves = {
@@ -60,7 +60,7 @@ export class Piece<PieceNames extends string[]> {
         };
 
         for (const func of this._getLegalMoveFunctions) {
-            const result = func(engine, this, currentSpace);
+            const result = func(board, this, currentSpace);
 
             availableMoves.moves.push(...result.moves);
             availableMoves.captureMoves.push(...result.captureMoves);
@@ -71,11 +71,11 @@ export class Piece<PieceNames extends string[]> {
     }
 
     public hasLegalMove(
-        engine: GameEngine<PieceNames>,
+        board: RectangularBoard<PieceNames>,
         currentSpace: BoardPosition
     ): boolean {
         for (const func of this._getLegalMoveFunctions) {
-            const availableMoves = func(engine, this, currentSpace);
+            const availableMoves = func(board, this, currentSpace);
             if (availableMoves.moves.length > 0) {
                 return true;
             }
@@ -90,12 +90,12 @@ export class Piece<PieceNames extends string[]> {
     }
 
     public verifyMove(
-        engine: GameEngine<PieceNames>,
+        board: RectangularBoard<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition
     ): MoveRecord<PieceNames> | false {
         for (const func of this._verifyLegalMoveFunctions) {
-            const result = func(engine, this, currentSpace, destination);
+            const result = func(board, this, currentSpace, destination);
 
             if (result) {
                 //move is legal if one move function returns true

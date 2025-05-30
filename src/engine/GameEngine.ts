@@ -107,7 +107,7 @@ export class GameEngine<PieceNames extends string[]> {
         }
 
         return targetSpace.piece.verifyMove(
-            this,
+            this.board,
             targetPosition,
             destinationPosition
         );

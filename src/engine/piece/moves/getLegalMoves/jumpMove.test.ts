@@ -393,9 +393,10 @@ function getTestResult(
     };
 
     const engine = new GameEngine(rulesConfig);
-    const piece = engine.getSpace(startingPosition).piece!;
+    const board = engine.board;
+    const piece = board.getSpace(startingPosition).piece!;
 
     const getMovesFunction = generateGetLegalJumpMovesFunction(move);
 
-    return getMovesFunction(engine, piece, startingPosition);
+    return getMovesFunction(board, piece, startingPosition);
 }

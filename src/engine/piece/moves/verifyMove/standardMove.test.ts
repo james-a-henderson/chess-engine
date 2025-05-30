@@ -161,7 +161,8 @@ describe('generateVerifyStandardMoveFunctions', () => {
             pieces: [pieceConfig]
         };
         const engine = new GameEngine(config);
-        const piece = engine.getSpace(['a', 1]).piece!;
+        const board = engine.board;
+        const piece = board.getSpace(['a', 1]).piece!;
 
         const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
             move,
@@ -172,7 +173,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
 
         //simulate piece move
         piece.increaseMoveCount();
-        const result = moveFunction(engine, piece, ['a', 2], ['a', 3]);
+        const result = moveFunction(board, piece, ['a', 2], ['a', 3]);
         expect(result).toEqual(false);
     });
 
@@ -2156,7 +2157,8 @@ function generateMoveTest(
     };
 
     const engine = new GameEngine(config);
-    const piece = engine.getSpace(startingPosition).piece!;
+    const board = engine.board;
+    const piece = board.getSpace(startingPosition).piece!;
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
         moveConfig,
@@ -2166,7 +2168,7 @@ function generateMoveTest(
     const moveFunction = verifyMoveFunctions[0];
 
     const result = moveFunction(
-        engine,
+        board,
         piece,
         startingPosition,
         destinationPosition
@@ -2217,6 +2219,7 @@ function generatePieceInBetweenTest(
         pieces: [pieceConfig, capturePieceConfig]
     };
     const engine = new GameEngine(config);
+    const board = engine.board;
     const piece = engine.getSpace(startingPosition).piece!;
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
@@ -2227,7 +2230,7 @@ function generatePieceInBetweenTest(
     const moveFunction = verifyMoveFunctions[0];
 
     expect(
-        moveFunction(engine, piece, startingPosition, destinationPosition)
+        moveFunction(board, piece, startingPosition, destinationPosition)
     ).toEqual(false);
 }
 
@@ -2262,7 +2265,8 @@ function generateSameColorPieceOnDestinationTest(
         pieces: [pieceConfig, otherPieceConfig]
     };
     const engine = new GameEngine(config);
-    const piece = engine.getSpace(startingPosition).piece!;
+    const board = engine.board;
+    const piece = board.getSpace(startingPosition).piece!;
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
         moveConfig,
@@ -2272,7 +2276,7 @@ function generateSameColorPieceOnDestinationTest(
     const moveFunction = verifyMoveFunctions[0];
 
     const result = moveFunction(
-        engine,
+        board,
         piece,
         startingPosition,
         destinationPosition
@@ -2315,6 +2319,7 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
         pieces: [pieceConfig]
     };
     const engine = new GameEngine(config);
+    const board = engine.board;
     const piece = engine.getSpace(startingPosition).piece!;
 
     const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
@@ -2325,6 +2330,6 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
     const moveFunction = verifyMoveFunctions[0];
 
     expect(() =>
-        moveFunction(engine, piece, startingPosition, destinationPosition)
+        moveFunction(board, piece, startingPosition, destinationPosition)
     ).toThrow(InvalidSpaceError);
 }

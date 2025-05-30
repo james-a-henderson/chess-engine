@@ -10,7 +10,7 @@ import {
     moveConditionFunction,
     verifyLegalMoveFunction
 } from '../../../../types/moves';
-import { GameEngine } from '../../../GameEngine';
+import { RectangularBoard } from '../../../board';
 import { Piece } from '../../piece';
 import {
     getMoveConditionFunctions,
@@ -79,7 +79,7 @@ function generateFunction<PieceNames extends string[]>(
     moveName: string
 ): verifyLegalMoveFunction<PieceNames> {
     return (
-        engine: GameEngine<PieceNames>,
+        board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition
@@ -92,7 +92,7 @@ function generateFunction<PieceNames extends string[]>(
         if (
             !validateCaptureRules(
                 piece,
-                engine,
+                board,
                 destination,
                 captureAvailability
             )
@@ -101,16 +101,16 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, engine)) {
+            if (!conditionFunction(piece, board)) {
                 return false;
             }
         }
 
         //the engine functions automatically throw if the destination space is invalid, so we don't need to check that here
         const [currentFileIndex, currentRankIndex] =
-            engine.coordinatesToIndicies(currentSpace);
+            board.coordinatesToIndicies(currentSpace);
         const [destinationFileIndex, destinationRankIndex] =
-            engine.coordinatesToIndicies(destination);
+            board.coordinatesToIndicies(destination);
 
         const direction = determineMoveDirection(
             currentFileIndex,
@@ -149,7 +149,7 @@ function generateFunction<PieceNames extends string[]>(
             moveLength - 1, //no need to calculate final destination space
             piece.playerColor
         )) {
-            if (engine.getSpace(space).piece !== undefined) {
+            if (board.getSpace(space).piece !== undefined) {
                 return false;
             }
         }
