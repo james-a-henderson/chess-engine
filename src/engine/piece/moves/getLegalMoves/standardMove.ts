@@ -6,7 +6,7 @@ import {
     getLegalMovesFunction,
     InvalidSpaceError,
     moveConditionFunction,
-    RectangularBoard,
+    RectangularBoardConfig,
     StandardMove
 } from '../../../../types';
 import { GameEngine } from '../../../GameEngine';
@@ -17,7 +17,7 @@ export function generateGetLegalStandardMovesFunction<
     PieceNames extends string[]
 >(
     move: StandardMove<PieceNames>,
-    boardConfig: RectangularBoard
+    boardConfig: RectangularBoardConfig
 ): getLegalMovesFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []

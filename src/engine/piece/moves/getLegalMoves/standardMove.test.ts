@@ -6,7 +6,7 @@ import {
     GameRules,
     PieceConfig,
     PlayerColor,
-    RectangularBoard,
+    RectangularBoardConfig,
     StandardMove
 } from '../../../../types';
 import { GameEngine } from '../../../GameEngine';
@@ -16,7 +16,7 @@ import * as helperFunctions from '../helpers';
 
 type testPieceNames = ['foo'];
 
-const boardConfig: RectangularBoard = {
+const boardConfig: RectangularBoardConfig = {
     height: 8,
     width: 8
 };

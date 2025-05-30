@@ -3,7 +3,7 @@ import { PieceConfig } from './pieces';
 export type GameRules<PieceNames extends string[]> = {
     name: string;
     players: Player[];
-    board: RectangularBoard;
+    board: RectangularBoardConfig;
     pieces: PieceConfig<PieceNames>[];
     winConditions: WinCondition<PieceNames>[];
     drawConditions: DrawCondition<PieceNames>[];
@@ -53,7 +53,7 @@ type DrawCondition<PieceNames extends string[]> =
     | ExcessiveMoveRule<PieceNames>;
 
 //todo: add other board types (long term todo)
-export type RectangularBoard = {
+export type RectangularBoardConfig = {
     height: number;
     width: number;
 };

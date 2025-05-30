@@ -1,6 +1,6 @@
 import {
     Move,
-    RectangularBoard,
+    RectangularBoardConfig,
     verifyLegalMoveFunction
 } from '../../../../types';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
@@ -8,7 +8,7 @@ import { generateVerifyStandardMoveFunctions } from './standardMove';
 
 export function generateVerifyLegalMoveFunctions<PieceNames extends string[]>(
     move: Move<PieceNames>,
-    boardConfig: RectangularBoard
+    boardConfig: RectangularBoardConfig
 ): verifyLegalMoveFunction<PieceNames>[] {
     switch (move.type) {
         case 'standard':

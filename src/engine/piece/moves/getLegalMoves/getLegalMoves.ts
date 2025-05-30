@@ -1,14 +1,14 @@
 import {
     getLegalMovesFunction,
     Move,
-    RectangularBoard
+    RectangularBoardConfig
 } from '../../../../types';
 import { generateGetLegalJumpMovesFunction } from './jumpMove';
 import { generateGetLegalStandardMovesFunction } from './standardMove';
 
 export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
     move: Move<PieceNames>,
-    boardConfig: RectangularBoard
+    boardConfig: RectangularBoardConfig
 ): getLegalMovesFunction<PieceNames> {
     switch (move.type) {
         case 'standard':

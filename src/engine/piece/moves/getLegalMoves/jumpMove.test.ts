@@ -1,5 +1,5 @@
 import {
-    RectangularBoard,
+    RectangularBoardConfig,
     GameRules,
     JumpMove,
     PieceConfig,
@@ -16,7 +16,7 @@ import * as helperFunctions from '../helpers';
 
 type testPieceNames = ['foo'];
 
-const boardConfig: RectangularBoard = {
+const boardConfig: RectangularBoardConfig = {
     height: 8,
     width: 8
 };

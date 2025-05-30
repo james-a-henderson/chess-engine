@@ -1,4 +1,4 @@
-import { PieceConfig, RectangularBoard } from '../../../../types';
+import { PieceConfig, RectangularBoardConfig } from '../../../../types';
 import { Piece } from '../../piece';
 import { firstPieceMove } from './firstPieceMove';
 
@@ -19,7 +19,7 @@ describe('firstPieceMove', () => {
         }
     };
 
-    const boardConfig: RectangularBoard = {
+    const boardConfig: RectangularBoardConfig = {
         height: 8,
         width: 8
     };

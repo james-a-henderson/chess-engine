@@ -8,7 +8,7 @@ import {
 import {
     PieceConfig,
     PlayerColor,
-    RectangularBoard
+    RectangularBoardConfig
 } from '../../types/configuration';
 import { GameEngine } from '../GameEngine';
 import { generateGetLegalMoveFunctions } from './moves';
@@ -25,7 +25,7 @@ export class Piece<PieceNames extends string[]> {
     constructor(
         config: PieceConfig<PieceNames>,
         playerColor: PlayerColor,
-        boardConfig: RectangularBoard
+        boardConfig: RectangularBoardConfig
     ) {
         this._config = config;
         this._playerColor = playerColor;
@@ -107,7 +107,7 @@ export class Piece<PieceNames extends string[]> {
         return false;
     }
 
-    private registerMoves(boardConfig: RectangularBoard) {
+    private registerMoves(boardConfig: RectangularBoardConfig) {
         this._config.moves.forEach((move) => {
             this._verifyLegalMoveFunctions.push(
                 ...generateVerifyLegalMoveFunctions(move, boardConfig)

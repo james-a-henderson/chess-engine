@@ -4,7 +4,7 @@ import {
     JumpMove,
     PieceConfig,
     PlayerColor,
-    RectangularBoard
+    RectangularBoardConfig
 } from '../../../../types';
 import { GameEngine } from '../../../GameEngine';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
@@ -13,7 +13,7 @@ type testPieceNames = ['foo'];
 
 type jumpCoordinate = [number, number];
 
-const boardConfig: RectangularBoard = {
+const boardConfig: RectangularBoardConfig = {
     height: 8,
     width: 8
 };

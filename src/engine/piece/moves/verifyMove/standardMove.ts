@@ -3,7 +3,7 @@ import {
     CaptureAvailability,
     Direction,
     PlayerColor,
-    RectangularBoard,
+    RectangularBoardConfig,
     StandardMove
 } from '../../../../types/configuration';
 import {
@@ -24,7 +24,7 @@ export function generateVerifyStandardMoveFunctions<
     PieceNames extends string[]
 >(
     move: StandardMove<PieceNames>,
-    boardConfig: RectangularBoard
+    boardConfig: RectangularBoardConfig
 ): verifyLegalMoveFunction<PieceNames>[] {
     if (move.alternateCaptureLocations) {
         //todo: add alternate capture locations

@@ -1,7 +1,7 @@
 import {
     GameRules,
     PieceConfig,
-    RectangularBoard,
+    RectangularBoardConfig,
     StandardMove,
     PlayerColor,
     BoardPosition,
@@ -25,7 +25,7 @@ const dummyPiece: PieceConfig<testPieceNames> = {
     startingPositions: {} //override on tests
 };
 
-const boardConfig: RectangularBoard = {
+const boardConfig: RectangularBoardConfig = {
     height: 8,
     width: 8
 };
