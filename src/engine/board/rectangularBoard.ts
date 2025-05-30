@@ -8,6 +8,7 @@ import {
     MAXIMUM_BOARD_SIZE,
     PieceConfigurationError,
     PiecePlacement,
+    PlayerColor,
     RectangularBoardConfig
 } from '../../types';
 
@@ -55,6 +56,38 @@ export class RectangularBoard<PieceNames extends string[]> {
         this.assertValidIndicies([fileIndex, rankIndex]);
 
         return this._spaces[fileIndex][rankIndex];
+    }
+
+    public getPieceSpaces({
+        name,
+        color
+    }: {
+        name?: PieceNames[keyof PieceNames];
+        color?: PlayerColor;
+    }): BoardSpace<PieceNames>[] {
+        const spaces: BoardSpace<PieceNames>[] = [];
+
+        for (const file of this._spaces) {
+            for (const space of file) {
+                if (!space.piece) {
+                    continue;
+                }
+
+                const piece = space.piece;
+
+                if (color && piece.playerColor !== color) {
+                    continue;
+                }
+
+                if (name && piece.pieceName !== name) {
+                    continue;
+                }
+
+                spaces.push(space);
+            }
+        }
+
+        return spaces;
     }
 
     /**

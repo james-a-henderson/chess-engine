@@ -9,7 +9,7 @@ import {
 import { Piece } from '../piece';
 import { RectangularBoard } from './rectangularBoard';
 
-type testPieceNames = ['foo', 'bar'];
+type testPieceNames = ['foo', 'bar', 'baz'];
 
 describe('RectangularBoard', () => {
     const testBoardConfig: RectangularBoardConfig = {
@@ -39,12 +39,35 @@ describe('RectangularBoard', () => {
         startingPositions: {}
     };
 
+    const testPieceBazConfig: PieceConfig<testPieceNames> = {
+        name: 'baz',
+        notation: 'Z',
+        displayCharacters: {
+            white: 'Z',
+            black: 'z'
+        },
+        moves: [],
+        startingPositions: {}
+    };
+
     let testPieceFoo: Piece<testPieceNames>;
     let testPieceBar: Piece<testPieceNames>;
+    let testPieceWhiteBaz: Piece<testPieceNames>;
+    let testPieceBlackBaz: Piece<testPieceNames>;
 
     beforeEach(() => {
         testPieceFoo = new Piece(testPieceFooConfig, 'white', testBoardConfig);
         testPieceBar = new Piece(testPieceBarConfig, 'black', testBoardConfig);
+        testPieceWhiteBaz = new Piece(
+            testPieceBazConfig,
+            'white',
+            testBoardConfig
+        );
+        testPieceBlackBaz = new Piece(
+            testPieceBazConfig,
+            'black',
+            testBoardConfig
+        );
     });
 
     describe('constructor', () => {
@@ -311,6 +334,95 @@ describe('RectangularBoard', () => {
                     }).toThrow(InvalidSpaceError);
                 }
             );
+        });
+    });
+
+    describe('getPieceSpaces', () => {
+        let board: RectangularBoard<testPieceNames>;
+
+        beforeEach(() => {
+            const piecePlacements = [
+                { piece: testPieceFoo, position: ['a', 1] as BoardPosition },
+                {
+                    piece: testPieceWhiteBaz,
+                    position: ['a', 3] as BoardPosition
+                },
+                { piece: testPieceBar, position: ['c', 1] as BoardPosition },
+                {
+                    piece: testPieceBlackBaz,
+                    position: ['c', 3] as BoardPosition
+                }
+            ];
+            board = new RectangularBoard(testBoardConfig, piecePlacements);
+        });
+
+        test('returns 4 pieces when no filters are applied', () => {
+            const result = board.getPieceSpaces({});
+            expect(result).toHaveLength(4);
+        });
+
+        test('returns only white pieces when color is set to white', () => {
+            const result = board.getPieceSpaces({ color: 'white' });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.playerColor).toEqual('white');
+            }
+        });
+
+        test('returns only black pieces when color is set to black', () => {
+            const result = board.getPieceSpaces({ color: 'black' });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.playerColor).toEqual('black');
+            }
+        });
+
+        test('returns only pieces of given name when name is set', () => {
+            const result = board.getPieceSpaces({ name: 'baz' });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.pieceName).toEqual('baz');
+            }
+        });
+
+        test('returns only piece of given name and color when name and color are both set', () => {
+            const result = board.getPieceSpaces({
+                name: 'baz',
+                color: 'black'
+            });
+
+            expect(result).toHaveLength(1);
+            expect(result[0].piece?.pieceName).toEqual('baz');
+            expect(result[0].piece?.playerColor).toEqual('black');
+        });
+
+        test('returns correct position', () => {
+            const result = board.getPieceSpaces({
+                name: 'baz',
+                color: 'black'
+            });
+
+            expect(result).toHaveLength(1);
+            expect(result[0].position).toEqual(['c', 3]);
+        });
+
+        test('returns empty array when no pieces satisfy conditions', () => {
+            const result = board.getPieceSpaces({
+                name: 'bar',
+                color: 'white'
+            });
+
+            expect(result).toHaveLength(0);
+        });
+
+        test('returns empty array when board has no pieces', () => {
+            const emptyBoard = new RectangularBoard(testBoardConfig, []);
+
+            const result = emptyBoard.getPieceSpaces({});
+            expect(result).toHaveLength(0);
         });
     });
 });
