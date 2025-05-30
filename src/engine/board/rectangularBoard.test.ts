@@ -361,8 +361,8 @@ describe('RectangularBoard', () => {
             expect(result).toHaveLength(4);
         });
 
-        test('returns only white pieces when color is set to white', () => {
-            const result = board.getPieceSpaces({ color: 'white' });
+        test('returns only white pieces when isColor is set to white', () => {
+            const result = board.getPieceSpaces({ isColor: 'white' });
             expect(result).toHaveLength(2);
 
             for (const space of result) {
@@ -370,8 +370,26 @@ describe('RectangularBoard', () => {
             }
         });
 
-        test('returns only black pieces when color is set to black', () => {
-            const result = board.getPieceSpaces({ color: 'black' });
+        test('returns only black pieces when isColor is set to black', () => {
+            const result = board.getPieceSpaces({ isColor: 'black' });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.playerColor).toEqual('black');
+            }
+        });
+
+        test('returns only white pieces when notColor is set to black', () => {
+            const result = board.getPieceSpaces({ notColor: 'black' });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.playerColor).toEqual('white');
+            }
+        });
+
+        test('returns only black pieces when notColor is set to white', () => {
+            const result = board.getPieceSpaces({ notColor: 'white' });
             expect(result).toHaveLength(2);
 
             for (const space of result) {
@@ -391,7 +409,7 @@ describe('RectangularBoard', () => {
         test('returns only piece of given name and color when name and color are both set', () => {
             const result = board.getPieceSpaces({
                 name: 'baz',
-                color: 'black'
+                isColor: 'black'
             });
 
             expect(result).toHaveLength(1);
@@ -402,7 +420,7 @@ describe('RectangularBoard', () => {
         test('returns correct position', () => {
             const result = board.getPieceSpaces({
                 name: 'baz',
-                color: 'black'
+                isColor: 'black'
             });
 
             expect(result).toHaveLength(1);
@@ -412,7 +430,7 @@ describe('RectangularBoard', () => {
         test('returns empty array when no pieces satisfy conditions', () => {
             const result = board.getPieceSpaces({
                 name: 'bar',
-                color: 'white'
+                isColor: 'white'
             });
 
             expect(result).toHaveLength(0);

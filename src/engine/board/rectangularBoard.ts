@@ -60,10 +60,12 @@ export class RectangularBoard<PieceNames extends string[]> {
 
     public getPieceSpaces({
         name,
-        color
+        isColor,
+        notColor
     }: {
         name?: PieceNames[keyof PieceNames];
-        color?: PlayerColor;
+        isColor?: PlayerColor;
+        notColor?: PlayerColor;
     }): BoardSpace<PieceNames>[] {
         const spaces: BoardSpace<PieceNames>[] = [];
 
@@ -75,7 +77,11 @@ export class RectangularBoard<PieceNames extends string[]> {
 
                 const piece = space.piece;
 
-                if (color && piece.playerColor !== color) {
+                if (isColor && piece.playerColor !== isColor) {
+                    continue;
+                }
+
+                if (notColor && piece.playerColor === notColor) {
                     continue;
                 }
 
