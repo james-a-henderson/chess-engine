@@ -4,22 +4,20 @@ import {
     Player,
     PlayerColor
 } from '../types/configuration';
-import { BoardPosition, MAXIMUM_BOARD_SIZE, MoveRecord } from '../types';
+import { BoardPosition, MoveRecord } from '../types';
 import { Piece } from './piece';
 import {
-    BoardConfigurationError,
     PieceConfigurationError,
     PlayerConfigurationError,
-    InvalidSpaceError,
     IllegalMoveError
 } from '../types/errors';
-import { BoardSpace, Board } from '../types/engine';
-import { fileLetterToIndex, indexToFileLetter } from '../common';
+import { BoardSpace, PiecePlacement } from '../types/engine';
 import { styleText } from 'node:util';
+import { RectangularBoard } from './board/rectangularBoard';
 
 export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
-    private _board: Board<PieceNames>;
+    private _board: RectangularBoard<PieceNames>;
     private _config: GameRules<PieceNames>;
     private _capturedPieces: Partial<Record<PlayerColor, PieceNames[]>> = {};
     private _currentPlayer: PlayerColor;
@@ -27,7 +25,7 @@ export class GameEngine<PieceNames extends string[]> {
 
     constructor(rules: GameRules<PieceNames>) {
         this._config = rules;
-        this._board = this.generateEmptyBoard();
+
         this._players = this.validatePlayerConfiguration();
 
         this._currentPlayer = this._players[0].color;
@@ -36,8 +34,10 @@ export class GameEngine<PieceNames extends string[]> {
             this._capturedPieces[player.color] = [];
         });
 
-        this.registerPieces();
-        this.placePieces();
+        this.validatePieceConfig();
+        const piecePlacements = this.initializePieces();
+
+        this._board = new RectangularBoard(this._config.board, piecePlacements);
     }
 
     get board() {
@@ -64,10 +64,10 @@ export class GameEngine<PieceNames extends string[]> {
     //note that the output quality may vary based on console settings
     public printBoard() {
         let outputString = '';
-        for (let i = this._config.board.height - 1; i >= 0; i--) {
+        for (let i = this.board.height - 1; i >= 0; i--) {
             let rowString = '';
-            for (let j = 0; j < this._config.board.width; j++) {
-                const space = this._board[j][i];
+            for (let j = 0; j < this.board.width; j++) {
+                const space = this._board.spaces[j][i];
 
                 const backGroundColor =
                     (i + j) % 2 === 0 ? 'bgGray' : 'bgWhite';
@@ -89,20 +89,7 @@ export class GameEngine<PieceNames extends string[]> {
     public getSpace(
         position: BoardPosition | [number, number]
     ): BoardSpace<PieceNames> {
-        let fileIndex: number;
-        let rankIndex: number;
-
-        if (typeof position[0] === 'string') {
-            [fileIndex, rankIndex] = this.coordinatesToIndicies(
-                position as BoardPosition
-            );
-        } else {
-            [fileIndex, rankIndex] = position;
-        }
-
-        this.assertValidIndicies([fileIndex, rankIndex]);
-
-        return this._board[fileIndex][rankIndex];
+        return this._board.getSpace(position);
     }
 
     public verifyMove(
@@ -185,61 +172,27 @@ export class GameEngine<PieceNames extends string[]> {
         space.piece = undefined;
     }
 
-    private generateEmptyBoard(): Board<PieceNames> {
-        if (
-            !Number.isSafeInteger(this._config.board.width) ||
-            !Number.isSafeInteger(this._config.board.height) ||
-            this._config.board.width <= 0 ||
-            this._config.board.width > MAXIMUM_BOARD_SIZE ||
-            this._config.board.height <= 0 ||
-            this._config.board.height > MAXIMUM_BOARD_SIZE
-        ) {
-            throw new BoardConfigurationError('invalid board size');
-        }
+    private initializePieces(): PiecePlacement<PieceNames>[] {
+        const placements: PiecePlacement<PieceNames>[] = [];
 
-        const board: Board<PieceNames> = [];
+        for (const pieceConfig of this._config.pieces) {
+            for (const [color, startingPositions] of Object.entries(
+                pieceConfig.startingPositions
+            )) {
+                const playerColor = color as PlayerColor;
+                for (const position of startingPositions) {
+                    const piece = new Piece(
+                        pieceConfig,
+                        playerColor,
+                        this._config.board
+                    );
 
-        for (let i = 0; i < this._config.board.width; i++) {
-            const file: BoardSpace<PieceNames>[] = [];
-            for (let j = 0; j < this._config.board.height; j++) {
-                file.push({
-                    position: this.indiciesToCoordinates([i, j]),
-                    piece: undefined
-                });
-            }
-            board.push(file);
-        }
-
-        return board;
-    }
-
-    private placePieces() {
-        this._config.pieces.forEach((pieceConfig: PieceConfig<PieceNames>) => {
-            Object.entries(pieceConfig.startingPositions).forEach(
-                ([k, startingPositions]) => {
-                    const playerColor = k as PlayerColor;
-                    startingPositions.forEach((position) => {
-                        const piece = new Piece(
-                            pieceConfig,
-                            playerColor,
-                            this._config.board
-                        );
-                        const [fileIndex, rankIndex] =
-                            this.coordinatesToIndicies(position);
-
-                        const boardPosition = this._board[fileIndex][rankIndex];
-
-                        if (boardPosition.piece) {
-                            throw new PieceConfigurationError(
-                                pieceConfig.name as string,
-                                'Multiple pieces cannot have the same starting position'
-                            );
-                        }
-                        boardPosition.piece = piece;
-                    });
+                    placements.push({ piece: piece, position: position });
                 }
-            );
-        });
+            }
+        }
+
+        return placements;
     }
 
     private validatePlayerConfiguration(): Player[] {
@@ -275,7 +228,7 @@ export class GameEngine<PieceNames extends string[]> {
         });
     }
 
-    private registerPieces() {
+    private validatePieceConfig() {
         const notations = new Set();
         const displayCharacters = new Set();
         const pieceNames = new Set();
@@ -343,41 +296,10 @@ export class GameEngine<PieceNames extends string[]> {
      * @param indicies
      */
     public indiciesToCoordinates(indicies: [number, number]): BoardPosition {
-        this.assertValidIndicies(indicies);
-        return [indexToFileLetter(indicies[0]), indicies[1] + 1];
+        return this._board.indiciesToCoordinates(indicies);
     }
 
     public coordinatesToIndicies(coordinates: BoardPosition): [number, number] {
-        this.assertValidCoordinates(coordinates);
-
-        const fileIndex = fileLetterToIndex(coordinates[0]);
-        const rankIndex = coordinates[1] - 1;
-
-        return [fileIndex, rankIndex];
-    }
-
-    private assertValidIndicies(indicies: [number, number]) {
-        if (
-            indicies[0] >= this._config.board.width ||
-            indicies[1] >= this._config.board.height ||
-            indicies[0] < 0 ||
-            indicies[1] < 0
-        ) {
-            throw new InvalidSpaceError('Invalid space index');
-        }
-    }
-
-    private assertValidCoordinates(coordinates: BoardPosition) {
-        const fileIndex = fileLetterToIndex(coordinates[0]);
-        const rankIndex = coordinates[1] - 1;
-
-        if (
-            fileIndex >= this._config.board.width ||
-            rankIndex >= this._config.board.height ||
-            fileIndex < 0 ||
-            rankIndex < 0
-        ) {
-            throw new InvalidSpaceError('Invalid coordinates');
-        }
+        return this._board.coordinatesToIndicies(coordinates);
     }
 }

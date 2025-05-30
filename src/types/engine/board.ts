@@ -6,4 +6,7 @@ export type BoardSpace<PieceNames extends string[]> = {
     piece?: Piece<PieceNames>;
 };
 
-export type Board<PieceNames extends string[]> = BoardSpace<PieceNames>[][];
+export type PiecePlacement<PieceNames extends string[]> = {
+    piece: Piece<PieceNames>;
+    position: BoardPosition;
+};

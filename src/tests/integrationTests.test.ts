@@ -292,7 +292,7 @@ function runGeneralTest<PieceNames extends string[]>(
         }
     );
 
-    assertBoardPosition(engine, expectedBoard);
+    assertBoardPosition(engine.board, expectedBoard);
 }
 
 function runErrorTest<PieceNames extends string[]>(

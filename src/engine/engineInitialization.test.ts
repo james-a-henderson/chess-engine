@@ -77,7 +77,7 @@ describe('initialize engine', () => {
                     pieces: []
                 };
 
-                const board = new GameEngine(config).board;
+                const board = new GameEngine(config).board.spaces;
                 expect(board.length).toEqual(width);
                 board.forEach((file) => {
                     expect(file.length).toEqual(height);
@@ -416,7 +416,7 @@ describe('initialize engine', () => {
                 ['f', ' ', 'b']
             ];
 
-            assertBoardPosition(engine, expectedBoard);
+            assertBoardPosition(engine.board, expectedBoard);
         });
 
         test('throws if multiple pieces are placed on the same space', () => {

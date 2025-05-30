@@ -152,7 +152,7 @@ describe('assertBoardPosition', () => {
             };
             const engine = new GameEngine(config);
             expect(() =>
-                assertBoardPosition(engine, expectedBoard)
+                assertBoardPosition(engine.board, expectedBoard)
             ).not.toThrow();
         }
     );
@@ -191,9 +191,9 @@ describe('assertBoardPosition', () => {
         'test %# throws board height error',
         ({ expectedBoard }: { expectedBoard: (string | undefined)[][] }) => {
             const engine = new GameEngine(genericRulesConfig);
-            expect(() => assertBoardPosition(engine, expectedBoard)).toThrow(
-                'Board heights do not match'
-            );
+            expect(() =>
+                assertBoardPosition(engine.board, expectedBoard)
+            ).toThrow('Board heights do not match');
         }
     );
 
@@ -229,9 +229,9 @@ describe('assertBoardPosition', () => {
         'test %# throws board width error',
         ({ expectedBoard }: { expectedBoard: (string | undefined)[][] }) => {
             const engine = new GameEngine(genericRulesConfig);
-            expect(() => assertBoardPosition(engine, expectedBoard)).toThrow(
-                'Board widths do not match'
-            );
+            expect(() =>
+                assertBoardPosition(engine.board, expectedBoard)
+            ).toThrow('Board widths do not match');
         }
     );
 
@@ -298,7 +298,9 @@ describe('assertBoardPosition', () => {
                 pieces: pieces
             };
             const engine = new GameEngine(config);
-            expect(() => assertBoardPosition(engine, expectedBoard)).toThrow();
+            expect(() =>
+                assertBoardPosition(engine.board, expectedBoard)
+            ).toThrow();
         }
     );
 });

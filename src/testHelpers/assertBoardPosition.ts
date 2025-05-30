@@ -1,23 +1,23 @@
-import { GameEngine } from '../engine';
+import { RectangularBoard } from '../engine/board/rectangularBoard';
 
 //takes in an array of board display characters. A space or empty string represents a space with nothing on it
 export function assertBoardPosition<T extends string[]>(
-    engine: GameEngine<T>,
+    board: RectangularBoard<T>,
     expectedBoard: (string | undefined)[][]
 ) {
     expectedBoard.reverse(); //reversing the board here allows the input to match what a chess board looks like
-    const board = engine.board;
+    const boardSpaces = board.spaces;
 
     //note that the indexes for rank and file are reversed on the expectedBoard
-    for (let i = 0; i < board.length; i++) {
-        const file = board[i];
+    for (let i = 0; i < boardSpaces.length; i++) {
+        const file = boardSpaces[i];
 
         if (expectedBoard.length !== file.length) {
             throw new Error('Board heights do not match');
         }
 
         for (let j = 0; j < file.length; j++) {
-            if (expectedBoard[j].length !== board.length) {
+            if (expectedBoard[j].length !== boardSpaces.length) {
                 throw new Error('Board widths do not match');
             }
 
