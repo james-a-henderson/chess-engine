@@ -265,6 +265,101 @@ describe('integration tests', () => {
                         ['a', 5]
                     ]
                 ] as gameMove[]
+            },
+            {
+                testName: 'Cannot move king into check',
+                moves: [
+                    [
+                        ['f', 2],
+                        ['f', 3]
+                    ],
+                    [
+                        ['c', 7],
+                        ['c', 6]
+                    ],
+                    [
+                        ['b', 1],
+                        ['a', 3]
+                    ],
+                    [
+                        ['d', 8],
+                        ['b', 6]
+                    ],
+                    [
+                        ['e', 1],
+                        ['f', 2]
+                    ]
+                ] as gameMove[]
+            },
+            {
+                testName: 'Cannot move pinned piece',
+                moves: [
+                    [
+                        ['e', 2],
+                        ['e', 4]
+                    ],
+                    [
+                        ['e', 7],
+                        ['e', 5]
+                    ],
+                    [
+                        ['d', 2],
+                        ['d', 4]
+                    ],
+                    [
+                        ['d', 7],
+                        ['d', 5]
+                    ],
+                    [
+                        ['e', 4],
+                        ['d', 5]
+                    ],
+                    [
+                        ['e', 5],
+                        ['d', 4]
+                    ],
+                    [
+                        ['d', 1],
+                        ['e', 2]
+                    ],
+                    [
+                        ['f', 8],
+                        ['e', 7]
+                    ],
+                    [
+                        ['c', 2],
+                        ['c', 3]
+                    ],
+                    [
+                        ['e', 7],
+                        ['f', 8]
+                    ]
+                ] as gameMove[]
+            },
+            {
+                testName: 'must move out of check',
+                moves: [
+                    [
+                        ['f', 2],
+                        ['f', 4]
+                    ],
+                    [
+                        ['e', 7],
+                        ['e', 5]
+                    ],
+                    [
+                        ['e', 2],
+                        ['e', 3]
+                    ],
+                    [
+                        ['d', 8],
+                        ['h', 4]
+                    ],
+                    [
+                        ['d', 1],
+                        ['e', 2]
+                    ]
+                ] as gameMove[]
             }
         ])(
             'Standard rules error test: $testName',
