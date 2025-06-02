@@ -9,7 +9,8 @@ import {
     PieceConfigurationError,
     PiecePlacement,
     PlayerColor,
-    RectangularBoardConfig
+    RectangularBoardConfig,
+    verifyBoardStateFunction
 } from '../../types';
 
 //todo: implement as interface to enable other board shapes
@@ -17,14 +18,18 @@ import {
 export class RectangularBoard<PieceNames extends string[]> {
     private _config: RectangularBoardConfig;
     private _spaces: BoardSpace<PieceNames>[][];
+    private _verifyBoardStateFunctions: verifyBoardStateFunction<PieceNames>[];
 
     constructor(
         config: RectangularBoardConfig,
-        piecePlacements: PiecePlacement<PieceNames>[]
+        piecePlacements: PiecePlacement<PieceNames>[],
+        verifyBoardStateFunctions: verifyBoardStateFunction<PieceNames>[] = []
     ) {
         this._config = config;
         this._spaces = this.generateEmptyBoard();
         this.placePieces(piecePlacements);
+
+        this._verifyBoardStateFunctions = verifyBoardStateFunctions;
     }
 
     get spaces() {
@@ -69,28 +74,26 @@ export class RectangularBoard<PieceNames extends string[]> {
     }): BoardSpace<PieceNames>[] {
         const spaces: BoardSpace<PieceNames>[] = [];
 
-        for (const file of this._spaces) {
-            for (const space of file) {
-                if (!space.piece) {
-                    continue;
-                }
-
-                const piece = space.piece;
-
-                if (isColor && piece.playerColor !== isColor) {
-                    continue;
-                }
-
-                if (notColor && piece.playerColor === notColor) {
-                    continue;
-                }
-
-                if (name && piece.pieceName !== name) {
-                    continue;
-                }
-
-                spaces.push(space);
+        for(const space of this.boardSpaces()){
+            if (!space.piece) {
+                continue;
             }
+
+            const piece = space.piece;
+
+            if (isColor && piece.playerColor !== isColor) {
+                continue;
+            }
+
+            if (notColor && piece.playerColor === notColor) {
+                continue;
+            }
+
+            if (name && piece.pieceName !== name) {
+                continue;
+            }
+
+            spaces.push(space);
         }
 
         return spaces;
@@ -147,6 +150,46 @@ export class RectangularBoard<PieceNames extends string[]> {
         }
 
         return board;
+    }
+
+    public verifyMovePositionValid(originPosition: BoardPosition,
+        destinationPosition: BoardPosition): boolean{
+            if(this._verifyBoardStateFunctions.length === 0){
+                return true;
+            }
+
+            const validationBoard = this.duplicateBoard();
+            validationBoard.movePiece(originPosition, destinationPosition);
+
+            for(const func of this._verifyBoardStateFunctions){
+                if(!func(validationBoard)){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+    private duplicateBoard(): RectangularBoard<PieceNames> {
+        const piecePlacements: PiecePlacement<PieceNames>[] = [];
+        
+        for(const space of this.boardSpaces()){
+            if(!space.piece){
+                continue;
+            }
+
+            piecePlacements.push({piece: space.piece, position: space.position});
+        }
+
+        return new RectangularBoard(this._config, piecePlacements);
+    }
+
+    private *boardSpaces() {
+        for(let i = 0; i < this.width; i++){
+            for(let j = 0; j < this.height; j++){
+                yield this._spaces[i][j];
+            }
+        }
     }
 
     private placePieces(piecePlacements: PiecePlacement<PieceNames>[]): void {
