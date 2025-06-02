@@ -10,7 +10,7 @@ import {
     PiecePlacement,
     PlayerColor,
     RectangularBoardConfig,
-    verifyBoardStateFunction
+    VerifyBoardStateFunction
 } from '../../types';
 
 //todo: implement as interface to enable other board shapes
@@ -18,12 +18,12 @@ import {
 export class RectangularBoard<PieceNames extends string[]> {
     private _config: RectangularBoardConfig;
     private _spaces: BoardSpace<PieceNames>[][];
-    private _verifyBoardStateFunctions: verifyBoardStateFunction<PieceNames>[];
+    private _verifyBoardStateFunctions: VerifyBoardStateFunction<PieceNames>[];
 
     constructor(
         config: RectangularBoardConfig,
         piecePlacements: PiecePlacement<PieceNames>[],
-        verifyBoardStateFunctions: verifyBoardStateFunction<PieceNames>[] = []
+        verifyBoardStateFunctions: VerifyBoardStateFunction<PieceNames>[] = []
     ) {
         this._config = config;
         this._spaces = this.generateEmptyBoard();

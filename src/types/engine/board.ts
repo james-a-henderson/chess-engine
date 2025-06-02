@@ -12,6 +12,6 @@ export type PiecePlacement<PieceNames extends string[]> = {
     position: BoardPosition;
 };
 
-export type verifyBoardStateFunction<PieceNames extends string[]> = (
+export type VerifyBoardStateFunction<PieceNames extends string[]> = (
     board: RectangularBoard<PieceNames>
 ) => boolean;
