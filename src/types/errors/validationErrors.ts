@@ -22,9 +22,11 @@ export class PlayerConfigurationError extends RulesConfigurationError {
     }
 }
 
-export class PieceConfigurationError<PieceNames extends string[]> extends RulesConfigurationError {
+export class PieceConfigurationError<
+    PieceNames extends string[]
+> extends RulesConfigurationError {
     constructor(pieceName: PieceNames[keyof PieceNames], message: string) {
-        const formattedMessage = `Piece ${pieceName} has configuration error: ${message}`;
+        const formattedMessage = `Piece ${String(pieceName)} has configuration error: ${message}`;
         super(formattedMessage);
         this.name = 'PieceConfigurationError';
         Object.setPrototypeOf(this, PieceConfigurationError.prototype);

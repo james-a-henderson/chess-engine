@@ -14,8 +14,7 @@ export type Player = {
     order: number;
 };
 
-const playerColors = ['white', 'black'] as const;
-export type PlayerColor = typeof playerColors[number];
+export type PlayerColor = 'white' | 'black';
 
 type WinConditionBase = {
     condition: string;
