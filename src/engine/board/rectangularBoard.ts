@@ -47,7 +47,7 @@ export class RectangularBoard<PieceNames extends string[]> {
 
         if (typeof position[0] === 'string') {
             [fileIndex, rankIndex] = this.coordinatesToIndicies(
-                position as BoardPosition
+                [position[0], position[1]] //typescript compiler doesn't seem to know position is a BoardPosition here without splitting up the array
             );
         } else {
             [fileIndex, rankIndex] = position;
@@ -155,7 +155,7 @@ export class RectangularBoard<PieceNames extends string[]> {
 
             if (space.piece) {
                 throw new PieceConfigurationError(
-                    piecePlacement.piece.pieceName as string,
+                    piecePlacement.piece.pieceName,
                     'Multiple pieces cannot be on the same space'
                 );
             }

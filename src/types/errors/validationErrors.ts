@@ -22,8 +22,8 @@ export class PlayerConfigurationError extends RulesConfigurationError {
     }
 }
 
-export class PieceConfigurationError extends RulesConfigurationError {
-    constructor(pieceName: string, message: string) {
+export class PieceConfigurationError<PieceNames extends string[]> extends RulesConfigurationError {
+    constructor(pieceName: PieceNames[keyof PieceNames], message: string) {
         const formattedMessage = `Piece ${pieceName} has configuration error: ${message}`;
         super(formattedMessage);
         this.name = 'PieceConfigurationError';

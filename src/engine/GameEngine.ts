@@ -19,9 +19,7 @@ export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
     private _board: RectangularBoard<PieceNames>;
     private _config: GameRules<PieceNames>;
-    private _capturedPieces: Partial<
-        Record<PlayerColor, PieceNames[keyof PieceNames][]>
-    > = {};
+    private _capturedPieces: Partial<Record<PlayerColor, PieceNames[keyof PieceNames][]>> = {};
     private _currentPlayer: PlayerColor;
     private _moves: MoveRecord<PieceNames>[] = [];
 
@@ -181,7 +179,7 @@ export class GameEngine<PieceNames extends string[]> {
             for (const [color, startingPositions] of Object.entries(
                 pieceConfig.startingPositions
             )) {
-                const playerColor = color as PlayerColor;
+                const playerColor = color as PlayerColor; //we know this must be a PlayerColor because startingPosition entries must be PlayerColor
                 for (const position of startingPositions) {
                     const piece = new Piece(
                         pieceConfig,
@@ -238,7 +236,7 @@ export class GameEngine<PieceNames extends string[]> {
         this._config.pieces.forEach((piece: PieceConfig<PieceNames>) => {
             if (pieceNames.has(piece.name)) {
                 throw new PieceConfigurationError(
-                    piece.name as string,
+                    piece.name,
                     'piece names must be unique'
                 );
             }
@@ -246,7 +244,7 @@ export class GameEngine<PieceNames extends string[]> {
 
             if (notations.has(piece.notation)) {
                 throw new PieceConfigurationError(
-                    piece.name as string,
+                    piece.name,
                     'piece notations must be unique'
                 );
             }
@@ -257,7 +255,7 @@ export class GameEngine<PieceNames extends string[]> {
                 this._players.length
             ) {
                 throw new PieceConfigurationError(
-                    piece.name as string,
+                    piece.name,
                     'piece must have one display character per player'
                 );
             }
@@ -269,7 +267,7 @@ export class GameEngine<PieceNames extends string[]> {
 
                 if (displayCharacters.has(displayCharacter)) {
                     throw new PieceConfigurationError(
-                        piece.name as string,
+                        piece.name,
                         'piece display characters must be unique'
                     );
                 }
