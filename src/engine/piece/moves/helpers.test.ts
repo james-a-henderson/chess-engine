@@ -572,11 +572,12 @@ function generateCaptureTest(
             : [pieceConfig]
     };
     const engine = new GameEngine(config);
-    const piece = engine.getSpace(startingPosition).piece!;
+    const board = engine.board;
+    const piece = board.getSpace(startingPosition).piece!;
 
     const result = validateCaptureRules(
         piece,
-        engine,
+        board,
         destinationPosition,
         captureAvailability
     );

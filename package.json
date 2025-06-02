@@ -9,7 +9,8 @@
         "build": "tsc",
         "start": "tsx src/index.ts",
         "lint": "eslint . && prettier . --check",
-        "lint:fix": "eslint . --fix && prettier . --write"
+        "lint:fix": "eslint . --fix && prettier . --write",
+        "check-types": "tsc --noEmit"
     },
     "repository": {
         "type": "git",
