@@ -19,7 +19,9 @@ export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
     private _board: RectangularBoard<PieceNames>;
     private _config: GameRules<PieceNames>;
-    private _capturedPieces: Partial<Record<PlayerColor, PieceNames[]>> = {};
+    private _capturedPieces: Partial<
+        Record<PlayerColor, PieceNames[keyof PieceNames][]>
+    > = {};
     private _currentPlayer: PlayerColor;
     private _moves: MoveRecord<PieceNames>[] = [];
 
@@ -166,7 +168,7 @@ export class GameEngine<PieceNames extends string[]> {
         }
 
         this._capturedPieces[space.piece.playerColor]?.push(
-            space.piece.pieceName as PieceNames
+            space.piece.pieceName
         );
 
         space.piece = undefined;
