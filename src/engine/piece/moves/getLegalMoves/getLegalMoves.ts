@@ -18,7 +18,7 @@ export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
         default:
             //todo: implement other move types
             return () => {
-                return [];
+                return {moves: [], captureMoves: [], spacesThreatened: []};
             };
     }
 }
