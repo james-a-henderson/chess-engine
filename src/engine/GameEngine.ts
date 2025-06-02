@@ -11,9 +11,14 @@ import {
     PlayerConfigurationError,
     IllegalMoveError
 } from '../types/errors';
-import { BoardSpace, PiecePlacement } from '../types/engine';
+import {
+    BoardSpace,
+    PiecePlacement,
+    VerifyBoardStateFunction
+} from '../types/engine';
 import { styleText } from 'node:util';
 import { RectangularBoard } from './board/rectangularBoard';
+import { generateCheckFunction } from './board';
 
 export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
@@ -39,7 +44,13 @@ export class GameEngine<PieceNames extends string[]> {
         this.validatePieceConfig();
         const piecePlacements = this.initializePieces();
 
-        this._board = new RectangularBoard(this._config.board, piecePlacements);
+        const boardStateFunctions = this.generateVerifyBoardStateFunctions();
+
+        this._board = new RectangularBoard(
+            this._config.board,
+            piecePlacements,
+            boardStateFunctions
+        );
     }
 
     get board() {
@@ -289,6 +300,20 @@ export class GameEngine<PieceNames extends string[]> {
                 `player color ${color} does not exist`
             );
         }
+    }
+
+    private generateVerifyBoardStateFunctions(): VerifyBoardStateFunction<PieceNames>[] {
+        const verifyFunctions: VerifyBoardStateFunction<PieceNames>[] = [];
+
+        for (const condition of this._config.winConditions) {
+            if (condition.condition === 'checkmate') {
+                verifyFunctions.push(
+                    generateCheckFunction(condition.checkmatePiece)
+                );
+            }
+        }
+
+        return verifyFunctions;
     }
 
     /**

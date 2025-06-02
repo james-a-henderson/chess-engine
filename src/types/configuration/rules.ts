@@ -26,7 +26,7 @@ type Resign = WinConditionBase & {
 
 type CheckMate<PieceNames extends string[]> = WinConditionBase & {
     condition: 'checkmate';
-    checkmatePiece: PieceNames[keyof PieceNames] & string;
+    checkmatePiece: PieceNames[keyof PieceNames];
 };
 
 type WinCondition<PieceNames extends string[]> = Resign | CheckMate<PieceNames>;

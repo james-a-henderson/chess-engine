@@ -120,8 +120,9 @@ export class RectangularBoard<PieceNames extends string[]> {
             throw new IllegalMoveError('Must have piece on origin space');
         }
 
-        targetSpace.piece = originSpace.piece;
+        const piece = originSpace.piece;
         originSpace.piece = undefined;
+        targetSpace.piece = piece;
     }
 
     private generateEmptyBoard(): BoardSpace<PieceNames>[][] {
@@ -161,10 +162,19 @@ export class RectangularBoard<PieceNames extends string[]> {
         }
 
         const validationBoard = this.duplicateBoard();
+
         validationBoard.movePiece(originPosition, destinationPosition);
 
+        const movedPieceColor =
+            validationBoard.getSpace(destinationPosition).piece?.playerColor;
+
+        if (!movedPieceColor) {
+            //this error is highly unlikely, as it would require the movePiece function to fail silently
+            throw new Error('Unable to determine color of moved piece');
+        }
+
         for (const func of this._verifyBoardStateFunctions) {
-            if (!func(validationBoard)) {
+            if (!func(validationBoard, movedPieceColor)) {
                 return false;
             }
         }

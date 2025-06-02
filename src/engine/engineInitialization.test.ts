@@ -9,6 +9,8 @@ import {
 } from '../types/errors';
 import { assertBoardPosition } from '../testHelpers';
 
+import * as GenerateBoardVerificationFunctions from './board/generateVerifyBoardFunctions';
+
 type testPieceNames = ['testPiece', 'foo', 'bar'];
 
 describe('initialize engine', () => {
@@ -50,6 +52,14 @@ describe('initialize engine', () => {
         drawConditions: [],
         pieces: [genericPiece]
     };
+
+    beforeEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
 
     test('standard chess rules validate with no errors', () => {
         expect(() => new GameEngine(standardChessConfig)).not.toThrow();
@@ -464,5 +474,41 @@ describe('initialize engine', () => {
                 expect(() => new GameEngine(config)).toThrow(InvalidSpaceError);
             }
         );
+    });
+
+    describe('generateVerifyBoardStateFunctions', () => {
+        test('generateCheckFunction called if rules have checkmate win condition', () => {
+            const generateCheckFunctionMock = jest.spyOn(
+                GenerateBoardVerificationFunctions,
+                'generateCheckFunction'
+            );
+
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
+                winConditions: [
+                    { condition: 'checkmate', checkmatePiece: 'testPiece' }
+                ]
+            };
+
+            new GameEngine(config);
+
+            expect(generateCheckFunctionMock).toHaveBeenCalledTimes(1);
+        });
+
+        test('generateCheckFunction is not called if rules does not have checkmate win condition', () => {
+            const generateCheckFunctionMock = jest.spyOn(
+                GenerateBoardVerificationFunctions,
+                'generateCheckFunction'
+            );
+
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
+                winConditions: [{ condition: 'resign' }]
+            };
+
+            new GameEngine(config);
+
+            expect(generateCheckFunctionMock).toHaveBeenCalledTimes(0);
+        });
     });
 });
