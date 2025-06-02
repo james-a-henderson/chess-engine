@@ -445,44 +445,67 @@ describe('RectangularBoard', () => {
         });
     });
 
-    describe ('verifyMovePositionValid', () => {
-        let testPiecePlacements : PiecePlacement<testPieceNames>[];
+    describe('verifyMovePositionValid', () => {
+        let testPiecePlacements: PiecePlacement<testPieceNames>[];
 
-        const trueFunction = () => {return true;};
-        const falseFunction = () => {return false};
+        const trueFunction = () => {
+            return true;
+        };
+        const falseFunction = () => {
+            return false;
+        };
         beforeEach(() => {
             testPiecePlacements = [
                 { piece: testPieceFoo, position: ['a', 1] },
-                { piece: testPieceBar, position: ['c', 1] },
+                { piece: testPieceBar, position: ['c', 1] }
             ];
-        })
+        });
 
         test('returns true if board has no verifyBoardStateFunctions', () => {
-            const board = new RectangularBoard(testBoardConfig, testPiecePlacements);
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
             const result = board.verifyMovePositionValid(['a', 1], ['b', 1]);
             expect(result).toEqual(true);
         });
 
         test('returns true if board has single verifyBoardStateFunction which returns true', () => {
-            const board = new RectangularBoard(testBoardConfig, testPiecePlacements, [trueFunction]);
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction]
+            );
             const result = board.verifyMovePositionValid(['a', 1], ['b', 1]);
             expect(result).toEqual(true);
-        })
+        });
 
         test('returns false if board has single verifyBoardStateFunction which returns false', () => {
-            const board = new RectangularBoard(testBoardConfig, testPiecePlacements, [falseFunction]);
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [falseFunction]
+            );
             const result = board.verifyMovePositionValid(['a', 1], ['b', 1]);
             expect(result).toEqual(false);
-        })
+        });
 
         test('returns true if board has multiple verifyBoardStateFunction which return true', () => {
-            const board = new RectangularBoard(testBoardConfig, testPiecePlacements, [trueFunction, trueFunction, trueFunction]);
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction, trueFunction, trueFunction]
+            );
             const result = board.verifyMovePositionValid(['a', 1], ['b', 1]);
             expect(result).toEqual(true);
-        })
+        });
 
         test('returns false if board has multiple verifyBoardStateFunctions, one of which returns false', () => {
-            const board = new RectangularBoard(testBoardConfig, testPiecePlacements, [trueFunction, falseFunction, trueFunction]);
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction, falseFunction, trueFunction]
+            );
             const result = board.verifyMovePositionValid(['a', 1], ['b', 1]);
             expect(result).toEqual(false);
         });
@@ -491,9 +514,13 @@ describe('RectangularBoard', () => {
             //the reason for this test is to check that verifyMovePositionValid is moving the piece before running verification functions
             const testFunction = (board: RectangularBoard<testPieceNames>) => {
                 return board.getSpace(['b', 1]).piece !== undefined;
-            }
+            };
 
-            const board = new RectangularBoard(testBoardConfig, testPiecePlacements, [testFunction]);
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [testFunction]
+            );
             const result = board.verifyMovePositionValid(['a', 1], ['b', 1]);
             expect(result).toEqual(true);
         });
@@ -502,9 +529,13 @@ describe('RectangularBoard', () => {
             //reverse of the previous test
             const testFunction = (board: RectangularBoard<testPieceNames>) => {
                 return board.getSpace(['b', 1]).piece !== undefined;
-            }
+            };
 
-            const board = new RectangularBoard(testBoardConfig, testPiecePlacements, [testFunction]);
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [testFunction]
+            );
             const result = board.verifyMovePositionValid(['a', 1], ['a', 1]);
             expect(result).toEqual(false);
         });

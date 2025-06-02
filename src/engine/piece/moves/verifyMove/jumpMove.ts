@@ -79,21 +79,27 @@ function generateFunction<PieceNames extends string[]>(
 
         for (const coordinate of jumpCoordinates) {
             if (
-                validateCoordinate(
+                !validateCoordinate(
                     coordinate,
                     fileIndexDifference,
                     rankIndexDifference,
                     piece.playerColor
                 )
             ) {
-                return {
-                    originSpace: currentSpace,
-                    destinationSpace: destination,
-                    moveName: moveName,
-                    pieceColor: piece.playerColor,
-                    pieceName: piece.pieceName
-                };
+                continue;
             }
+
+            if (!board.verifyMovePositionValid(currentSpace, destination)) {
+                return false;
+            }
+
+            return {
+                originSpace: currentSpace,
+                destinationSpace: destination,
+                moveName: moveName,
+                pieceColor: piece.playerColor,
+                pieceName: piece.pieceName
+            };
         }
 
         return false;

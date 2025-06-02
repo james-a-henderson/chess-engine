@@ -11,6 +11,7 @@ import { RectangularBoard } from '../../../board/rectangularBoard';
 import { Piece } from '../../piece';
 import { getMoveConditionFunctions } from '../helpers';
 
+//todo: filter out spaces that fail board.verifyMovePositionValid
 export function generateGetLegalJumpMovesFunction<PieceNames extends string[]>(
     move: JumpMove<PieceNames>
 ): getLegalMovesFunction<PieceNames> {

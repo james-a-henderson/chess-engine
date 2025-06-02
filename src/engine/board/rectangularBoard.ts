@@ -74,7 +74,7 @@ export class RectangularBoard<PieceNames extends string[]> {
     }): BoardSpace<PieceNames>[] {
         const spaces: BoardSpace<PieceNames>[] = [];
 
-        for(const space of this.boardSpaces()){
+        for (const space of this.boardSpaces()) {
             if (!space.piece) {
                 continue;
             }
@@ -152,41 +152,46 @@ export class RectangularBoard<PieceNames extends string[]> {
         return board;
     }
 
-    public verifyMovePositionValid(originPosition: BoardPosition,
-        destinationPosition: BoardPosition): boolean{
-            if(this._verifyBoardStateFunctions.length === 0){
-                return true;
-            }
-
-            const validationBoard = this.duplicateBoard();
-            validationBoard.movePiece(originPosition, destinationPosition);
-
-            for(const func of this._verifyBoardStateFunctions){
-                if(!func(validationBoard)){
-                    return false;
-                }
-            }
-
+    public verifyMovePositionValid(
+        originPosition: BoardPosition,
+        destinationPosition: BoardPosition
+    ): boolean {
+        if (this._verifyBoardStateFunctions.length === 0) {
             return true;
         }
 
+        const validationBoard = this.duplicateBoard();
+        validationBoard.movePiece(originPosition, destinationPosition);
+
+        for (const func of this._verifyBoardStateFunctions) {
+            if (!func(validationBoard)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private duplicateBoard(): RectangularBoard<PieceNames> {
         const piecePlacements: PiecePlacement<PieceNames>[] = [];
-        
-        for(const space of this.boardSpaces()){
-            if(!space.piece){
+
+        for (const space of this.boardSpaces()) {
+            if (!space.piece) {
                 continue;
             }
 
-            piecePlacements.push({piece: space.piece, position: space.position});
+            piecePlacements.push({
+                piece: space.piece,
+                position: space.position
+            });
         }
 
         return new RectangularBoard(this._config, piecePlacements);
     }
 
     private *boardSpaces() {
-        for(let i = 0; i < this.width; i++){
-            for(let j = 0; j < this.height; j++){
+        for (let i = 0; i < this.width; i++) {
+            for (let j = 0; j < this.height; j++) {
                 yield this._spaces[i][j];
             }
         }

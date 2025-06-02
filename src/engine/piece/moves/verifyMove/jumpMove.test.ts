@@ -6,6 +6,7 @@ import {
     PlayerColor,
     RectangularBoardConfig
 } from '../../../../types';
+import { RectangularBoard } from '../../../board';
 import { GameEngine } from '../../../GameEngine';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
 
@@ -41,6 +42,14 @@ const rulesConfig: GameRules<testPieceNames> = {
 };
 
 describe('generateVerifyJumpMoveFunctions', () => {
+    beforeEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
+
     test('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
         const move: JumpMove<testPieceNames> = {
             name: 'condition',
@@ -88,6 +97,50 @@ describe('generateVerifyJumpMoveFunctions', () => {
         piece.increaseMoveCount();
         const result = moveFunction(board, piece, ['c', 3], ['e', 5]);
         expect(result).toEqual(false);
+    });
+
+    test("generated function returns false if board's verifyMovePositionValid method returns false", () => {
+        jest.spyOn(
+            RectangularBoard.prototype,
+            'verifyMovePositionValid'
+        ).mockImplementation(() => {
+            return false;
+        });
+
+        generateMoveTest(
+            {
+                name: 'test',
+                captureAvailability: 'optional',
+                jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
+                type: 'jump'
+            },
+            'white',
+            ['c', 3],
+            ['e', 5],
+            false
+        );
+    });
+
+    test("generated function returns true if board's verifyMovePositionValid method returns true", () => {
+        jest.spyOn(
+            RectangularBoard.prototype,
+            'verifyMovePositionValid'
+        ).mockImplementation(() => {
+            return true;
+        });
+
+        generateMoveTest(
+            {
+                name: 'test',
+                captureAvailability: 'optional',
+                jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
+                type: 'jump'
+            },
+            'white',
+            ['c', 3],
+            ['e', 5],
+            true
+        );
     });
 
     test.each([

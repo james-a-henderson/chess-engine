@@ -9,6 +9,7 @@ import {
     CaptureAvailability,
     Direction
 } from '../../../../types';
+import { RectangularBoard } from '../../../board';
 import { GameEngine } from '../../../GameEngine';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
 
@@ -103,6 +104,13 @@ const rightBackwardMove: StandardMove<testPieceNames> = {
 };
 
 describe('generateVerifyStandardMoveFunctions', () => {
+    beforeEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
     test('returns empty array when move has no directions', () => {
         const move: StandardMove<testPieceNames> = {
             name: 'none',
@@ -175,6 +183,52 @@ describe('generateVerifyStandardMoveFunctions', () => {
         piece.increaseMoveCount();
         const result = moveFunction(board, piece, ['a', 2], ['a', 3]);
         expect(result).toEqual(false);
+    });
+
+    test("generated function returns false if board's verifyMovePositionValid method returns false", () => {
+        jest.spyOn(
+            RectangularBoard.prototype,
+            'verifyMovePositionValid'
+        ).mockImplementation(() => {
+            return false;
+        });
+
+        generateMoveTest(
+            {
+                name: 'test',
+                captureAvailability: 'optional',
+                type: 'standard',
+                directions: ['forward'],
+                maxSpaces: 'unlimited'
+            },
+            'white',
+            ['c', 3],
+            ['c', 5],
+            false
+        );
+    });
+
+    test("generated function returns true if board's verifyMovePositionValid method returns true", () => {
+        jest.spyOn(
+            RectangularBoard.prototype,
+            'verifyMovePositionValid'
+        ).mockImplementation(() => {
+            return true;
+        });
+
+        generateMoveTest(
+            {
+                name: 'test',
+                captureAvailability: 'optional',
+                type: 'standard',
+                directions: ['forward'],
+                maxSpaces: 'unlimited'
+            },
+            'white',
+            ['c', 3],
+            ['c', 5],
+            true
+        );
     });
 
     describe('Piece in between starting position and destination position', () => {

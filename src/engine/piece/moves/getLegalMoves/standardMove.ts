@@ -13,6 +13,7 @@ import { RectangularBoard } from '../../../board/rectangularBoard';
 import { Piece } from '../../piece';
 import { getMoveConditionFunctions, makeNextSpaceIterator } from '../helpers';
 
+//todo: filter out spaces that fail board.verifyMovePositionValid
 export function generateGetLegalStandardMovesFunction<
     PieceNames extends string[]
 >(

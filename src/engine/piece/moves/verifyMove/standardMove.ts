@@ -154,6 +154,11 @@ function generateFunction<PieceNames extends string[]>(
             }
         }
 
+        //validate that the resulting board state is valid
+        if (!board.verifyMovePositionValid(currentSpace, destination)) {
+            return false;
+        }
+
         return {
             originSpace: currentSpace,
             destinationSpace: destination,
