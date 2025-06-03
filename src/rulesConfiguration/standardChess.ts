@@ -237,6 +237,31 @@ export const standardChessConfig: GameRules<
                             location: ['g', 8],
                             targetPieceLocation: ['f', 8]
                         }
+                    ],
+                    moveConditions: [
+                        {
+                            condition: 'otherPieceHasNotMoved',
+                            piece: 'rook',
+                            piecePositionForColor: {
+                                white: ['h', 1],
+                                black: ['h', 8]
+                            }
+                        },
+                        {
+                            condition: 'spacesAreNotThreatened',
+                            spacesForColor: {
+                                white: [
+                                    ['e', 1],
+                                    ['f', 1],
+                                    ['g', 1]
+                                ],
+                                black: [
+                                    ['e', 8],
+                                    ['f', 8],
+                                    ['g', 8]
+                                ]
+                            }
+                        }
                     ]
                 },
                 {
@@ -265,6 +290,31 @@ export const standardChessConfig: GameRules<
                             playerColor: 'black',
                             location: ['c', 8],
                             targetPieceLocation: ['d', 8]
+                        }
+                    ],
+                    moveConditions: [
+                        {
+                            condition: 'otherPieceHasNotMoved',
+                            piece: 'rook',
+                            piecePositionForColor: {
+                                white: ['a', 1],
+                                black: ['a', 8]
+                            }
+                        },
+                        {
+                            condition: 'spacesAreNotThreatened',
+                            spacesForColor: {
+                                white: [
+                                    ['e', 1],
+                                    ['d', 1],
+                                    ['c', 1]
+                                ],
+                                black: [
+                                    ['e', 8],
+                                    ['d', 8],
+                                    ['c', 8]
+                                ]
+                            }
                         }
                     ]
                 }

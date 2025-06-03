@@ -80,11 +80,8 @@ type MoveConditionBase = {
 type ConditionOtherPieceHasNotMoved<PieceNames extends string[]> =
     MoveConditionBase & {
         condition: 'otherPieceHasNotMoved';
-        piece: PieceNames[keyof PieceNames] & string;
-        piecePosition: {
-            playerColor: PlayerColor;
-            position: BoardPosition;
-        }[];
+        piece: PieceNames[keyof PieceNames];
+        piecePositionForColor: Partial<Record<PlayerColor, BoardPosition>>;
     };
 
 type ConditionFirstPieceMove = MoveConditionBase & {
@@ -94,17 +91,23 @@ type ConditionFirstPieceMove = MoveConditionBase & {
 type SpecificPreviousMove<PieceNames extends string[]> = MoveConditionBase & {
     condition: 'specificPreviousMove';
     previousMoveName: string;
-    pieces: (PieceNames[keyof PieceNames] & string)[];
+    pieces: PieceNames[keyof PieceNames][];
     locations: {
         direction: Direction;
         numSpaces: number;
     }[];
 };
 
+type SpacesAreNotThreatened = MoveConditionBase & {
+    condition: 'spacesAreNotThreatened';
+    spacesForColor: Partial<Record<PlayerColor, BoardPosition[]>>;
+};
+
 export type MoveCondition<PieceNames extends string[]> =
     | ConditionFirstPieceMove
     | SpecificPreviousMove<PieceNames>
-    | ConditionOtherPieceHasNotMoved<PieceNames>;
+    | ConditionOtherPieceHasNotMoved<PieceNames>
+    | SpacesAreNotThreatened;
 
 //directions are relative to the player's position
 export type Direction =
