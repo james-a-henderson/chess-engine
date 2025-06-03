@@ -15,7 +15,16 @@ import {
     reverseDirection,
     validateCaptureRules
 } from './helpers';
-import { firstPieceMove } from './restrictions';
+
+import * as MoveRestrictions from './restrictions';
+
+jest.mock('./restrictions', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return {
+        __esModule: true,
+        ...jest.requireActual('./restrictions')
+    };
+});
 
 type testPieceNames = ['foo', 'bar'];
 
@@ -274,6 +283,9 @@ describe('helpers', () => {
     });
 
     describe('getMoveConditionFunctions', () => {
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
         test('returns empty array with no conditions', () => {
             const result = getMoveConditionFunctions([]);
 
@@ -281,14 +293,53 @@ describe('helpers', () => {
         });
 
         test('returns firstPieceMove function with ConditionFirstPieceMove input', () => {
-            const input = [
+            const input: MoveCondition<testPieceNames>[] = [
                 { condition: 'firstPieceMove' }
-            ] as MoveCondition<testPieceNames>[];
+            ];
 
             const result = getMoveConditionFunctions(input);
 
             expect(result).toHaveLength(1);
-            expect(result[0]).toEqual(firstPieceMove);
+            expect(result[0]).toEqual(MoveRestrictions.firstPieceMove);
+        });
+
+        test('returns otherPieceHasNotMoved function with otherPieceHasNotMoved input', () => {
+            const testFunction = () => {
+                return true;
+            };
+            jest.spyOn(
+                MoveRestrictions,
+                'generateOtherPieceHasNotMovedFunction'
+            ).mockImplementation(() => {
+                return testFunction;
+            });
+
+            const input: MoveCondition<testPieceNames>[] = [
+                {
+                    condition: 'otherPieceHasNotMoved',
+                    piece: 'bar',
+                    piecePositionForColor: {}
+                }
+            ];
+            const result = getMoveConditionFunctions(input);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toEqual(testFunction);
+        });
+
+        test('returns array of size 2 if input has two conditions', () => {
+            const input: MoveCondition<testPieceNames>[] = [
+                { condition: 'firstPieceMove' },
+                {
+                    condition: 'otherPieceHasNotMoved',
+                    piece: 'bar',
+                    piecePositionForColor: {}
+                }
+            ];
+
+            const result = getMoveConditionFunctions(input);
+
+            expect(result).toHaveLength(2);
         });
     });
 

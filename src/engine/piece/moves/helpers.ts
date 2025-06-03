@@ -8,7 +8,10 @@ import {
 } from '../../../types';
 import { RectangularBoard } from '../../board';
 import { Piece } from '../piece';
-import { firstPieceMove } from './restrictions';
+import {
+    firstPieceMove,
+    generateOtherPieceHasNotMovedFunction
+} from './restrictions';
 
 export function validateCaptureRules<PieceNames extends string[]>(
     piece: Piece<PieceNames>,
@@ -75,8 +78,15 @@ export function getMoveConditionFunctions<PieceNames extends string[]>(
             case 'firstPieceMove':
                 conditionFunctions.push(firstPieceMove);
                 break;
-            case 'specificPreviousMove':
             case 'otherPieceHasNotMoved':
+                conditionFunctions.push(
+                    generateOtherPieceHasNotMovedFunction(
+                        condition.piece,
+                        condition.piecePositionForColor
+                    )
+                );
+                break;
+            case 'specificPreviousMove':
             //not implemented yet
         }
     }
