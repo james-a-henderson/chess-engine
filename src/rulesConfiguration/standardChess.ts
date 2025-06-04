@@ -248,7 +248,7 @@ export const standardChessConfig: GameRules<
                             }
                         },
                         {
-                            condition: 'spacesAreNotThreatened',
+                            condition: 'spacesNotThreatened',
                             spacesForColor: {
                                 white: [
                                     ['e', 1],
@@ -302,7 +302,7 @@ export const standardChessConfig: GameRules<
                             }
                         },
                         {
-                            condition: 'spacesAreNotThreatened',
+                            condition: 'spacesNotThreatened',
                             spacesForColor: {
                                 white: [
                                     ['e', 1],

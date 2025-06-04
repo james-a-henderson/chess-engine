@@ -3,7 +3,7 @@ import {
     CaptureAvailability,
     Direction,
     MoveCondition,
-    moveConditionFunction,
+    MoveConditionFunction,
     PlayerColor
 } from '../../../types';
 import { RectangularBoard } from '../../board';
@@ -70,8 +70,8 @@ export function reverseDirection(direction: Direction): Direction {
 
 export function getMoveConditionFunctions<PieceNames extends string[]>(
     conditions: MoveCondition<PieceNames>[]
-): moveConditionFunction<PieceNames>[] {
-    const conditionFunctions: moveConditionFunction<PieceNames>[] = [];
+): MoveConditionFunction<PieceNames>[] {
+    const conditionFunctions: MoveConditionFunction<PieceNames>[] = [];
 
     for (const condition of conditions) {
         switch (condition.condition) {

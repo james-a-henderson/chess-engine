@@ -16,13 +16,13 @@ export type AvailableMoves = {
     spacesThreatened: BoardPosition[]; //for determining if move causes king to move into check
 };
 
-export type getLegalMovesFunction<PieceNames extends string[]> = (
+export type GetLegalMovesFunction<PieceNames extends string[]> = (
     board: RectangularBoard<PieceNames>,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition
 ) => AvailableMoves;
 
-export type moveConditionFunction<PieceNames extends string[]> = (
+export type MoveConditionFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
     board: RectangularBoard<PieceNames>
 ) => boolean;

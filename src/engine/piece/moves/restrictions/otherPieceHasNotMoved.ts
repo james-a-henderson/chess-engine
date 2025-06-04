@@ -1,6 +1,6 @@
 import {
     BoardPosition,
-    moveConditionFunction,
+    MoveConditionFunction,
     PlayerColor,
     RulesConfigurationError
 } from '../../../../types';
@@ -12,7 +12,7 @@ export function generateOtherPieceHasNotMovedFunction<
 >(
     pieceName: PieceNames[keyof PieceNames],
     piecePositionForColor: Partial<Record<PlayerColor, BoardPosition>>
-): moveConditionFunction<PieceNames> {
+): MoveConditionFunction<PieceNames> {
     return (piece: Piece<PieceNames>, board: RectangularBoard<PieceNames>) => {
         const color = piece.playerColor;
         const position = piecePositionForColor[color];

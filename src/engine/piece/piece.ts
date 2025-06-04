@@ -1,7 +1,7 @@
 import {
     AvailableMoves,
     BoardPosition,
-    getLegalMovesFunction,
+    GetLegalMovesFunction,
     MoveRecord,
     verifyLegalMoveFunction
 } from '../../types';
@@ -19,7 +19,7 @@ export class Piece<PieceNames extends string[]> {
     private _playerColor: PlayerColor;
     private _verifyLegalMoveFunctions: verifyLegalMoveFunction<PieceNames>[] =
         [];
-    private _getLegalMoveFunctions: getLegalMovesFunction<PieceNames>[] = [];
+    private _getLegalMoveFunctions: GetLegalMovesFunction<PieceNames>[] = [];
     private _moveCount = 0;
 
     constructor(

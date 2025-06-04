@@ -98,8 +98,8 @@ type SpecificPreviousMove<PieceNames extends string[]> = MoveConditionBase & {
     }[];
 };
 
-type SpacesAreNotThreatened = MoveConditionBase & {
-    condition: 'spacesAreNotThreatened';
+type SpacesNotThreatened = MoveConditionBase & {
+    condition: 'spacesNotThreatened';
     spacesForColor: Partial<Record<PlayerColor, BoardPosition[]>>;
 };
 
@@ -107,7 +107,7 @@ export type MoveCondition<PieceNames extends string[]> =
     | ConditionFirstPieceMove
     | SpecificPreviousMove<PieceNames>
     | ConditionOtherPieceHasNotMoved<PieceNames>
-    | SpacesAreNotThreatened;
+    | SpacesNotThreatened;
 
 //directions are relative to the player's position
 export type Direction =

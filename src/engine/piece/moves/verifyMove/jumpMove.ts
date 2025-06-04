@@ -2,7 +2,7 @@ import {
     BoardPosition,
     CaptureAvailability,
     JumpMove,
-    moveConditionFunction,
+    MoveConditionFunction,
     PlayerColor,
     verifyLegalMoveFunction
 } from '../../../../types';
@@ -37,7 +37,7 @@ function generateFunction<PieceNames extends string[]>(
         horizontalSpaces: number;
         verticalSpaces: number;
     }[],
-    conditionFunctions: moveConditionFunction<PieceNames>[],
+    conditionFunctions: MoveConditionFunction<PieceNames>[],
     moveName: string
 ): verifyLegalMoveFunction<PieceNames> {
     return (

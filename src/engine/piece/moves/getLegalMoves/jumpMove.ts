@@ -2,10 +2,10 @@ import {
     AvailableMoves,
     BoardPosition,
     CaptureAvailability,
-    getLegalMovesFunction,
+    GetLegalMovesFunction,
     InvalidSpaceError,
     JumpMove,
-    moveConditionFunction
+    MoveConditionFunction
 } from '../../../../types';
 import { RectangularBoard } from '../../../board/rectangularBoard';
 import { Piece } from '../../piece';
@@ -14,7 +14,7 @@ import { getMoveConditionFunctions } from '../helpers';
 //todo: filter out spaces that fail board.verifyMovePositionValid
 export function generateGetLegalJumpMovesFunction<PieceNames extends string[]>(
     move: JumpMove<PieceNames>
-): getLegalMovesFunction<PieceNames> {
+): GetLegalMovesFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
@@ -32,8 +32,8 @@ function generateFunction<PieceNames extends string[]>(
         horizontalSpaces: number;
         verticalSpaces: number;
     }[],
-    conditionFunctions: moveConditionFunction<PieceNames>[]
-): getLegalMovesFunction<PieceNames> {
+    conditionFunctions: MoveConditionFunction<PieceNames>[]
+): GetLegalMovesFunction<PieceNames> {
     return (
         board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,

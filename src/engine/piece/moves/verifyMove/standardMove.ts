@@ -7,7 +7,7 @@ import {
     StandardMove
 } from '../../../../types/configuration';
 import {
-    moveConditionFunction,
+    MoveConditionFunction,
     verifyLegalMoveFunction
 } from '../../../../types/moves';
 import { RectangularBoard } from '../../../board';
@@ -75,7 +75,7 @@ function generateFunction<PieceNames extends string[]>(
     directions: Direction[],
     maxSpaces: number,
     minSpaces: number,
-    conditionFunctions: moveConditionFunction<PieceNames>[],
+    conditionFunctions: MoveConditionFunction<PieceNames>[],
     moveName: string
 ): verifyLegalMoveFunction<PieceNames> {
     return (

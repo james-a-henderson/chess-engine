@@ -1,5 +1,5 @@
 import {
-    getLegalMovesFunction,
+    GetLegalMovesFunction,
     Move,
     RectangularBoardConfig
 } from '../../../../types';
@@ -9,7 +9,7 @@ import { generateGetLegalStandardMovesFunction } from './standardMove';
 export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
     move: Move<PieceNames>,
     boardConfig: RectangularBoardConfig
-): getLegalMovesFunction<PieceNames> {
+): GetLegalMovesFunction<PieceNames> {
     switch (move.type) {
         case 'standard':
             return generateGetLegalStandardMovesFunction(move, boardConfig);

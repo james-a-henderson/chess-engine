@@ -3,9 +3,9 @@ import {
     BoardPosition,
     CaptureAvailability,
     Direction,
-    getLegalMovesFunction,
+    GetLegalMovesFunction,
     InvalidSpaceError,
-    moveConditionFunction,
+    MoveConditionFunction,
     RectangularBoardConfig,
     StandardMove
 } from '../../../../types';
@@ -19,7 +19,7 @@ export function generateGetLegalStandardMovesFunction<
 >(
     move: StandardMove<PieceNames>,
     boardConfig: RectangularBoardConfig
-): getLegalMovesFunction<PieceNames> {
+): GetLegalMovesFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
@@ -64,8 +64,8 @@ function generateFunction<PieceNames extends string[]>(
     directions: Direction[],
     maxSpaces: number,
     minSpaces: number,
-    conditionFunctions: moveConditionFunction<PieceNames>[]
-): getLegalMovesFunction<PieceNames> {
+    conditionFunctions: MoveConditionFunction<PieceNames>[]
+): GetLegalMovesFunction<PieceNames> {
     return (
         board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
