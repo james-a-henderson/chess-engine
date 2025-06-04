@@ -10,7 +10,8 @@ import { RectangularBoard } from '../../board';
 import { Piece } from '../piece';
 import {
     firstPieceMove,
-    generateOtherPieceHasNotMovedFunction
+    generateOtherPieceHasNotMovedFunction,
+    generateSpacesNotThreatenedFunction
 } from './restrictions';
 
 export function validateCaptureRules<PieceNames extends string[]>(
@@ -83,6 +84,13 @@ export function getMoveConditionFunctions<PieceNames extends string[]>(
                     generateOtherPieceHasNotMovedFunction(
                         condition.piece,
                         condition.piecePositionForColor
+                    )
+                );
+                break;
+            case 'spacesNotThreatened':
+                conditionFunctions.push(
+                    generateSpacesNotThreatenedFunction(
+                        condition.spacesForColor
                     )
                 );
                 break;

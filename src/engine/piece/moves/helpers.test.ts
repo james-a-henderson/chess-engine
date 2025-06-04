@@ -327,6 +327,29 @@ describe('helpers', () => {
             expect(result[0]).toEqual(testFunction);
         });
 
+        test('returns spacesNotThreatened function with spacesNotThreatened input', () => {
+            const testFunction = () => {
+                return true;
+            };
+            jest.spyOn(
+                MoveRestrictions,
+                'generateSpacesNotThreatenedFunction'
+            ).mockImplementation(() => {
+                return testFunction;
+            });
+
+            const input: MoveCondition<testPieceNames>[] = [
+                {
+                    condition: 'spacesNotThreatened',
+                    spacesForColor: {}
+                }
+            ];
+            const result = getMoveConditionFunctions(input);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toEqual(testFunction);
+        });
+
         test('returns array of size 2 if input has two conditions', () => {
             const input: MoveCondition<testPieceNames>[] = [
                 { condition: 'firstPieceMove' },
