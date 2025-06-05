@@ -3,11 +3,23 @@ import { Piece } from '../../engine/piece';
 import { BoardPosition } from '../common';
 import { MoveRecord } from './moveRecord';
 
+type MoveOptionsBase = {
+    type: string;
+};
+
+export type CastleMoveOptions = MoveOptionsBase & {
+    type: 'castle';
+    targetPieceLocation: BoardPosition;
+};
+
+export type MoveOptions = CastleMoveOptions; //will expand with promotion options later
+
 export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     board: RectangularBoard<PieceNames>,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition,
-    destination: BoardPosition
+    destination: BoardPosition,
+    moveOptions?: MoveOptions
 ) => MoveRecord<PieceNames> | false;
 
 export type AvailableMoves = {

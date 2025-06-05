@@ -76,7 +76,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             };
             jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce(
                 moveRecord
@@ -103,7 +104,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
 
             expect(engine.getSpace(['a', 2]).piece).toBeUndefined();
@@ -122,7 +124,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
             expect(engine.getSpace(['a', 1]).piece?.pieceName).toEqual('foo');
             expect(engine.getSpace(['a', 1]).piece?.playerColor).toEqual(
@@ -140,7 +143,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
 
             expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual('foo');
@@ -162,7 +166,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
 
             expect(engine.capturedPieces.black).toHaveLength(0);
@@ -179,7 +184,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
 
             const piece = engine.getSpace(['a', 1]).piece;
@@ -205,7 +211,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
             engine.makeMove(['a', 1], ['a', 2]);
             expect(engine.currentPlayer).toEqual('black');
@@ -217,7 +224,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 1],
                 pieceColor: 'white',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
             engine.makeMove(['a', 1], ['a', 2]);
             jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
@@ -225,7 +233,8 @@ describe('GameEngine gameplay', () => {
                 originSpace: ['a', 8],
                 pieceColor: 'black',
                 pieceName: 'foo',
-                moveName: 'test'
+                moveName: 'test',
+                type: 'standard'
             });
             engine.makeMove(['a', 8], ['a', 3]);
 
@@ -241,7 +250,8 @@ describe('GameEngine gameplay', () => {
             originSpace: ['a', 1],
             pieceColor: 'white',
             pieceName: 'foo',
-            moveName: 'test'
+            moveName: 'test',
+            type: 'standard'
         };
 
         const secondMoveRecord: MoveRecord<testPieceNames> = {
@@ -249,7 +259,8 @@ describe('GameEngine gameplay', () => {
             originSpace: ['a', 8],
             pieceColor: 'black',
             pieceName: 'foo',
-            moveName: 'test'
+            moveName: 'test',
+            type: 'standard'
         };
 
         const thridMoveRecord: MoveRecord<testPieceNames> = {
@@ -257,7 +268,8 @@ describe('GameEngine gameplay', () => {
             originSpace: ['a', 2],
             pieceColor: 'white',
             pieceName: 'foo',
-            moveName: 'test'
+            moveName: 'test',
+            type: 'standard'
         };
 
         beforeEach(() => {

@@ -368,7 +368,8 @@ describe('piece', () => {
             originSpace: ['a', 1],
             moveName: 'test',
             pieceColor: 'white',
-            pieceName: 'foo'
+            pieceName: 'foo',
+            type: 'standard'
         };
         const legalMove = () => {
             return testMoveResult;

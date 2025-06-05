@@ -277,7 +277,8 @@ function generateMoveTest(
             originSpace: startingPosition,
             moveName: moveConfig.name,
             pieceColor: playerColor,
-            pieceName: pieceConfig.name
+            pieceName: pieceConfig.name,
+            type: 'jump'
         });
     } else {
         expect(result).toEqual(false);

@@ -2234,7 +2234,8 @@ function generateMoveTest(
             originSpace: startingPosition,
             moveName: moveConfig.name,
             pieceColor: playerColor,
-            pieceName: pieceConfig.name
+            pieceName: pieceConfig.name,
+            type: 'standard'
         });
     } else {
         expect(result).toEqual(false);
@@ -2342,7 +2343,8 @@ function generateSameColorPieceOnDestinationTest(
             originSpace: startingPosition,
             moveName: moveConfig.name,
             pieceColor: playerColor,
-            pieceName: pieceConfig.name
+            pieceName: pieceConfig.name,
+            type: 'standard'
         });
     } else {
         expect(result).toEqual(false);

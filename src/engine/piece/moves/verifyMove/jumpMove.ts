@@ -98,7 +98,8 @@ function generateFunction<PieceNames extends string[]>(
                 destinationSpace: destination,
                 moveName: moveName,
                 pieceColor: piece.playerColor,
-                pieceName: piece.pieceName
+                pieceName: piece.pieceName,
+                type: 'jump'
             };
         }
 

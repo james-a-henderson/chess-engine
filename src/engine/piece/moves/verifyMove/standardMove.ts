@@ -2,7 +2,6 @@ import { BoardPosition } from '../../../../types';
 import {
     CaptureAvailability,
     Direction,
-    PlayerColor,
     RectangularBoardConfig,
     StandardMove
 } from '../../../../types/configuration';
@@ -13,10 +12,11 @@ import {
 import { RectangularBoard } from '../../../board';
 import { Piece } from '../../piece';
 import {
+    calculateMoveLength,
+    determineMoveDirection,
     getMoveConditionFunctions,
     makeNextSpaceIterator,
     positionsAreEqual,
-    reverseDirection,
     validateCaptureRules
 } from '../helpers';
 
@@ -164,91 +164,8 @@ function generateFunction<PieceNames extends string[]>(
             destinationSpace: destination,
             pieceName: piece.pieceName,
             pieceColor: piece.playerColor,
-            moveName: moveName
+            moveName: moveName,
+            type: 'standard'
         };
     };
-}
-
-function determineMoveDirection(
-    currentFileIndex: number,
-    currentRankIndex: number,
-    destinationFileIndex: number,
-    destinationRankIndex: number,
-    pieceColor: PlayerColor
-): Direction | 'invalid' {
-    const direction = determineMoveDirectionForWhite(
-        currentFileIndex,
-        currentRankIndex,
-        destinationFileIndex,
-        destinationRankIndex
-    );
-
-    if (direction !== 'invalid' && pieceColor === 'black') {
-        return reverseDirection(direction);
-    }
-
-    return direction;
-}
-
-function determineMoveDirectionForWhite(
-    currentFileIndex: number,
-    currentRankIndex: number,
-    destinationFileIndex: number,
-    destinationRankIndex: number
-): Direction | 'invalid' {
-    if (
-        currentFileIndex === destinationFileIndex &&
-        currentRankIndex === destinationRankIndex
-    ) {
-        //cannot have piece on same square
-        return 'invalid';
-    }
-
-    if (currentFileIndex === destinationFileIndex) {
-        return currentRankIndex > destinationRankIndex ? 'backward' : 'forward';
-    }
-
-    if (currentRankIndex === destinationRankIndex) {
-        return currentFileIndex > destinationFileIndex ? 'left' : 'right';
-    }
-
-    if (
-        currentFileIndex - currentRankIndex ===
-        destinationFileIndex - destinationRankIndex
-    ) {
-        if (currentFileIndex > destinationFileIndex) {
-            return 'leftBackward';
-        }
-        return 'rightForward';
-    }
-
-    if (
-        currentFileIndex + currentRankIndex ===
-        destinationFileIndex + destinationRankIndex
-    ) {
-        if (currentFileIndex > destinationFileIndex) {
-            return 'leftForward';
-        }
-
-        return 'rightBackward';
-    }
-
-    return 'invalid';
-}
-
-function calculateMoveLength(
-    direction: Direction,
-    currentFileIndex: number,
-    currentRankIndex: number,
-    destinationFileIndex: number,
-    destinationRankIndex: number
-): number {
-    switch (direction) {
-        case 'forward':
-        case 'backward':
-            return Math.abs(currentRankIndex - destinationRankIndex);
-        default:
-            //diagonal move length is equivilent to the number of spaces moved horizontally or vertically
-            return Math.abs(currentFileIndex - destinationFileIndex);
-    }
 }
