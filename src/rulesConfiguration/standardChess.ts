@@ -214,31 +214,26 @@ export const standardChessConfig: GameRules<
                     type: 'castle',
                     name: 'kingsideCastle',
                     captureAvailability: 'forbidden',
-                    targetPiece: [
-                        {
-                            playerColor: 'white',
-                            name: 'rook',
-                            location: ['h', 1]
+                    configForColor: {
+                        white: {
+                            origin: ['e', 1],
+                            destination: ['g', 1],
+                            targetPieceName: 'rook',
+                            targetPieceOrigin: ['h', 1],
+                            targetPieceDestination: ['f', 1]
                         },
-                        {
-                            playerColor: 'black',
-                            name: 'rook',
-                            location: ['h', 8]
+                        black: {
+                            origin: ['e', 8],
+                            destination: ['g', 8],
+                            targetPieceName: 'rook',
+                            targetPieceOrigin: ['h', 8],
+                            targetPieceDestination: ['f', 8]
                         }
-                    ],
-                    resultLocation: [
-                        {
-                            playerColor: 'white',
-                            location: ['g', 1],
-                            targetPieceLocation: ['f', 1]
-                        },
-                        {
-                            playerColor: 'black',
-                            location: ['g', 8],
-                            targetPieceLocation: ['f', 8]
-                        }
-                    ],
+                    },
                     moveConditions: [
+                        {
+                            condition: 'firstPieceMove'
+                        },
                         {
                             condition: 'otherPieceHasNotMoved',
                             piece: 'rook',
@@ -268,31 +263,26 @@ export const standardChessConfig: GameRules<
                     type: 'castle',
                     name: 'queensideCastle',
                     captureAvailability: 'forbidden',
-                    targetPiece: [
-                        {
-                            playerColor: 'white',
-                            name: 'rook',
-                            location: ['a', 1]
+                    configForColor: {
+                        white: {
+                            origin: ['e', 1],
+                            destination: ['c', 1],
+                            targetPieceName: 'rook',
+                            targetPieceOrigin: ['a', 1],
+                            targetPieceDestination: ['d', 1]
                         },
-                        {
-                            playerColor: 'black',
-                            name: 'rook',
-                            location: ['a', 8]
+                        black: {
+                            origin: ['e', 8],
+                            destination: ['c', 8],
+                            targetPieceName: 'rook',
+                            targetPieceOrigin: ['a', 8],
+                            targetPieceDestination: ['d', 8]
                         }
-                    ],
-                    resultLocation: [
-                        {
-                            playerColor: 'white',
-                            location: ['c', 1],
-                            targetPieceLocation: ['d', 1]
-                        },
-                        {
-                            playerColor: 'black',
-                            location: ['c', 8],
-                            targetPieceLocation: ['d', 8]
-                        }
-                    ],
+                    },
                     moveConditions: [
+                        {
+                            condition: 'firstPieceMove'
+                        },
                         {
                             condition: 'otherPieceHasNotMoved',
                             piece: 'rook',

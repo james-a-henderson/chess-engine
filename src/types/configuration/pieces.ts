@@ -51,18 +51,19 @@ export type PromotionMove<PieceNames extends string[]> =
         promotionTargets: (PieceNames[keyof PieceNames] & string)[];
     };
 
+export type CastleConfigForColor<PieceNames extends string[]> = {
+    origin: BoardPosition;
+    destination: BoardPosition;
+    targetPieceName: PieceNames[keyof PieceNames];
+    targetPieceOrigin: BoardPosition;
+    targetPieceDestination: BoardPosition;
+};
+
 export type CastleMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     type: 'castle';
-    targetPiece: {
-        name: PieceNames[keyof PieceNames] & string;
-        playerColor: PlayerColor;
-        location: BoardPosition;
-    }[];
-    resultLocation: {
-        playerColor: PlayerColor;
-        location: BoardPosition;
-        targetPieceLocation: BoardPosition;
-    }[];
+    configForColor: Partial<
+        Record<PlayerColor, CastleConfigForColor<PieceNames>>
+    >;
 };
 
 export type Move<PieceNames extends string[]> =
