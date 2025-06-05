@@ -125,6 +125,36 @@ export class RectangularBoard<PieceNames extends string[]> {
         targetSpace.piece = piece;
     }
 
+    public movePieces(
+        moves: {
+            originPosition: BoardPosition;
+            destinationPosition: BoardPosition;
+        }[]
+    ) {
+        const placements: PiecePlacement<PieceNames>[] = [];
+
+        //get all pieces on specified spaces, and remove them from original space
+        for (const move of moves) {
+            const originSpace = this.getSpace(move.originPosition);
+            if (!originSpace.piece) {
+                throw new IllegalMoveError('Must have piece on origin space');
+            }
+
+            placements.push({
+                piece: originSpace.piece,
+                position: move.destinationPosition
+            });
+
+            originSpace.piece = undefined;
+        }
+
+        //place pieces on destination space
+        for (const placement of placements) {
+            const destinationSpace = this.getSpace(placement.position);
+            destinationSpace.piece = placement.piece;
+        }
+    }
+
     private generateEmptyBoard(): BoardSpace<PieceNames>[][] {
         if (
             !Number.isSafeInteger(this.width) ||
@@ -157,16 +187,43 @@ export class RectangularBoard<PieceNames extends string[]> {
         originPosition: BoardPosition,
         destinationPosition: BoardPosition
     ): boolean {
+        return this.verifyMultipleMovePosition([
+            {
+                originPosition: originPosition,
+                destinationPosition: destinationPosition
+            }
+        ]);
+    }
+
+    public verifyMultipleMovePosition(
+        moves: {
+            originPosition: BoardPosition;
+            destinationPosition: BoardPosition;
+        }[]
+    ): boolean {
         if (this._verifyBoardStateFunctions.length === 0) {
+            //return true if no verifyBoardState functions (as we have nothing to check)
             return true;
+        }
+
+        if (moves.length === 0) {
+            throw new IllegalMoveError('Must move at least one piece');
+        }
+
+        const movedPieceColor = this.getSpace(moves[0].originPosition).piece
+            ?.playerColor;
+
+        for (const move of moves) {
+            const space = this.getSpace(move.originPosition);
+            if (space.piece?.playerColor !== movedPieceColor) {
+                //all pieces must be of same color
+                return false;
+            }
         }
 
         const validationBoard = this.duplicateBoard();
 
-        validationBoard.movePiece(originPosition, destinationPosition);
-
-        const movedPieceColor =
-            validationBoard.getSpace(destinationPosition).piece?.playerColor;
+        validationBoard.movePieces(moves);
 
         if (!movedPieceColor) {
             //this error is highly unlikely, as it would require the movePiece function to fail silently
