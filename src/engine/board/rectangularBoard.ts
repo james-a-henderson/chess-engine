@@ -113,16 +113,12 @@ export class RectangularBoard<PieceNames extends string[]> {
         originPosition: BoardPosition,
         destinationPosition: BoardPosition
     ): void {
-        const originSpace = this.getSpace(originPosition);
-        const targetSpace = this.getSpace(destinationPosition);
-
-        if (!originSpace.piece) {
-            throw new IllegalMoveError('Must have piece on origin space');
-        }
-
-        const piece = originSpace.piece;
-        originSpace.piece = undefined;
-        targetSpace.piece = piece;
+        this.movePieces([
+            {
+                originPosition: originPosition,
+                destinationPosition: destinationPosition
+            }
+        ]);
     }
 
     public movePieces(
@@ -132,9 +128,29 @@ export class RectangularBoard<PieceNames extends string[]> {
         }[]
     ) {
         const placements: PiecePlacement<PieceNames>[] = [];
+        const origins: Set<string> = new Set();
+        const destinations: Set<string> = new Set();
 
         //get all pieces on specified spaces, and remove them from original space
         for (const move of moves) {
+            const originString =
+                move.originPosition[0] + move.originPosition[1];
+            if (origins.has(originString)) {
+                throw new IllegalMoveError(
+                    'Cannot move same piece multiple times'
+                );
+            }
+            origins.add(originString);
+
+            const destinationString =
+                move.destinationPosition[0] + move.destinationPosition[1];
+            if (destinations.has(destinationString)) {
+                throw new IllegalMoveError(
+                    'Cannot move multiple pieces to same destination'
+                );
+            }
+            destinations.add(destinationString);
+
             const originSpace = this.getSpace(move.originPosition);
             if (!originSpace.piece) {
                 throw new IllegalMoveError('Must have piece on origin space');
@@ -216,8 +232,9 @@ export class RectangularBoard<PieceNames extends string[]> {
         for (const move of moves) {
             const space = this.getSpace(move.originPosition);
             if (space.piece?.playerColor !== movedPieceColor) {
-                //all pieces must be of same color
-                return false;
+                throw new IllegalMoveError(
+                    'Cannot move pieces of different colors at same time'
+                );
             }
         }
 

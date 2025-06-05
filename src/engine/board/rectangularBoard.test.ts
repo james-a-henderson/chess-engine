@@ -1,6 +1,7 @@
 import {
     BoardConfigurationError,
     BoardPosition,
+    IllegalMoveError,
     InvalidSpaceError,
     PieceConfig,
     PieceConfigurationError,
@@ -445,6 +446,181 @@ describe('RectangularBoard', () => {
         });
     });
 
+    describe('movePiece', () => {
+        let testPiecePlacements: PiecePlacement<testPieceNames>[];
+
+        beforeEach(() => {
+            testPiecePlacements = [
+                { piece: testPieceFoo, position: ['a', 1] },
+                { piece: testPieceBar, position: ['c', 1] }
+            ];
+        });
+        test('throws if no piece on origin space', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            expect(() => {
+                board.movePiece(['b', 2], ['c', 2]);
+            }).toThrow(IllegalMoveError);
+        });
+
+        test('destinationPosition has piece', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            board.movePiece(['a', 1], ['b', 1]);
+            const result = board.getSpace(['b', 1]);
+
+            expect(result.piece?.pieceName).toEqual('foo');
+        });
+
+        test('origin space no longer has piece', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            board.movePiece(['a', 1], ['b', 1]);
+            const result = board.getSpace(['a', 1]);
+
+            expect(result.piece).toBeUndefined();
+        });
+
+        test('overrides piece on destination space', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            board.movePiece(['c', 1], ['a', 1]);
+            const result = board.getSpace(['a', 1]);
+
+            expect(result.piece?.pieceName).toEqual('bar');
+        });
+    });
+
+    describe('movePieces', () => {
+        let testPiecePlacements: PiecePlacement<testPieceNames>[];
+
+        beforeEach(() => {
+            testPiecePlacements = [
+                { piece: testPieceFoo, position: ['a', 1] },
+                { piece: testPieceWhiteBaz, position: ['c', 1] },
+                { piece: testPieceBar, position: ['a', 3] }
+            ];
+        });
+
+        test('throws if one originPosition does not have piece', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+
+            expect(() =>
+                board.movePieces([
+                    { originPosition: ['a', 1], destinationPosition: ['a', 2] },
+                    { originPosition: ['b', 1], destinationPosition: ['b', 2] }
+                ])
+            ).toThrow(IllegalMoveError);
+        });
+
+        test('throws if multiple pieces are moving to same destination', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+
+            expect(() =>
+                board.movePieces([
+                    { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                    { originPosition: ['c', 1], destinationPosition: ['b', 1] }
+                ])
+            ).toThrow(IllegalMoveError);
+        });
+
+        test('throws if same piece is moved multiple times', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+
+            expect(() =>
+                board.movePieces([
+                    { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                    { originPosition: ['a', 1], destinationPosition: ['a', 2] }
+                ])
+            ).toThrow(IllegalMoveError);
+        });
+
+        test('moves pieces to correct spaces', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            board.movePieces([
+                { originPosition: ['a', 1], destinationPosition: ['a', 2] },
+                { originPosition: ['c', 1], destinationPosition: ['b', 1] }
+            ]);
+
+            const result1 = board.getSpace(['a', 2]);
+            const result2 = board.getSpace(['b', 1]);
+
+            expect(result1.piece?.pieceName).toEqual('foo');
+            expect(result2.piece?.pieceName).toEqual('baz');
+        });
+
+        test('origin spaces are undifined', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            board.movePieces([
+                { originPosition: ['a', 1], destinationPosition: ['a', 2] },
+                { originPosition: ['c', 1], destinationPosition: ['b', 1] }
+            ]);
+
+            const result1 = board.getSpace(['a', 1]);
+            const result2 = board.getSpace(['c', 1]);
+
+            expect(result1.piece).toBeUndefined();
+            expect(result2.piece).toBeUndefined();
+        });
+
+        test('Pieces swap positions correctly', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            board.movePieces([
+                { originPosition: ['a', 1], destinationPosition: ['c', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['a', 1] }
+            ]);
+
+            const result1 = board.getSpace(['c', 1]);
+            const result2 = board.getSpace(['a', 1]);
+
+            expect(result1.piece?.pieceName).toEqual('foo');
+            expect(result2.piece?.pieceName).toEqual('baz');
+        });
+
+        test('overrides piece on destination', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            board.movePieces([
+                { originPosition: ['a', 1], destinationPosition: ['a', 3] },
+                { originPosition: ['c', 1], destinationPosition: ['a', 1] }
+            ]);
+
+            const result1 = board.getSpace(['a', 3]);
+            const result2 = board.getSpace(['a', 1]);
+
+            expect(result1.piece?.pieceName).toEqual('foo');
+            expect(result2.piece?.pieceName).toEqual('baz');
+        });
+    });
+
     describe('verifyMovePositionValid', () => {
         let testPiecePlacements: PiecePlacement<testPieceNames>[];
 
@@ -537,6 +713,149 @@ describe('RectangularBoard', () => {
                 [testFunction]
             );
             const result = board.verifyMovePositionValid(['a', 1], ['a', 1]);
+            expect(result).toEqual(false);
+        });
+    });
+
+    describe('verifyMultipleMovePosition', () => {
+        let testPiecePlacements: PiecePlacement<testPieceNames>[];
+
+        const trueFunction = () => {
+            return true;
+        };
+        const falseFunction = () => {
+            return false;
+        };
+        beforeEach(() => {
+            testPiecePlacements = [
+                { piece: testPieceFoo, position: ['a', 1] },
+                { piece: testPieceWhiteBaz, position: ['c', 1] },
+                { piece: testPieceBar, position: ['a', 3] }
+            ];
+        });
+
+        test('returns true if board has no verifyBoardStateFunctions', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements
+            );
+            const result = board.verifyMultipleMovePosition([
+                { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['c', 2] }
+            ]);
+            expect(result).toEqual(true);
+        });
+
+        test('throws if no pieces are moved', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction]
+            );
+            expect(() => board.verifyMultipleMovePosition([])).toThrow(
+                IllegalMoveError
+            );
+        });
+
+        test('throws if pieces of different colors are moved', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction]
+            );
+            expect(() =>
+                board.verifyMultipleMovePosition([
+                    { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                    { originPosition: ['a', 3], destinationPosition: ['c', 2] }
+                ])
+            ).toThrow(IllegalMoveError);
+        });
+
+        test('returns true if board has single verifyBoardStateFunction which returns true', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction]
+            );
+            const result = board.verifyMultipleMovePosition([
+                { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['c', 2] }
+            ]);
+            expect(result).toEqual(true);
+        });
+
+        test('returns false if board has single verifyBoardStateFunction which returns false', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [falseFunction]
+            );
+            const result = board.verifyMultipleMovePosition([
+                { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['c', 2] }
+            ]);
+            expect(result).toEqual(false);
+        });
+
+        test('returns true if board has multiple verifyBoardStateFunction which return true', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction, trueFunction, trueFunction]
+            );
+            const result = board.verifyMultipleMovePosition([
+                { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['c', 2] }
+            ]);
+            expect(result).toEqual(true);
+        });
+
+        test('returns false if board has multiple verifyBoardStateFunctions, one of which returns false', () => {
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [trueFunction, falseFunction, trueFunction]
+            );
+            const result = board.verifyMultipleMovePosition([
+                { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['c', 2] }
+            ]);
+            expect(result).toEqual(false);
+        });
+
+        test('returns true if verifyBoardStateFunctions input board is different from base board', () => {
+            //the reason for this test is to check that verifyMovePositionValid is moving the piece before running verification functions
+            const testFunction = (board: RectangularBoard<testPieceNames>) => {
+                return board.getSpace(['b', 1]).piece !== undefined;
+            };
+
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [testFunction]
+            );
+            const result = board.verifyMultipleMovePosition([
+                { originPosition: ['a', 1], destinationPosition: ['b', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['c', 2] }
+            ]);
+            expect(result).toEqual(true);
+        });
+
+        test('returns false if verifyBoardStateFunctions input board is same as base board', () => {
+            //reverse of the previous test
+            const testFunction = (board: RectangularBoard<testPieceNames>) => {
+                return board.getSpace(['b', 1]).piece !== undefined;
+            };
+
+            const board = new RectangularBoard(
+                testBoardConfig,
+                testPiecePlacements,
+                [testFunction]
+            );
+            const result = board.verifyMultipleMovePosition([
+                { originPosition: ['a', 1], destinationPosition: ['a', 1] },
+                { originPosition: ['c', 1], destinationPosition: ['c', 1] }
+            ]);
             expect(result).toEqual(false);
         });
     });
