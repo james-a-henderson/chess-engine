@@ -3,9 +3,14 @@
 import { GameEngine } from '../engine';
 import { standardChessConfig, testConfig } from '../rulesConfiguration';
 import { assertBoardPosition } from '../testHelpers';
-import { BoardPosition, GameRules, IllegalMoveError } from '../types';
+import {
+    BoardPosition,
+    GameRules,
+    IllegalMoveError,
+    MoveOptions
+} from '../types';
 
-type gameMove = [BoardPosition, BoardPosition]; //starting square, destination square
+type gameMove = [BoardPosition, BoardPosition, MoveOptions?]; //starting square, destination square
 
 describe('integration tests', () => {
     //the goal with this test suite is to simulate chess games, and verify that the final board state is what we expect
@@ -232,6 +237,96 @@ describe('integration tests', () => {
                     ['♙', ' ', '♙', '♙', ' ', '♙', '♙', '♙'],
                     ['♖', '♘', '♗', '♕', '♔', ' ', ' ', '♖']
                 ]
+            },
+            {
+                testName: 'kingside castle',
+                moves: [
+                    [
+                        ['e', 2],
+                        ['e', 4]
+                    ],
+                    [
+                        ['e', 7],
+                        ['e', 5]
+                    ],
+                    [
+                        ['g', 1],
+                        ['f', 3]
+                    ],
+                    [
+                        ['f', 8],
+                        ['c', 5]
+                    ],
+                    [
+                        ['f', 1],
+                        ['e', 2]
+                    ],
+                    [
+                        ['g', 8],
+                        ['h', 6]
+                    ],
+                    [['e', 1], ['g', 1], { type: 'castle' }],
+                    [['e', 8], ['g', 8], { type: 'castle' }]
+                ] as gameMove[],
+                expectedBoard: [
+                    ['♜', '♞', '♝', '♛', ' ', '♜', '♚', ' '],
+                    ['♟', '♟', '♟', '♟', ' ', '♟', '♟', '♟'],
+                    [' ', ' ', ' ', ' ', ' ', ' ', ' ', '♞'],
+                    [' ', ' ', '♝', ' ', '♟', ' ', ' ', ' '],
+                    [' ', ' ', ' ', ' ', '♙', ' ', ' ', ' '],
+                    [' ', ' ', ' ', ' ', ' ', '♘', ' ', ' '],
+                    ['♙', '♙', '♙', '♙', '♗', '♙', '♙', '♙'],
+                    ['♖', '♘', '♗', '♕', ' ', '♖', '♔', ' ']
+                ]
+            },
+            {
+                testName: 'Queenside castle',
+                moves: [
+                    [
+                        ['d', 2],
+                        ['d', 4]
+                    ],
+                    [
+                        ['d', 7],
+                        ['d', 5]
+                    ],
+                    [
+                        ['c', 1],
+                        ['f', 4]
+                    ],
+                    [
+                        ['d', 8],
+                        ['d', 6]
+                    ],
+                    [
+                        ['b', 1],
+                        ['c', 3]
+                    ],
+                    [
+                        ['c', 8],
+                        ['e', 6]
+                    ],
+                    [
+                        ['d', 1],
+                        ['d', 2]
+                    ],
+                    [
+                        ['b', 8],
+                        ['a', 6]
+                    ],
+                    [['e', 1], ['c', 1], { type: 'castle' }],
+                    [['e', 8], ['c', 8], { type: 'castle' }]
+                ] as gameMove[],
+                expectedBoard: [
+                    [' ', ' ', '♚', '♜', ' ', '♝', '♞', '♜'],
+                    ['♟', '♟', '♟', ' ', '♟', '♟', '♟', '♟'],
+                    ['♞', ' ', ' ', '♛', '♝', ' ', ' ', ' '],
+                    [' ', ' ', ' ', '♟', ' ', ' ', ' ', ' '],
+                    [' ', ' ', ' ', '♙', ' ', '♗', ' ', ' '],
+                    [' ', ' ', '♘', ' ', ' ', ' ', ' ', ' '],
+                    ['♙', '♙', '♙', '♕', '♙', '♙', '♙', '♙'],
+                    [' ', ' ', '♔', '♖', ' ', '♗', '♘', '♖']
+                ]
             }
         ])(
             'Standard rules general test: $testName',
@@ -360,6 +455,113 @@ describe('integration tests', () => {
                         ['e', 2]
                     ]
                 ] as gameMove[]
+            },
+            {
+                testName: 'cannot castle through own pieces',
+                moves: [
+                    [
+                        ['d', 2],
+                        ['d', 3]
+                    ],
+                    [
+                        ['d', 7],
+                        ['d', 6]
+                    ],
+                    [
+                        ['c', 1],
+                        ['e', 3]
+                    ],
+                    [
+                        ['e', 8],
+                        ['d', 7]
+                    ],
+                    [
+                        ['d', 1],
+                        ['d', 2]
+                    ],
+                    [
+                        ['d', 7],
+                        ['e', 8]
+                    ],
+                    [['e', 1], ['c', 1], { type: 'castle' }]
+                ] as gameMove[]
+            },
+            {
+                testName: 'cannot castle if king has moved',
+                moves: [
+                    [
+                        ['e', 2],
+                        ['e', 4]
+                    ],
+                    [
+                        ['e', 7],
+                        ['e', 5]
+                    ],
+                    [
+                        ['g', 1],
+                        ['f', 3]
+                    ],
+                    [
+                        ['g', 8],
+                        ['f', 6]
+                    ],
+                    [
+                        ['f', 1],
+                        ['e', 2]
+                    ],
+                    [
+                        ['f', 8],
+                        ['c', 5]
+                    ],
+                    [['e', 1], ['g', 1], { type: 'castle' }],
+                    [
+                        ['e', 8],
+                        ['e', 7]
+                    ],
+                    [
+                        ['h', 2],
+                        ['h', 3]
+                    ],
+                    [
+                        ['e', 7],
+                        ['e', 8]
+                    ],
+                    [
+                        ['d', 1],
+                        ['e', 1]
+                    ],
+                    [['e', 8], ['g', 8], { type: 'castle' }]
+                ] as gameMove[]
+            },
+            {
+                testName: 'Cannot castle through check',
+                moves: [
+                    [
+                        ['e', 2],
+                        ['e', 4]
+                    ],
+                    [
+                        ['d', 7],
+                        ['d', 6]
+                    ],
+                    [
+                        ['f', 1],
+                        ['c', 4]
+                    ],
+                    [
+                        ['c', 8],
+                        ['e', 6]
+                    ],
+                    [
+                        ['g', 1],
+                        ['f', 3]
+                    ],
+                    [
+                        ['e', 6],
+                        ['c', 4]
+                    ],
+                    [['e', 1], ['g', 1], { type: 'castle' }]
+                ] as gameMove[]
             }
         ])(
             'Standard rules error test: $testName',
@@ -378,9 +580,16 @@ function runGeneralTest<PieceNames extends string[]>(
     const engine = new GameEngine(rulesConfig);
 
     moves.forEach(
-        ([targetPosition, destinationPosition]: gameMove, index: number) => {
+        (
+            [targetPosition, destinationPosition, moveOptions]: gameMove,
+            index: number
+        ) => {
             try {
-                engine.makeMove(targetPosition, destinationPosition);
+                engine.makeMove(
+                    targetPosition,
+                    destinationPosition,
+                    moveOptions
+                );
             } catch (error) {
                 throw new Error(`Error at move ${index}`);
             }
@@ -398,13 +607,14 @@ function runErrorTest<PieceNames extends string[]>(
 
     for (let i = 0; i < moves.length - 1; i++) {
         //execute all but final move
-        const [targetPosition, destinationPosition] = moves[i];
-        engine.makeMove(targetPosition, destinationPosition);
+        const [targetPosition, destinationPosition, moveOptions] = moves[i];
+        engine.makeMove(targetPosition, destinationPosition, moveOptions);
     }
 
-    const [finalTarget, finalDestination] = moves[moves.length - 1];
+    const [finalTarget, finalDestination, finalOptions] =
+        moves[moves.length - 1];
 
     expect(() => {
-        engine.makeMove(finalTarget, finalDestination);
+        engine.makeMove(finalTarget, finalDestination, finalOptions);
     }).toThrow(IllegalMoveError);
 }
