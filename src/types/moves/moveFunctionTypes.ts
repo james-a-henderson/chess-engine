@@ -9,7 +9,6 @@ type MoveOptionsBase = {
 
 export type CastleMoveOptions = MoveOptionsBase & {
     type: 'castle';
-    targetPieceLocation: BoardPosition;
 };
 
 export type MoveOptions = CastleMoveOptions; //will expand with promotion options later
