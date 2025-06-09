@@ -4,7 +4,14 @@ import {
     Player,
     PlayerColor
 } from '../types/configuration';
-import { BoardPosition, MoveRecord } from '../types';
+import {
+    BoardPosition,
+    MoveOptions,
+    MoveRecord,
+    MoveRecordCastle,
+    MoveRecordJump,
+    MoveRecordStandard
+} from '../types';
 import { Piece } from './piece';
 import {
     PieceConfigurationError,
@@ -107,7 +114,8 @@ export class GameEngine<PieceNames extends string[]> {
 
     public verifyMove(
         targetPosition: BoardPosition,
-        destinationPosition: BoardPosition
+        destinationPosition: BoardPosition,
+        moveOptions?: MoveOptions
     ): MoveRecord<PieceNames> | false {
         const targetSpace = this.getSpace(targetPosition);
 
@@ -122,35 +130,91 @@ export class GameEngine<PieceNames extends string[]> {
         return targetSpace.piece.verifyMove(
             this.board,
             targetPosition,
-            destinationPosition
+            destinationPosition,
+            moveOptions
         );
     }
 
     public makeMove(
         targetPosition: BoardPosition,
-        destinationPosition: BoardPosition
+        destinationPosition: BoardPosition,
+        moveOptions?: MoveOptions
     ) {
-        const move = this.verifyMove(targetPosition, destinationPosition);
+        const move = this.verifyMove(
+            targetPosition,
+            destinationPosition,
+            moveOptions
+        );
 
         if (!move) {
             throw new IllegalMoveError('Move is not legal');
         }
 
-        const targetSpace = this.getSpace(targetPosition);
-        const destinationSpace = this.getSpace(destinationPosition);
+        switch (move.type) {
+            case 'standard':
+            case 'jump':
+                this.makeStandardMove(move);
+                break;
+            case 'castle':
+                this.makeCastleMove(move);
+                break;
+        }
+
+        this.updateCurrentPlayer();
+        this._moves.push(move);
+    }
+
+    private makeStandardMove(
+        move: MoveRecordStandard<PieceNames> | MoveRecordJump<PieceNames>
+    ) {
+        const originSpace = this.getSpace(move.originSpace);
+        const destinationSpace = this.getSpace(move.destinationSpace);
 
         if (destinationSpace.piece) {
             //we assume if we get to this point, the capture is valid
             //todo: handle en passant capture
-            this.capturePiece(destinationPosition);
+            this.capturePiece(move.destinationSpace);
         }
 
-        targetSpace.piece!.increaseMoveCount();
+        originSpace.piece!.increaseMoveCount();
 
-        destinationSpace.piece = targetSpace.piece;
-        targetSpace.piece = undefined;
-        this.updateCurrentPlayer();
-        this._moves.push(move);
+        destinationSpace.piece = originSpace.piece;
+        originSpace.piece = undefined;
+    }
+
+    private makeCastleMove(move: MoveRecordCastle<PieceNames>) {
+        const originSpace = this.getSpace(move.originSpace);
+        const destinationSpace = this.getSpace(move.destinationSpace);
+
+        const targetOriginSpace = this.getSpace(move.castleTarget.originSpace);
+        const targetDestinationSpace = this.getSpace(
+            move.castleTarget.destinationSpace
+        );
+
+        if (
+            destinationSpace.piece &&
+            destinationSpace.piece.playerColor !== move.pieceColor
+        ) {
+            //We assume if we get to this point, the capture is valid.
+            //Capturing in this situation would be rare, as it's not legal in most chess variants.
+            //We also assume that if the piece is the same color as the castling piece, then the piece
+            //is the castle target.
+
+            //As of right now, only the "main" castling piece can capture
+            this.capturePiece(move.destinationSpace);
+        }
+
+        const piece = originSpace.piece;
+        const targetPiece = targetOriginSpace.piece;
+
+        originSpace.piece = undefined;
+        targetOriginSpace.piece = undefined;
+
+        destinationSpace.piece = piece;
+        targetDestinationSpace.piece = targetPiece;
+
+        piece?.increaseMoveCount();
+        targetPiece?.increaseMoveCount();
     }
 
     private updateCurrentPlayer() {

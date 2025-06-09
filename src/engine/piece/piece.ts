@@ -2,6 +2,7 @@ import {
     AvailableMoves,
     BoardPosition,
     GetLegalMovesFunction,
+    MoveOptions,
     MoveRecord,
     verifyLegalMoveFunction
 } from '../../types';
@@ -92,10 +93,17 @@ export class Piece<PieceNames extends string[]> {
     public verifyMove(
         board: RectangularBoard<PieceNames>,
         currentSpace: BoardPosition,
-        destination: BoardPosition
+        destination: BoardPosition,
+        moveOptions?: MoveOptions
     ): MoveRecord<PieceNames> | false {
         for (const func of this._verifyLegalMoveFunctions) {
-            const result = func(board, this, currentSpace, destination);
+            const result = func(
+                board,
+                this,
+                currentSpace,
+                destination,
+                moveOptions
+            );
 
             if (result) {
                 //move is legal if one move function returns true

@@ -2,7 +2,7 @@ import { GameRules, IllegalMoveError, MoveRecord, PieceConfig } from '../types';
 import { GameEngine } from './GameEngine';
 import { Piece } from './piece';
 
-type testPieceNames = ['foo'];
+type testPieceNames = ['foo', 'king', 'rook'];
 const testPiece: PieceConfig<testPieceNames> = {
     name: 'foo',
     displayCharacters: {
@@ -87,111 +87,251 @@ describe('GameEngine gameplay', () => {
     });
 
     describe('makeMove', () => {
-        let engine: GameEngine<testPieceNames>;
-
-        beforeEach(() => {
-            engine = new GameEngine(testConfig);
-        });
         test('throws error if move is not valid', () => {
+            const engine = new GameEngine(testConfig);
             expect(() => {
                 engine.makeMove(['d', 5], ['a', 4]);
             }).toThrow(IllegalMoveError);
         });
 
-        test('destination space contains piece after move', () => {
-            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
-                destinationSpace: ['a', 2],
-                originSpace: ['a', 1],
-                pieceColor: 'white',
-                pieceName: 'foo',
-                moveName: 'test',
-                type: 'standard'
+        describe('standard and jump moves', () => {
+            let engine: GameEngine<testPieceNames>;
+
+            beforeEach(() => {
+                engine = new GameEngine(testConfig);
+            });
+            test('destination space contains piece after move', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 2],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard'
+                });
+
+                expect(engine.getSpace(['a', 2]).piece).toBeUndefined();
+
+                engine.makeMove(['a', 1], ['a', 2]);
+
+                expect(engine.getSpace(['a', 2]).piece?.pieceName).toEqual(
+                    'foo'
+                );
+                expect(engine.getSpace(['a', 2]).piece?.playerColor).toEqual(
+                    'white'
+                );
             });
 
-            expect(engine.getSpace(['a', 2]).piece).toBeUndefined();
+            test('original space does not contain piece after move', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 2],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard'
+                });
+                expect(engine.getSpace(['a', 1]).piece?.pieceName).toEqual(
+                    'foo'
+                );
+                expect(engine.getSpace(['a', 1]).piece?.playerColor).toEqual(
+                    'white'
+                );
 
-            engine.makeMove(['a', 1], ['a', 2]);
+                engine.makeMove(['a', 1], ['a', 2]);
 
-            expect(engine.getSpace(['a', 2]).piece?.pieceName).toEqual('foo');
-            expect(engine.getSpace(['a', 2]).piece?.playerColor).toEqual(
-                'white'
-            );
+                expect(engine.getSpace(['a', 1]).piece).toBeUndefined();
+            });
+
+            test('destination space contains piece after capture move', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 8],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard'
+                });
+
+                expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual(
+                    'foo'
+                );
+                expect(engine.getSpace(['a', 8]).piece?.playerColor).toEqual(
+                    'black'
+                );
+
+                engine.makeMove(['a', 1], ['a', 8]);
+
+                expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual(
+                    'foo'
+                );
+                expect(engine.getSpace(['a', 8]).piece?.playerColor).toEqual(
+                    'white'
+                );
+            });
+
+            test('captured piece added to capturedPieces after capture', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 8],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard'
+                });
+
+                expect(engine.capturedPieces.black).toHaveLength(0);
+
+                engine.makeMove(['a', 1], ['a', 8]);
+
+                expect(engine.capturedPieces.black).toHaveLength(1);
+                expect(engine.capturedPieces.black![0]).toEqual('foo');
+            });
+
+            test("Update piece's internal move count after move", () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 8],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard'
+                });
+
+                const piece = engine.getSpace(['a', 1]).piece;
+                expect(piece?.moveCount).toEqual(0);
+                engine.makeMove(['a', 1], ['a', 8]);
+                expect(piece?.moveCount).toEqual(1);
+            });
         });
 
-        test('original space does not contain piece after move', () => {
-            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
-                destinationSpace: ['a', 2],
-                originSpace: ['a', 1],
-                pieceColor: 'white',
-                pieceName: 'foo',
-                moveName: 'test',
-                type: 'standard'
-            });
-            expect(engine.getSpace(['a', 1]).piece?.pieceName).toEqual('foo');
-            expect(engine.getSpace(['a', 1]).piece?.playerColor).toEqual(
-                'white'
-            );
+        describe('castle move', () => {
+            let engine: GameEngine<testPieceNames>;
 
-            engine.makeMove(['a', 1], ['a', 2]);
+            const kingConfig: PieceConfig<testPieceNames> = {
+                name: 'king',
+                moves: [],
+                notation: 'K',
+                displayCharacters: {
+                    white: '♔',
+                    black: '♚'
+                },
+                startingPositions: {
+                    white: [['e', 1]],
+                    black: [['e', 8]]
+                }
+            };
 
-            expect(engine.getSpace(['a', 1]).piece).toBeUndefined();
-        });
+            const rookConfig: PieceConfig<testPieceNames> = {
+                name: 'rook',
+                moves: [],
+                notation: 'R',
+                displayCharacters: {
+                    white: '♖',
+                    black: '♜'
+                },
+                startingPositions: {
+                    white: [['h', 1]],
+                    black: [['a', 8]]
+                }
+            };
 
-        test('destination space contains piece after capture move', () => {
-            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
-                destinationSpace: ['a', 8],
-                originSpace: ['a', 1],
-                pieceColor: 'white',
-                pieceName: 'foo',
-                moveName: 'test',
-                type: 'standard'
-            });
+            const castleConfig: GameRules<testPieceNames> = {
+                ...testConfig,
+                pieces: [kingConfig, rookConfig]
+            };
 
-            expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual('foo');
-            expect(engine.getSpace(['a', 8]).piece?.playerColor).toEqual(
-                'black'
-            );
-
-            engine.makeMove(['a', 1], ['a', 8]);
-
-            expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual('foo');
-            expect(engine.getSpace(['a', 8]).piece?.playerColor).toEqual(
-                'white'
-            );
-        });
-
-        test('captured piece added to capturedPieces after capture', () => {
-            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
-                destinationSpace: ['a', 8],
-                originSpace: ['a', 1],
-                pieceColor: 'white',
-                pieceName: 'foo',
-                moveName: 'test',
-                type: 'standard'
+            beforeEach(() => {
+                engine = new GameEngine(castleConfig);
             });
 
-            expect(engine.capturedPieces.black).toHaveLength(0);
+            test('Castling pieces are in correct position after castle move', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['g', 1],
+                    originSpace: ['e', 1],
+                    pieceColor: 'white',
+                    pieceName: 'king',
+                    moveName: 'castleTest',
+                    type: 'castle',
+                    castleTarget: {
+                        pieceName: 'rook',
+                        destinationSpace: ['f', 1],
+                        originSpace: ['h', 1]
+                    }
+                });
 
-            engine.makeMove(['a', 1], ['a', 8]);
+                expect(engine.getSpace(['f', 1]).piece).toBeUndefined();
+                expect(engine.getSpace(['g', 1]).piece).toBeUndefined();
 
-            expect(engine.capturedPieces.black).toHaveLength(1);
-            expect(engine.capturedPieces.black![0]).toEqual('foo');
-        });
+                engine.makeMove(['e', 1], ['g', 1], { type: 'castle' });
 
-        test("Update piece's internal move count after move", () => {
-            jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
-                destinationSpace: ['a', 8],
-                originSpace: ['a', 1],
-                pieceColor: 'white',
-                pieceName: 'foo',
-                moveName: 'test',
-                type: 'standard'
+                expect(engine.getSpace(['g', 1]).piece?.pieceName).toEqual(
+                    'king'
+                );
+                expect(engine.getSpace(['g', 1]).piece?.playerColor).toEqual(
+                    'white'
+                );
+
+                expect(engine.getSpace(['f', 1]).piece?.pieceName).toEqual(
+                    'rook'
+                );
+                expect(engine.getSpace(['f', 1]).piece?.playerColor).toEqual(
+                    'white'
+                );
             });
 
-            const piece = engine.getSpace(['a', 1]).piece;
-            expect(piece?.moveCount).toEqual(0);
-            engine.makeMove(['a', 1], ['a', 8]);
-            expect(piece?.moveCount).toEqual(1);
+            test('Castling pieces origin spaces do not contain piece after move', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['g', 1],
+                    originSpace: ['e', 1],
+                    pieceColor: 'white',
+                    pieceName: 'king',
+                    moveName: 'castleTest',
+                    type: 'castle',
+                    castleTarget: {
+                        pieceName: 'rook',
+                        destinationSpace: ['f', 1],
+                        originSpace: ['h', 1]
+                    }
+                });
+
+                engine.makeMove(['e', 1], ['g', 1], { type: 'castle' });
+
+                expect(engine.getSpace(['e', 1]).piece).toBeUndefined();
+                expect(engine.getSpace(['h', 1]).piece).toBeUndefined();
+            });
+
+            test('Castling pieces are in correct position after castle move when pieces swap places', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['h', 1],
+                    originSpace: ['e', 1],
+                    pieceColor: 'white',
+                    pieceName: 'king',
+                    moveName: 'castleTest',
+                    type: 'castle',
+                    castleTarget: {
+                        pieceName: 'rook',
+                        destinationSpace: ['e', 1],
+                        originSpace: ['h', 1]
+                    }
+                });
+
+                engine.makeMove(['e', 1], ['h', 1], { type: 'castle' });
+
+                expect(engine.getSpace(['h', 1]).piece?.pieceName).toEqual(
+                    'king'
+                );
+                expect(engine.getSpace(['h', 1]).piece?.playerColor).toEqual(
+                    'white'
+                );
+
+                expect(engine.getSpace(['e', 1]).piece?.pieceName).toEqual(
+                    'rook'
+                );
+                expect(engine.getSpace(['e', 1]).piece?.playerColor).toEqual(
+                    'white'
+                );
+            });
         });
     });
 

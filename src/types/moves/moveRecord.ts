@@ -10,17 +10,17 @@ type MoveRecordBase<PieceNames extends string[]> = {
     originSpace: BoardPosition;
 };
 
-type MoveRecordStandard<PieceNames extends string[]> =
+export type MoveRecordStandard<PieceNames extends string[]> =
     MoveRecordBase<PieceNames> & {
         type: 'standard';
     };
 
-type MoveRecordJump<PieceNames extends string[]> =
+export type MoveRecordJump<PieceNames extends string[]> =
     MoveRecordBase<PieceNames> & {
         type: 'jump';
     };
 
-type MoveRecordCastle<PieceNames extends string[]> =
+export type MoveRecordCastle<PieceNames extends string[]> =
     MoveRecordBase<PieceNames> & {
         type: 'castle';
         castleTarget: {
