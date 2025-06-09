@@ -3,6 +3,7 @@ import {
     RectangularBoardConfig,
     verifyLegalMoveFunction
 } from '../../../../types';
+import { generateVerifyCastleMoveFunctions } from './castleMove';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
 
@@ -15,6 +16,8 @@ export function generateVerifyLegalMoveFunctions<PieceNames extends string[]>(
             return generateVerifyStandardMoveFunctions(move, boardConfig);
         case 'jump':
             return generateVerifyJumpMoveFunctions(move);
+        case 'castle':
+            return generateVerifyCastleMoveFunctions(move);
         default:
             return [];
     }
