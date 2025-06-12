@@ -3,6 +3,7 @@ import {
     BoardPosition,
     CaptureAvailability,
     Direction,
+    emptyGetMovesFunction,
     GetLegalMovesFunction,
     InvalidSpaceError,
     MoveConditionFunction,
@@ -40,9 +41,7 @@ export function generateGetLegalStandardMovesFunction<
 
     if (directions.length === 0) {
         //return function that returns no moves if move has no directions
-        return () => {
-            return { moves: [], captureMoves: [], spacesThreatened: [] };
-        };
+        return emptyGetMovesFunction;
     }
 
     const maxSpaces =

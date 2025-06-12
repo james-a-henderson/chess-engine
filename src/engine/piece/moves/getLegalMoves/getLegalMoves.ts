@@ -1,4 +1,5 @@
 import {
+    emptyGetMovesFunction,
     GetLegalMovesFunction,
     Move,
     RectangularBoardConfig
@@ -17,8 +18,6 @@ export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
             return generateGetLegalJumpMovesFunction(move);
         default:
             //todo: implement other move types
-            return () => {
-                return { moves: [], captureMoves: [], spacesThreatened: [] };
-            };
+            return emptyGetMovesFunction;
     }
 }

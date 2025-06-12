@@ -38,6 +38,10 @@ export type MoveConditionFunction<PieceNames extends string[]> = (
     board: RectangularBoard<PieceNames>
 ) => boolean;
 
+export function emptyGetMovesFunction(): AvailableMoves {
+    return { moves: [], captureMoves: [], spacesThreatened: [] };
+}
+
 export function emptyVerifyMovesFunction(): false {
     return false;
 }
