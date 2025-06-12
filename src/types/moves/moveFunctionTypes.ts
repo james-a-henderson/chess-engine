@@ -21,10 +21,22 @@ export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     moveOptions?: MoveOptions
 ) => MoveRecord<PieceNames> | false;
 
+type SpecialMoveBase = {
+    type: string;
+    destination: BoardPosition;
+};
+
+type SpecialMoveCastle = SpecialMoveBase & {
+    type: 'castle';
+};
+
+export type SpecialMove = SpecialMoveCastle; //will add more special move types later
+
 export type AvailableMoves = {
     moves: BoardPosition[];
     captureMoves: BoardPosition[];
     spacesThreatened: BoardPosition[]; //for determining if move causes king to move into check
+    specialMoves?: SpecialMove[];
 };
 
 export type GetLegalMovesFunction<PieceNames extends string[]> = (

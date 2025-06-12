@@ -107,7 +107,8 @@ describe('piece', () => {
             expect(result).toEqual({
                 moves: [],
                 captureMoves: [],
-                spacesThreatened: []
+                spacesThreatened: [],
+                specialMoves: []
             });
         });
 
@@ -127,7 +128,8 @@ describe('piece', () => {
             expect(result).toEqual({
                 moves: [],
                 captureMoves: [],
-                spacesThreatened: []
+                spacesThreatened: [],
+                specialMoves: []
             });
         });
 
@@ -139,12 +141,7 @@ describe('piece', () => {
                     spacesThreatened: [['a', 3]]
                 };
             });
-            const piece = new Piece(
-                pieceConfig,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfig, 'white', boardConfig);
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -152,7 +149,31 @@ describe('piece', () => {
             expect(result).toEqual({
                 moves: [['a', 3]],
                 captureMoves: [],
-                spacesThreatened: [['a', 3]]
+                spacesThreatened: [['a', 3]],
+                specialMoves: []
+            });
+        });
+
+        test('correctly adds special moves', () => {
+            generateGetLegalMoveFunctionsMock.mockReturnValue(() => {
+                return {
+                    moves: [],
+                    captureMoves: [],
+                    spacesThreatened: [],
+                    specialMoves: [{ type: 'castle', destination: ['a', 3] }]
+                };
+            });
+
+            const piece = new Piece(pieceConfig, 'white', boardConfig);
+            const result = piece.getLegalMoves(
+                {} as RectangularBoard<testPieceNames>,
+                ['a', 1]
+            );
+            expect(result).toEqual({
+                moves: [],
+                captureMoves: [],
+                spacesThreatened: [],
+                specialMoves: [{ type: 'castle', destination: ['a', 3] }]
             });
         });
 
@@ -350,6 +371,28 @@ describe('piece', () => {
                 });
             const piece = new Piece(config, 'white', boardConfig);
 
+            const result = piece.hasLegalMove(
+                {} as RectangularBoard<testPieceNames>,
+                ['a', 1]
+            );
+            expect(result).toEqual(true);
+        });
+
+        test('returns true if piece has special move', () => {
+            generateGetLegalMoveFunctionsMock.mockReturnValue(() => {
+                return {
+                    moves: [],
+                    captureMoves: [],
+                    spacesThreatened: [],
+                    specialMoves: [{ type: 'castle', destination: ['a', 3] }]
+                };
+            });
+            const piece = new Piece(
+                pieceConfig,
+                'white',
+
+                boardConfig
+            );
             const result = piece.hasLegalMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]

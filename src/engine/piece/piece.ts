@@ -57,7 +57,8 @@ export class Piece<PieceNames extends string[]> {
         const availableMoves: AvailableMoves = {
             moves: [],
             captureMoves: [],
-            spacesThreatened: []
+            spacesThreatened: [],
+            specialMoves: []
         };
 
         for (const func of this._getLegalMoveFunctions) {
@@ -66,6 +67,10 @@ export class Piece<PieceNames extends string[]> {
             availableMoves.moves.push(...result.moves);
             availableMoves.captureMoves.push(...result.captureMoves);
             availableMoves.spacesThreatened.push(...result.spacesThreatened);
+
+            if (result.specialMoves) {
+                availableMoves.specialMoves!.push(...result.specialMoves);
+            }
         }
 
         return availableMoves;
@@ -77,7 +82,11 @@ export class Piece<PieceNames extends string[]> {
     ): boolean {
         for (const func of this._getLegalMoveFunctions) {
             const availableMoves = func(board, this, currentSpace);
-            if (availableMoves.moves.length > 0) {
+            if (
+                availableMoves.moves.length > 0 ||
+                (availableMoves.specialMoves &&
+                    availableMoves.specialMoves.length > 0)
+            ) {
                 return true;
             }
         }

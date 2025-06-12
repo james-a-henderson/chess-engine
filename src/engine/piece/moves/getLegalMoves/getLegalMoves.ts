@@ -4,6 +4,7 @@ import {
     Move,
     RectangularBoardConfig
 } from '../../../../types';
+import { generateGetLegalCastleMovesFunction } from './castleMove';
 import { generateGetLegalJumpMovesFunction } from './jumpMove';
 import { generateGetLegalStandardMovesFunction } from './standardMove';
 
@@ -16,6 +17,8 @@ export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
             return generateGetLegalStandardMovesFunction(move, boardConfig);
         case 'jump':
             return generateGetLegalJumpMovesFunction(move);
+        case 'castle':
+            return generateGetLegalCastleMovesFunction(move, boardConfig);
         default:
             //todo: implement other move types
             return emptyGetMovesFunction;
