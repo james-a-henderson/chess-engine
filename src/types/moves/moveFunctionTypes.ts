@@ -37,3 +37,7 @@ export type MoveConditionFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
     board: RectangularBoard<PieceNames>
 ) => boolean;
+
+export function emptyVerifyMovesFunction(): false {
+    return false;
+}

@@ -19,12 +19,12 @@ import {
 
 export function generateVerifyCastleMoveFunctions<PieceNames extends string[]>(
     move: CastleMove<PieceNames>
-): verifyLegalMoveFunction<PieceNames>[] {
+): verifyLegalMoveFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 
-    return [generateFunction(move, conditionFunctions)];
+    return generateFunction(move, conditionFunctions);
 }
 
 function generateFunction<PieceNames extends string[]>(

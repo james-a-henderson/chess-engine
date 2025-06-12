@@ -6,6 +6,7 @@ import {
     StandardMove
 } from '../../../../types/configuration';
 import {
+    emptyVerifyMovesFunction,
     MoveConditionFunction,
     verifyLegalMoveFunction
 } from '../../../../types/moves';
@@ -25,10 +26,10 @@ export function generateVerifyStandardMoveFunctions<
 >(
     move: StandardMove<PieceNames>,
     boardConfig: RectangularBoardConfig
-): verifyLegalMoveFunction<PieceNames>[] {
+): verifyLegalMoveFunction<PieceNames> {
     if (move.alternateCaptureLocations) {
         //todo: add alternate capture locations
-        return [];
+        return emptyVerifyMovesFunction;
     }
 
     const directions: Direction[] =
@@ -45,7 +46,7 @@ export function generateVerifyStandardMoveFunctions<
                   'rightBackward'
               ];
     if (directions.length === 0) {
-        return [];
+        return emptyVerifyMovesFunction;
     }
 
     const conditionFunctions = getMoveConditionFunctions(
@@ -57,16 +58,14 @@ export function generateVerifyStandardMoveFunctions<
             ? Math.max(boardConfig.height, boardConfig.width)
             : move.maxSpaces;
     const minSpaces = move.minSpaces ? move.minSpaces : 1;
-    return [
-        generateFunction(
-            move.captureAvailability,
-            directions,
-            maxSpaces,
-            minSpaces,
-            conditionFunctions,
-            move.name
-        )
-    ];
+    return generateFunction(
+        move.captureAvailability,
+        directions,
+        maxSpaces,
+        minSpaces,
+        conditionFunctions,
+        move.name
+    );
 }
 
 //todo: rename

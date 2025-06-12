@@ -7,7 +7,8 @@ import {
     BoardPosition,
     InvalidSpaceError,
     CaptureAvailability,
-    Direction
+    Direction,
+    emptyVerifyMovesFunction
 } from '../../../../types';
 import { RectangularBoard } from '../../../board';
 import { GameEngine } from '../../../GameEngine';
@@ -111,7 +112,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
     afterAll(() => {
         jest.restoreAllMocks();
     });
-    test('returns empty array when move has no directions', () => {
+    test('returns emptyVerifyMovesFunction when move has no directions', () => {
         const move: StandardMove<testPieceNames> = {
             name: 'none',
             captureAvailability: 'optional',
@@ -121,20 +122,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
         };
 
         const result = generateVerifyStandardMoveFunctions(move, boardConfig);
-        expect(result).toHaveLength(0);
-    });
-
-    test('returns array of size 1 when move has two directions', () => {
-        const move: StandardMove<testPieceNames> = {
-            name: 'none',
-            captureAvailability: 'optional',
-            directions: ['forward', 'backward'],
-            maxSpaces: 'unlimited',
-            type: 'standard'
-        };
-
-        const result = generateVerifyStandardMoveFunctions(move, boardConfig);
-        expect(result).toHaveLength(1);
+        expect(result).toEqual(emptyVerifyMovesFunction);
     });
 
     test('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
@@ -172,12 +160,10 @@ describe('generateVerifyStandardMoveFunctions', () => {
         const board = engine.board;
         const piece = board.getSpace(['a', 1]).piece!;
 
-        const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
+        const moveFunction = generateVerifyStandardMoveFunctions(
             move,
             boardConfig
         );
-        expect(verifyMoveFunctions).toHaveLength(1);
-        const moveFunction = verifyMoveFunctions[0];
 
         //simulate piece move
         piece.increaseMoveCount();
@@ -2214,12 +2200,10 @@ function generateMoveTest(
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
 
-    const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
+    const moveFunction = generateVerifyStandardMoveFunctions(
         moveConfig,
         boardConfig
     );
-    expect(verifyMoveFunctions).toHaveLength(1);
-    const moveFunction = verifyMoveFunctions[0];
 
     const result = moveFunction(
         board,
@@ -2277,12 +2261,10 @@ function generatePieceInBetweenTest(
     const board = engine.board;
     const piece = engine.getSpace(startingPosition).piece!;
 
-    const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
+    const moveFunction = generateVerifyStandardMoveFunctions(
         moveConfig,
         boardConfig
     );
-    expect(verifyMoveFunctions).toHaveLength(1);
-    const moveFunction = verifyMoveFunctions[0];
 
     expect(
         moveFunction(board, piece, startingPosition, destinationPosition)
@@ -2323,12 +2305,10 @@ function generateSameColorPieceOnDestinationTest(
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
 
-    const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
+    const moveFunction = generateVerifyStandardMoveFunctions(
         moveConfig,
         boardConfig
     );
-    expect(verifyMoveFunctions).toHaveLength(1);
-    const moveFunction = verifyMoveFunctions[0];
 
     const result = moveFunction(
         board,
@@ -2378,12 +2358,10 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
     const board = engine.board;
     const piece = engine.getSpace(startingPosition).piece!;
 
-    const verifyMoveFunctions = generateVerifyStandardMoveFunctions(
+    const moveFunction = generateVerifyStandardMoveFunctions(
         moveConfig,
         boardConfig
     );
-    expect(verifyMoveFunctions).toHaveLength(1);
-    const moveFunction = verifyMoveFunctions[0];
 
     expect(() =>
         moveFunction(board, piece, startingPosition, destinationPosition)

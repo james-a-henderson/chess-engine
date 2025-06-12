@@ -1,4 +1,5 @@
 import {
+    emptyVerifyMovesFunction,
     Move,
     RectangularBoardConfig,
     verifyLegalMoveFunction
@@ -7,10 +8,10 @@ import { generateVerifyCastleMoveFunctions } from './castleMove';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
 
-export function generateVerifyLegalMoveFunctions<PieceNames extends string[]>(
+export function generateVerifyLegalMoveFunction<PieceNames extends string[]>(
     move: Move<PieceNames>,
     boardConfig: RectangularBoardConfig
-): verifyLegalMoveFunction<PieceNames>[] {
+): verifyLegalMoveFunction<PieceNames> {
     switch (move.type) {
         case 'standard':
             return generateVerifyStandardMoveFunctions(move, boardConfig);
@@ -19,6 +20,6 @@ export function generateVerifyLegalMoveFunctions<PieceNames extends string[]>(
         case 'castle':
             return generateVerifyCastleMoveFunctions(move);
         default:
-            return [];
+            return emptyVerifyMovesFunction;
     }
 }

@@ -16,19 +16,17 @@ import {
 
 export function generateVerifyJumpMoveFunctions<PieceNames extends string[]>(
     move: JumpMove<PieceNames>
-): verifyLegalMoveFunction<PieceNames>[] {
+): verifyLegalMoveFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 
-    return [
-        generateFunction(
-            move.captureAvailability,
-            move.jumpCoordinates,
-            conditionFunctions,
-            move.name
-        )
-    ];
+    return generateFunction(
+        move.captureAvailability,
+        move.jumpCoordinates,
+        conditionFunctions,
+        move.name
+    );
 }
 
 function generateFunction<PieceNames extends string[]>(

@@ -13,7 +13,7 @@ import {
 } from '../../types/configuration';
 import { RectangularBoard } from '../board';
 import { generateGetLegalMoveFunctions } from './moves';
-import { generateVerifyLegalMoveFunctions } from './moves/verifyMove';
+import { generateVerifyLegalMoveFunction } from './moves/verifyMove';
 
 export class Piece<PieceNames extends string[]> {
     private _config: PieceConfig<PieceNames>;
@@ -118,7 +118,7 @@ export class Piece<PieceNames extends string[]> {
     private registerMoves(boardConfig: RectangularBoardConfig) {
         this._config.moves.forEach((move) => {
             this._verifyLegalMoveFunctions.push(
-                ...generateVerifyLegalMoveFunctions(move, boardConfig)
+                generateVerifyLegalMoveFunction(move, boardConfig)
             );
             this._getLegalMoveFunctions.push(
                 generateGetLegalMoveFunctions(move, boardConfig)

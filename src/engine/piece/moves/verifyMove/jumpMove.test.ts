@@ -89,9 +89,7 @@ describe('generateVerifyJumpMoveFunctions', () => {
         const board = engine.board;
         const piece = board.getSpace(['a', 1]).piece!;
 
-        const verifyMoveFunctions = generateVerifyJumpMoveFunctions(move);
-        expect(verifyMoveFunctions).toHaveLength(1);
-        const moveFunction = verifyMoveFunctions[0];
+        const moveFunction = generateVerifyJumpMoveFunctions(move);
 
         //simulate piece move
         piece.increaseMoveCount();
@@ -260,9 +258,7 @@ function generateMoveTest(
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
 
-    const verifyMoveFunctions = generateVerifyJumpMoveFunctions(moveConfig);
-    expect(verifyMoveFunctions).toHaveLength(1);
-    const moveFunction = verifyMoveFunctions[0];
+    const moveFunction = generateVerifyJumpMoveFunctions(moveConfig);
 
     const result = moveFunction(
         board,

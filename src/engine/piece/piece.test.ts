@@ -1,4 +1,9 @@
-import { MoveRecord, PieceConfig } from '../../types';
+import {
+    emptyVerifyMovesFunction,
+    MoveRecord,
+    PieceConfig,
+    StandardMove
+} from '../../types';
 import { RectangularBoard } from '../board';
 import { Piece } from './piece';
 
@@ -7,7 +12,7 @@ const generateGetLegalMoveFunctionsMock = jest.fn();
 
 jest.mock('./moves/verifyMove', () => {
     return {
-        generateVerifyLegalMoveFunctions: () =>
+        generateVerifyLegalMoveFunction: () =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             generateVerifyLegalMoveFunctionsMock()
     };
@@ -24,6 +29,13 @@ jest.mock('./moves/getLegalMoves', () => {
 type testPieceNames = ['foo'];
 
 describe('piece', () => {
+    const moveConfig: StandardMove<testPieceNames> = {
+        type: 'standard',
+        name: 'testMove',
+        captureAvailability: 'optional',
+        directions: ['forward'],
+        maxSpaces: 'unlimited'
+    };
     const pieceConfig: PieceConfig<testPieceNames> = {
         name: 'foo',
         notation: 'F',
@@ -31,15 +43,7 @@ describe('piece', () => {
             white: 'F',
             black: 'f'
         },
-        moves: [
-            {
-                type: 'standard',
-                name: 'testMove',
-                captureAvailability: 'optional',
-                directions: ['forward'],
-                maxSpaces: 'unlimited'
-            }
-        ],
+        moves: [moveConfig],
         startingPositions: {
             white: [['a', 1]],
             black: [['a', 8]]
@@ -89,16 +93,13 @@ describe('piece', () => {
     describe('getLegalMoves', () => {
         beforeEach(() => {
             //we don't want to worry about this during these tests
-            generateVerifyLegalMoveFunctionsMock.mockReturnValue([]);
+            generateVerifyLegalMoveFunctionsMock.mockReturnValue(
+                emptyVerifyMovesFunction
+            );
         });
 
         test('returns no moves if piece has no moves', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -118,12 +119,7 @@ describe('piece', () => {
                     spacesThreatened: []
                 };
             });
-            const piece = new Piece(
-                pieceConfig,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfig, 'white', boardConfig);
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -371,6 +367,16 @@ describe('piece', () => {
             pieceName: 'foo',
             type: 'standard'
         };
+
+        const pieceConfigMultipleMoves: PieceConfig<testPieceNames> = {
+            ...pieceConfig,
+            moves: [
+                moveConfig,
+                moveConfig,
+                moveConfig //we need multiple moves so the generateVerifyLegalMoveFunctions is called multiple times
+            ]
+        };
+
         const legalMove = () => {
             return testMoveResult;
         };
@@ -394,7 +400,7 @@ describe('piece', () => {
         });
 
         test('returns true with one move that returns true', () => {
-            generateVerifyLegalMoveFunctionsMock.mockReturnValue([legalMove]);
+            generateVerifyLegalMoveFunctionsMock.mockReturnValue(legalMove);
             const piece = new Piece(
                 pieceConfig,
                 'white',
@@ -410,7 +416,7 @@ describe('piece', () => {
         });
 
         test('returns false with one move that returns false', () => {
-            generateVerifyLegalMoveFunctionsMock.mockReturnValue([illegalMove]);
+            generateVerifyLegalMoveFunctionsMock.mockReturnValue(illegalMove);
             const piece = new Piece(
                 pieceConfig,
                 'white',
@@ -426,15 +432,17 @@ describe('piece', () => {
         });
 
         test('returns true if only one move returns true', () => {
-            generateVerifyLegalMoveFunctionsMock.mockReturnValue([
-                illegalMove,
-                illegalMove,
-                legalMove
-            ]);
-            const piece = new Piece(
-                pieceConfig,
-                'white',
+            generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(
+                illegalMove
+            );
+            generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(
+                illegalMove
+            );
+            generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(legalMove);
 
+            const piece = new Piece(
+                pieceConfigMultipleMoves,
+                'white',
                 boardConfig
             );
             const result = piece.verifyMove(
@@ -446,12 +454,20 @@ describe('piece', () => {
         });
 
         test('returns false if all moves return false', () => {
-            generateVerifyLegalMoveFunctionsMock.mockReturnValue([
-                illegalMove,
-                illegalMove,
+            generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(
                 illegalMove
-            ]);
-            const piece = new Piece(pieceConfig, 'white', boardConfig);
+            );
+            generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(
+                illegalMove
+            );
+            generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(
+                illegalMove
+            );
+            const piece = new Piece(
+                pieceConfigMultipleMoves,
+                'white',
+                boardConfig
+            );
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],

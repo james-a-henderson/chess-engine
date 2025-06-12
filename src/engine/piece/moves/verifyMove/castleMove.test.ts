@@ -416,9 +416,7 @@ function generateMoveTest(
         }
     }
 
-    const verifyMoveFunctions = generateVerifyCastleMoveFunctions(moveConfig);
-    expect(verifyMoveFunctions).toHaveLength(1);
-    const moveFunction = verifyMoveFunctions[0];
+    const moveFunction = generateVerifyCastleMoveFunctions(moveConfig);
 
     const result = moveFunction(
         board,
