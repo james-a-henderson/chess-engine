@@ -6,6 +6,7 @@
     "scripts": {
         "test": "jest",
         "test:verbose": "jest --verbose",
+        "test:clear": "jest --clearCache",
         "build": "tsc",
         "start": "tsx src/index.ts",
         "lint": "eslint . && prettier . --check",
