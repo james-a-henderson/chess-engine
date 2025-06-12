@@ -61,7 +61,7 @@ const baseMoveConfig: JumpMove<testPieceNames> = {
     jumpCoordinates: [] //override on tests
 };
 
-describe('generateGetLegalJumMovesFunction', () => {
+describe('generateGetLegalJumpMovesFunction', () => {
     beforeEach(() => {
         jest.restoreAllMocks();
     });
