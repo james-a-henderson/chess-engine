@@ -42,11 +42,7 @@ const rulesConfig: GameRules<testPieceNames> = {
 };
 
 describe('generateVerifyJumpMoveFunctions', () => {
-    beforeEach(() => {
-        jest.restoreAllMocks();
-    });
-
-    afterAll(() => {
+    afterEach(() => {
         jest.restoreAllMocks();
     });
 
@@ -141,6 +137,24 @@ describe('generateVerifyJumpMoveFunctions', () => {
         );
     });
 
+    test('generated function returns false if capture is forbidden and destination has opposite color piece', () => {
+        generateMoveTest(
+            {
+                name: 'test',
+                captureAvailability: 'forbidden',
+                jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
+                type: 'jump'
+            },
+            'black',
+            ['c', 3],
+            ['e', 5],
+            false,
+            {
+                otherColorPositions: [['e', 5]]
+            }
+        );
+    });
+
     test.each([
         {
             coordinates: [[2, 1]] as jumpCoordinate[],
@@ -181,6 +195,13 @@ describe('generateVerifyJumpMoveFunctions', () => {
             coordinates: [[2, 1]] as jumpCoordinate[],
             color: 'black',
             startingPosition: ['b', 4] as BoardPosition,
+            destinationPosition: ['a', 3] as BoardPosition,
+            expected: false
+        },
+        {
+            coordinates: [[2, 1]] as jumpCoordinate[],
+            color: 'white',
+            startingPosition: ['a', 3] as BoardPosition,
             destinationPosition: ['a', 3] as BoardPosition,
             expected: false
         }
@@ -234,8 +255,13 @@ function generateMoveTest(
     playerColor: PlayerColor,
     startingPosition: BoardPosition,
     destinationPosition: BoardPosition,
-    expected: boolean
+    expected: boolean,
+    testOptions?: {
+        otherColorPositions?: BoardPosition[];
+    }
 ) {
+    const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
+
     const pieceConfig: PieceConfig<testPieceNames> = {
         name: 'foo',
         notation: 'F',
@@ -245,7 +271,10 @@ function generateMoveTest(
         },
         moves: [moveConfig],
         startingPositions: {
-            [playerColor]: [startingPosition]
+            [playerColor]: [startingPosition],
+            [otherColor]: testOptions?.otherColorPositions
+                ? testOptions.otherColorPositions
+                : []
         }
     };
 

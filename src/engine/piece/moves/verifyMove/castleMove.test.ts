@@ -5,12 +5,17 @@ import {
     PieceConfig,
     PlayerColor
 } from '../../../../types';
+import { RectangularBoard } from '../../../board';
 import { GameEngine } from '../../../GameEngine';
 import { generateVerifyCastleMoveFunctions } from './castleMove';
 
 type testPieceNames = ['king', 'rook', 'foo'];
 
 describe('generateVerifyCastleMoveFunctions', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     test('generated function returns false if move has firstPieceMove condition and piece has moved', () => {
         const moveConfig: CastleMove<testPieceNames> = {
             name: 'castleMove',
@@ -105,6 +110,103 @@ describe('generateVerifyCastleMoveFunctions', () => {
         generateMoveTest(moveConfig, 'black', ['e', 8], ['g', 8], false, {
             targetPiecePosition: ['h', 8],
             sameColorStartingPositions: [['f', 8]]
+        });
+    });
+
+    test('generated function returns false if castle config does not have player color', () => {
+        const moveConfig: CastleMove<testPieceNames> = {
+            name: 'castleMove',
+            captureAvailability: 'forbidden',
+            type: 'castle',
+            configForColor: {
+                white: {
+                    origin: ['e', 1],
+                    destination: ['g', 1],
+                    targetPieceName: 'rook',
+                    targetPieceOrigin: ['h', 1],
+                    targetPieceDestination: ['f', 1]
+                }
+            }
+        };
+
+        generateMoveTest(moveConfig, 'black', ['e', 8], ['g', 8], false, {
+            targetPiecePosition: ['h', 8]
+        });
+    });
+
+    test("generated functionreturns false if target piece's destination space is occupied by piece", () => {
+        const moveConfig: CastleMove<testPieceNames> = {
+            name: 'castleMove',
+            captureAvailability: 'forbidden',
+            type: 'castle',
+            configForColor: {
+                black: {
+                    origin: ['e', 8],
+                    destination: ['f', 8],
+                    targetPieceName: 'rook',
+                    targetPieceOrigin: ['f', 8],
+                    targetPieceDestination: ['d', 8]
+                }
+            }
+        };
+
+        generateMoveTest(moveConfig, 'black', ['e', 8], ['f', 8], false, {
+            targetPiecePosition: ['f', 8],
+            sameColorStartingPositions: [['d', 8]]
+        });
+    });
+
+    test("generated function returns false if board's verifyMultipleMovePosition method returns false", () => {
+        jest.spyOn(
+            RectangularBoard.prototype,
+            'verifyMultipleMovePosition'
+        ).mockImplementation(() => {
+            return false;
+        });
+        const moveConfig: CastleMove<testPieceNames> = {
+            name: 'castleMove',
+            captureAvailability: 'forbidden',
+            type: 'castle',
+            configForColor: {
+                white: {
+                    origin: ['e', 1],
+                    destination: ['g', 1],
+                    targetPieceName: 'rook',
+                    targetPieceOrigin: ['h', 1],
+                    targetPieceDestination: ['f', 1]
+                }
+            }
+        };
+
+        generateMoveTest(moveConfig, 'white', ['e', 1], ['g', 1], false, {
+            targetPiecePosition: ['h', 1]
+        });
+    });
+
+    test("generated function returns true if board's verifyMultipleMovePosition method returns true", () => {
+        jest.spyOn(
+            RectangularBoard.prototype,
+            'verifyMultipleMovePosition'
+        ).mockImplementation(() => {
+            return true;
+        });
+        const moveConfig: CastleMove<testPieceNames> = {
+            name: 'castleMove',
+            captureAvailability: 'forbidden',
+            type: 'castle',
+            configForColor: {
+                white: {
+                    origin: ['e', 1],
+                    destination: ['g', 1],
+                    targetPieceName: 'rook',
+                    targetPieceOrigin: ['h', 1],
+                    targetPieceDestination: ['f', 1]
+                }
+            }
+        };
+
+        generateMoveTest(moveConfig, 'white', ['e', 1], ['g', 1], true, {
+            targetPiecePosition: ['h', 1]
         });
     });
 
