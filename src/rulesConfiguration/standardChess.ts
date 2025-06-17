@@ -76,78 +76,6 @@ export const standardChessConfig: GameRules<
                     ]
                 },
                 {
-                    type: 'promotion',
-                    name: 'pawnPromotion',
-                    captureAvailability: 'forbidden',
-                    directions: ['forward'],
-                    maxSpaces: 1,
-                    promotionSquares: [
-                        {
-                            playerColor: 'white',
-                            positions: [
-                                ['a', 8],
-                                ['b', 8],
-                                ['c', 8],
-                                ['d', 8],
-                                ['e', 8],
-                                ['f', 8],
-                                ['g', 8],
-                                ['h', 8]
-                            ]
-                        },
-                        {
-                            playerColor: 'black',
-                            positions: [
-                                ['a', 1],
-                                ['b', 1],
-                                ['c', 1],
-                                ['d', 1],
-                                ['e', 1],
-                                ['f', 1],
-                                ['g', 1],
-                                ['h', 1]
-                            ]
-                        }
-                    ],
-                    promotionTargets: ['knight', 'rook', 'bishop', 'queen']
-                },
-                {
-                    type: 'promotion',
-                    name: 'pawnPromotionCapture',
-                    captureAvailability: 'required',
-                    directions: ['leftForward', 'rightForward'],
-                    maxSpaces: 1,
-                    promotionSquares: [
-                        {
-                            playerColor: 'white',
-                            positions: [
-                                ['a', 8],
-                                ['b', 8],
-                                ['c', 8],
-                                ['d', 8],
-                                ['e', 8],
-                                ['f', 8],
-                                ['g', 8],
-                                ['h', 8]
-                            ]
-                        },
-                        {
-                            playerColor: 'black',
-                            positions: [
-                                ['a', 1],
-                                ['b', 1],
-                                ['c', 1],
-                                ['d', 1],
-                                ['e', 1],
-                                ['f', 1],
-                                ['g', 1],
-                                ['h', 1]
-                            ]
-                        }
-                    ],
-                    promotionTargets: ['knight', 'rook', 'bishop', 'queen']
-                },
-                {
                     type: 'standard',
                     name: 'enPassant',
                     captureAvailability: 'required',
@@ -193,6 +121,31 @@ export const standardChessConfig: GameRules<
                     ['g', 7],
                     ['h', 7]
                 ]
+            },
+            promotionConfig: {
+                promotionSquares: {
+                    white: [
+                        ['a', 8],
+                        ['b', 8],
+                        ['c', 8],
+                        ['d', 8],
+                        ['e', 8],
+                        ['f', 8],
+                        ['g', 8],
+                        ['h', 8]
+                    ],
+                    black: [
+                        ['a', 1],
+                        ['b', 1],
+                        ['c', 1],
+                        ['d', 1],
+                        ['e', 1],
+                        ['f', 1],
+                        ['g', 1],
+                        ['h', 1]
+                    ]
+                },
+                promotionTargets: ['knight', 'rook', 'bishop', 'queen']
             }
         },
         {

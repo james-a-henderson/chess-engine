@@ -7,6 +7,12 @@ export type PieceConfig<PieceNames extends string[]> = {
     displayCharacters: Partial<Record<PlayerColor, string>>;
     moves: Move<PieceNames>[];
     startingPositions: Partial<Record<PlayerColor, BoardPosition[]>>;
+    promotionConfig?: PromotionConfig<PieceNames>;
+};
+
+export type PromotionConfig<PieceNames extends string[]> = {
+    promotionSquares: Partial<Record<PlayerColor, BoardPosition[]>>;
+    promotionTargets: PieceNames[keyof PieceNames][];
 };
 
 type MoveBase<PieceNames extends string[]> = {
@@ -38,19 +44,6 @@ export type JumpMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     jumpCoordinates: JumpCoordinate[];
 };
 
-export type PromotionMove<PieceNames extends string[]> =
-    MoveBase<PieceNames> & {
-        type: 'promotion';
-        directions: Direction[] | 'all';
-        maxSpaces: number | 'unlimited';
-        minSpaces?: number;
-        promotionSquares: {
-            playerColor: PlayerColor;
-            positions: BoardPosition[];
-        }[];
-        promotionTargets: (PieceNames[keyof PieceNames] & string)[];
-    };
-
 export type CastleConfigForColor<PieceNames extends string[]> = {
     origin: BoardPosition;
     destination: BoardPosition;
@@ -69,7 +62,6 @@ export type CastleMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
 export type Move<PieceNames extends string[]> =
     | StandardMove<PieceNames>
     | JumpMove<PieceNames>
-    | PromotionMove<PieceNames>
     | CastleMove<PieceNames>;
 
 export type CaptureAvailability = 'optional' | 'required' | 'forbidden';
