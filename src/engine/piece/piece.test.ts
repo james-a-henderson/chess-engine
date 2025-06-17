@@ -428,12 +428,7 @@ describe('piece', () => {
         };
 
         test('returns false with no moves', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
@@ -444,12 +439,7 @@ describe('piece', () => {
 
         test('returns true with one move that returns true', () => {
             generateVerifyLegalMoveFunctionsMock.mockReturnValue(legalMove);
-            const piece = new Piece(
-                pieceConfig,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfig, 'white', boardConfig);
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
@@ -518,6 +508,183 @@ describe('piece', () => {
             );
             expect(result).toEqual(false);
         });
+
+        describe('verifyPromotionRules', () => {
+            beforeEach(() => {
+                generateVerifyLegalMoveFunctionsMock.mockReturnValue(legalMove);
+            });
+
+            test('Returns truthy value if promotion config not specified and promotionTarget is undefined', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: undefined
+                };
+
+                const piece = new Piece(config, 'white', boardConfig);
+
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 1]
+                    )
+                ).toBeTruthy();
+            });
+
+            test('Returns false if promotion config not specified and promotionTarget is specified', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: undefined
+                };
+
+                const piece = new Piece(config, 'black', boardConfig);
+
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 1],
+                        { type: 'promotion', promotionTarget: 'bar' }
+                    )
+                ).toEqual(false);
+            });
+
+            test('returns false if destination is promotion space and promotionTarget is not specified', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: {
+                        promotionSquares: {
+                            white: [['a', 1]],
+                            black: [['a', 8]]
+                        },
+                        promotionTargets: ['bar']
+                    }
+                };
+
+                const piece = new Piece(config, 'white', boardConfig);
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 1]
+                    )
+                ).toEqual(false);
+            });
+
+            test('returns false if destination is promotion space but promotionTarget is not in configured promotion targets', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: {
+                        promotionSquares: {
+                            white: [['a', 1]],
+                            black: [['a', 8]]
+                        },
+                        promotionTargets: ['bar']
+                    }
+                };
+
+                const piece = new Piece(config, 'black', boardConfig);
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 8],
+                        { type: 'promotion', promotionTarget: 'baz' }
+                    )
+                ).toEqual(false);
+            });
+
+            test('returns truthy value if destination is promotion space and promotionTarget is in configured promotion targets', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: {
+                        promotionSquares: {
+                            white: [['a', 1]],
+                            black: [['a', 8]]
+                        },
+                        promotionTargets: ['bar']
+                    }
+                };
+
+                const piece = new Piece(config, 'white', boardConfig);
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 1],
+                        { type: 'promotion', promotionTarget: 'bar' }
+                    )
+                ).toBeTruthy();
+            });
+
+            test('returns false if promotionTarget is in configured promotion targets but destination is promotion space for opposite color', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: {
+                        promotionSquares: {
+                            white: [['a', 1]],
+                            black: [['a', 8]]
+                        },
+                        promotionTargets: ['bar']
+                    }
+                };
+
+                const piece = new Piece(config, 'black', boardConfig);
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 1],
+                        { type: 'promotion', promotionTarget: 'bar' }
+                    )
+                ).toEqual(false);
+            });
+
+            test('returns false if destination is not promotion space but promotionTarget is specified', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: {
+                        promotionSquares: {
+                            white: [['a', 1]],
+                            black: [['a', 8]]
+                        },
+                        promotionTargets: ['bar']
+                    }
+                };
+
+                const piece = new Piece(config, 'white', boardConfig);
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 3],
+                        { type: 'promotion', promotionTarget: 'bar' }
+                    )
+                ).toEqual(false);
+            });
+
+            test('returns truthy value if destination is not promotion space and promotionTarget is not specified', () => {
+                const config: PieceConfig<testPieceNames> = {
+                    ...pieceConfig,
+                    promotionConfig: {
+                        promotionSquares: {
+                            white: [['a', 1]],
+                            black: [['a', 8]]
+                        },
+                        promotionTargets: ['bar']
+                    }
+                };
+
+                const piece = new Piece(config, 'black', boardConfig);
+                expect(
+                    piece.verifyMove(
+                        {} as RectangularBoard<testPieceNames>,
+                        ['a', 4],
+                        ['a', 5]
+                    )
+                ).toBeTruthy();
+            });
+        });
     });
 
     describe('moveCount', () => {
@@ -540,126 +707,6 @@ describe('piece', () => {
             piece.increaseMoveCount();
             piece.increaseMoveCount();
             expect(piece.moveCount).toEqual(3);
-        });
-    });
-
-    describe('verifyPromotionRules', () => {
-        test('Returns true if promotion config not specified and promotionTarget is undefined', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: undefined
-            };
-
-            const piece = new Piece(config, 'white', boardConfig);
-
-            expect(piece.verifyPromotionRules(['a', 1])).toEqual(true);
-        });
-
-        test('Returns false if promotion config not specified and promotionTarget is specified', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: undefined
-            };
-
-            const piece = new Piece(config, 'black', boardConfig);
-
-            expect(piece.verifyPromotionRules(['a', 1], 'bar')).toEqual(false);
-        });
-
-        test('returns false if destination is promotion space and promotionTarget is not specified', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: {
-                    promotionSquares: {
-                        white: [['a', 1]],
-                        black: [['a', 8]]
-                    },
-                    promotionTargets: ['bar']
-                }
-            };
-
-            const piece = new Piece(config, 'white', boardConfig);
-            expect(piece.verifyPromotionRules(['a', 1])).toEqual(false);
-        });
-
-        test('returns false if destination is promotion space but promotionTarget is not in configured promotion targets', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: {
-                    promotionSquares: {
-                        white: [['a', 1]],
-                        black: [['a', 8]]
-                    },
-                    promotionTargets: ['bar']
-                }
-            };
-
-            const piece = new Piece(config, 'black', boardConfig);
-            expect(piece.verifyPromotionRules(['a', 8], 'baz')).toEqual(false);
-        });
-
-        test('returns true if destination is promotion space and promotionTarget is in configured promotion targets', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: {
-                    promotionSquares: {
-                        white: [['a', 1]],
-                        black: [['a', 8]]
-                    },
-                    promotionTargets: ['bar']
-                }
-            };
-
-            const piece = new Piece(config, 'white', boardConfig);
-            expect(piece.verifyPromotionRules(['a', 1], 'bar')).toEqual(true);
-        });
-
-        test('returns false if promotionTarget is in configured promotion targets but destination is promotion space for opposite color', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: {
-                    promotionSquares: {
-                        white: [['a', 1]],
-                        black: [['a', 8]]
-                    },
-                    promotionTargets: ['bar']
-                }
-            };
-
-            const piece = new Piece(config, 'black', boardConfig);
-            expect(piece.verifyPromotionRules(['a', 1], 'bar')).toEqual(false);
-        });
-
-        test('returns false if destination is not promotion space but promotionTarget is specified', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: {
-                    promotionSquares: {
-                        white: [['a', 1]],
-                        black: [['a', 8]]
-                    },
-                    promotionTargets: ['bar']
-                }
-            };
-
-            const piece = new Piece(config, 'white', boardConfig);
-            expect(piece.verifyPromotionRules(['a', 3], 'bar')).toEqual(false);
-        });
-
-        test('returns true if destination is not promotion space and promotionTarget is not specified', () => {
-            const config: PieceConfig<testPieceNames> = {
-                ...pieceConfig,
-                promotionConfig: {
-                    promotionSquares: {
-                        white: [['a', 1]],
-                        black: [['a', 8]]
-                    },
-                    promotionTargets: ['bar']
-                }
-            };
-
-            const piece = new Piece(config, 'black', boardConfig);
-            expect(piece.verifyPromotionRules(['a', 4])).toEqual(true);
         });
     });
 });

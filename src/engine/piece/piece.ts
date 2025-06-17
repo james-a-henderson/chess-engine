@@ -117,6 +117,17 @@ export class Piece<PieceNames extends string[]> {
         destination: BoardPosition,
         moveOptions?: MoveOptions<PieceNames>
     ): MoveRecord<PieceNames> | false {
+        if (
+            !this.verifyPromotionRules(
+                destination,
+                moveOptions?.type === 'promotion'
+                    ? moveOptions.promotionTarget
+                    : undefined
+            )
+        ) {
+            return false;
+        }
+
         for (const func of this._verifyLegalMoveFunctions) {
             const result = func(
                 board,
@@ -136,7 +147,7 @@ export class Piece<PieceNames extends string[]> {
         return false;
     }
 
-    public verifyPromotionRules(
+    private verifyPromotionRules(
         destination: BoardPosition,
         promotionTarget?: PieceNames[keyof PieceNames]
     ): boolean {
