@@ -115,7 +115,7 @@ export class Piece<PieceNames extends string[]> {
         board: RectangularBoard<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition,
-        moveOptions?: MoveOptions
+        moveOptions?: MoveOptions<PieceNames>
     ): MoveRecord<PieceNames> | false {
         for (const func of this._verifyLegalMoveFunctions) {
             const result = func(

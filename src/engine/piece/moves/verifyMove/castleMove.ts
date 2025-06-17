@@ -36,7 +36,7 @@ function generateFunction<PieceNames extends string[]>(
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition,
-        moveOptions?: MoveOptions
+        moveOptions?: MoveOptions<PieceNames>
     ) => {
         if (moveOptions?.type !== 'castle') {
             //we do this check becaue there are alternate chess rules (such as chess 960)

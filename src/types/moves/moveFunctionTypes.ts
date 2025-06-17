@@ -11,14 +11,22 @@ export type CastleMoveOptions = MoveOptionsBase & {
     type: 'castle';
 };
 
-export type MoveOptions = CastleMoveOptions; //will expand with promotion options later
+export type PromotionMoveOptions<PieceNames extends string[]> =
+    MoveOptionsBase & {
+        type: 'promotion';
+        promotionTarget: PieceNames[keyof PieceNames];
+    };
+
+export type MoveOptions<PieceNames extends string[]> =
+    | CastleMoveOptions
+    | PromotionMoveOptions<PieceNames>; //will expand with promotion options later
 
 export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     board: RectangularBoard<PieceNames>,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition,
     destination: BoardPosition,
-    moveOptions?: MoveOptions
+    moveOptions?: MoveOptions<PieceNames>
 ) => MoveRecord<PieceNames> | false;
 
 type SpecialMoveBase = {

@@ -115,7 +115,7 @@ export class GameEngine<PieceNames extends string[]> {
     public verifyMove(
         targetPosition: BoardPosition,
         destinationPosition: BoardPosition,
-        moveOptions?: MoveOptions
+        moveOptions?: MoveOptions<PieceNames>
     ): MoveRecord<PieceNames> | false {
         const targetSpace = this.getSpace(targetPosition);
 
@@ -138,7 +138,7 @@ export class GameEngine<PieceNames extends string[]> {
     public makeMove(
         targetPosition: BoardPosition,
         destinationPosition: BoardPosition,
-        moveOptions?: MoveOptions
+        moveOptions?: MoveOptions<PieceNames>
     ) {
         const move = this.verifyMove(
             targetPosition,

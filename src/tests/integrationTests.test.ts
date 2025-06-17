@@ -10,7 +10,11 @@ import {
     MoveOptions
 } from '../types';
 
-type gameMove = [BoardPosition, BoardPosition, MoveOptions?]; //starting square, destination square
+type gameMove<PieceNames extends string[]> = [
+    BoardPosition,
+    BoardPosition,
+    MoveOptions<PieceNames>?
+]; //starting square, destination square
 
 describe('integration tests', () => {
     //the goal with this test suite is to simulate chess games, and verify that the final board state is what we expect
@@ -32,7 +36,7 @@ describe('integration tests', () => {
                         ['h', 1],
                         ['h', 5]
                     ]
-                ] as gameMove[],
+                ] as gameMove<['rook']>[],
                 expectedBoard: [
                     ['♖', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -52,7 +56,7 @@ describe('integration tests', () => {
                 expectedBoard
             }: {
                 testName: string;
-                moves: gameMove[];
+                moves: gameMove<['rook']>[];
                 expectedBoard: (string | undefined)[][];
             }) => {
                 runGeneralTest(testConfig, moves, expectedBoard);
@@ -71,17 +75,26 @@ describe('integration tests', () => {
                         ['a', 8],
                         ['a', 5]
                     ]
-                ] as gameMove[]
+                ] as gameMove<['rook']>[]
             }
         ])(
             'Rook only error test: $testName',
-            ({ testName, moves }: { testName: string; moves: gameMove[] }) => {
+            ({
+                testName,
+                moves
+            }: {
+                testName: string;
+                moves: gameMove<['rook']>[];
+            }) => {
                 runErrorTest(testConfig, moves);
             }
         );
     });
 
     describe('standard chess rules', () => {
+        type gameMoveStandard = gameMove<
+            ['pawn', 'king', 'queen', 'rook', 'bishop', 'knight']
+        >;
         test.each([
             {
                 testName: 'starting board matches expected',
@@ -136,7 +149,7 @@ describe('integration tests', () => {
                         ['a', 1],
                         ['a', 2]
                     ]
-                ] as gameMove[],
+                ] as gameMoveStandard[],
                 expectedBoard: [
                     [' ', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
                     [' ', '♟', '♟', '♟', ' ', '♟', '♟', '♟'],
@@ -183,7 +196,7 @@ describe('integration tests', () => {
                         ['b', 8],
                         ['c', 6]
                     ]
-                ] as gameMove[],
+                ] as gameMoveStandard[],
                 expectedBoard: [
                     ['♜', ' ', '♝', '♛', '♚', '♝', ' ', '♜'],
                     ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
@@ -226,7 +239,7 @@ describe('integration tests', () => {
                         ['b', 2],
                         ['b', 4]
                     ]
-                ] as gameMove[],
+                ] as gameMoveStandard[],
                 expectedBoard: [
                     ['♜', ' ', '♝', '♛', '♚', ' ', '♞', '♜'],
                     ['♟', '♟', '♟', '♟', ' ', '♟', '♟', '♟'],
@@ -267,7 +280,7 @@ describe('integration tests', () => {
                     ],
                     [['e', 1], ['g', 1], { type: 'castle' }],
                     [['e', 8], ['g', 8], { type: 'castle' }]
-                ] as gameMove[],
+                ] as gameMoveStandard[],
                 expectedBoard: [
                     ['♜', '♞', '♝', '♛', ' ', '♜', '♚', ' '],
                     ['♟', '♟', '♟', '♟', ' ', '♟', '♟', '♟'],
@@ -316,7 +329,7 @@ describe('integration tests', () => {
                     ],
                     [['e', 1], ['c', 1], { type: 'castle' }],
                     [['e', 8], ['c', 8], { type: 'castle' }]
-                ] as gameMove[],
+                ] as gameMoveStandard[],
                 expectedBoard: [
                     [' ', ' ', '♚', '♜', ' ', '♝', '♞', '♜'],
                     ['♟', '♟', '♟', ' ', '♟', '♟', '♟', '♟'],
@@ -336,7 +349,7 @@ describe('integration tests', () => {
                 expectedBoard
             }: {
                 testName: string;
-                moves: gameMove[];
+                moves: gameMoveStandard[];
                 expectedBoard: (string | undefined)[][];
             }) => {
                 runGeneralTest(standardChessConfig, moves, expectedBoard);
@@ -359,7 +372,7 @@ describe('integration tests', () => {
                         ['a', 3],
                         ['a', 5]
                     ]
-                ] as gameMove[]
+                ] as gameMoveStandard[]
             },
             {
                 testName: 'Cannot move king into check',
@@ -384,7 +397,7 @@ describe('integration tests', () => {
                         ['e', 1],
                         ['f', 2]
                     ]
-                ] as gameMove[]
+                ] as gameMoveStandard[]
             },
             {
                 testName: 'Cannot move pinned piece',
@@ -429,7 +442,7 @@ describe('integration tests', () => {
                         ['e', 7],
                         ['f', 8]
                     ]
-                ] as gameMove[]
+                ] as gameMoveStandard[]
             },
             {
                 testName: 'must move out of check',
@@ -454,7 +467,7 @@ describe('integration tests', () => {
                         ['d', 1],
                         ['e', 2]
                     ]
-                ] as gameMove[]
+                ] as gameMoveStandard[]
             },
             {
                 testName: 'cannot castle through own pieces',
@@ -484,7 +497,7 @@ describe('integration tests', () => {
                         ['e', 8]
                     ],
                     [['e', 1], ['c', 1], { type: 'castle' }]
-                ] as gameMove[]
+                ] as gameMoveStandard[]
             },
             {
                 testName: 'cannot castle if king has moved',
@@ -531,7 +544,7 @@ describe('integration tests', () => {
                         ['e', 1]
                     ],
                     [['e', 8], ['g', 8], { type: 'castle' }]
-                ] as gameMove[]
+                ] as gameMoveStandard[]
             },
             {
                 testName: 'Cannot castle through check',
@@ -561,11 +574,17 @@ describe('integration tests', () => {
                         ['c', 4]
                     ],
                     [['e', 1], ['g', 1], { type: 'castle' }]
-                ] as gameMove[]
+                ] as gameMoveStandard[]
             }
         ])(
             'Standard rules error test: $testName',
-            ({ testName, moves }: { testName: string; moves: gameMove[] }) => {
+            ({
+                testName,
+                moves
+            }: {
+                testName: string;
+                moves: gameMoveStandard[];
+            }) => {
                 runErrorTest(standardChessConfig, moves);
             }
         );
@@ -574,14 +593,18 @@ describe('integration tests', () => {
 
 function runGeneralTest<PieceNames extends string[]>(
     rulesConfig: GameRules<PieceNames>,
-    moves: gameMove[],
+    moves: gameMove<PieceNames>[],
     expectedBoard: (string | undefined)[][]
 ) {
     const engine = new GameEngine(rulesConfig);
 
     moves.forEach(
         (
-            [targetPosition, destinationPosition, moveOptions]: gameMove,
+            [
+                targetPosition,
+                destinationPosition,
+                moveOptions
+            ]: gameMove<PieceNames>,
             index: number
         ) => {
             try {
@@ -601,7 +624,7 @@ function runGeneralTest<PieceNames extends string[]>(
 
 function runErrorTest<PieceNames extends string[]>(
     rulesConfig: GameRules<PieceNames>,
-    moves: gameMove[]
+    moves: gameMove<PieceNames>[]
 ) {
     const engine = new GameEngine(rulesConfig);
 
