@@ -22,6 +22,10 @@ export class Piece<PieceNames extends string[]> {
         [];
     private _getLegalMoveFunctions: GetLegalMovesFunction<PieceNames>[] = [];
     private _moveCount = 0;
+    private _promotionConfig?: {
+        promotionSquares: BoardPosition[];
+        promotionTargets: PieceNames[keyof PieceNames][];
+    };
 
     constructor(
         config: PieceConfig<PieceNames>,
@@ -30,6 +34,14 @@ export class Piece<PieceNames extends string[]> {
     ) {
         this._config = config;
         this._playerColor = playerColor;
+
+        if (config.promotionConfig?.promotionSquares[playerColor]) {
+            this._promotionConfig = {
+                promotionSquares:
+                    config.promotionConfig.promotionSquares[playerColor],
+                promotionTargets: config.promotionConfig.promotionTargets
+            };
+        }
 
         this.registerMoves(boardConfig);
     }
@@ -118,6 +130,49 @@ export class Piece<PieceNames extends string[]> {
                 //move is legal if one move function returns true
                 //todo: ensure no move conflict
                 return result;
+            }
+        }
+
+        return false;
+    }
+
+    public verifyPromotionRules(
+        destination: BoardPosition,
+        promotionTarget?: PieceNames[keyof PieceNames]
+    ): boolean {
+        if (this.isPromotionSpace(destination)) {
+            if (!promotionTarget) {
+                return false; //must have promotion target specified on promotion space
+            }
+
+            if (
+                this._promotionConfig?.promotionTargets.includes(
+                    promotionTarget
+                )
+            ) {
+                return true;
+            }
+
+            return false;
+        } else if (promotionTarget) {
+            return false; //cannot have promotion target if specified space is not promotion space
+        }
+
+        return true;
+    }
+
+    private isPromotionSpace(position: BoardPosition): boolean {
+        if (!this._promotionConfig) {
+            return false; //no promotion specified
+        }
+
+        for (const promotionPosition of this._promotionConfig
+            .promotionSquares) {
+            if (
+                promotionPosition[0] === position[0] &&
+                promotionPosition[1] === position[1]
+            ) {
+                return true;
             }
         }
 
