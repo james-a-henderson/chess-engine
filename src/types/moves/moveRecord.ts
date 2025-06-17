@@ -8,6 +8,7 @@ type MoveRecordBase<PieceNames extends string[]> = {
     pieceColor: PlayerColor;
     destinationSpace: BoardPosition;
     originSpace: BoardPosition;
+    promotedTo?: PieceNames[keyof PieceNames];
 };
 
 export type MoveRecordStandard<PieceNames extends string[]> =

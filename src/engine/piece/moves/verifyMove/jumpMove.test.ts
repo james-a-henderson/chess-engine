@@ -2,6 +2,7 @@ import {
     BoardPosition,
     GameRules,
     JumpMove,
+    MoveOptions,
     PieceConfig,
     PlayerColor,
     RectangularBoardConfig
@@ -10,7 +11,7 @@ import { RectangularBoard } from '../../../board';
 import { GameEngine } from '../../../GameEngine';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
 
-type testPieceNames = ['foo'];
+type testPieceNames = ['foo', 'bar'];
 
 type jumpCoordinate = [number, number];
 
@@ -145,12 +146,30 @@ describe('generateVerifyJumpMoveFunctions', () => {
                 jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
                 type: 'jump'
             },
-            'black',
+            'white',
             ['c', 3],
             ['e', 5],
             false,
             {
                 otherColorPositions: [['e', 5]]
+            }
+        );
+    });
+
+    test('generated function returns promotedTo if promotion move options are configured', () => {
+        generateMoveTest(
+            {
+                name: 'test',
+                captureAvailability: 'forbidden',
+                jumpCoordinates: [{ horizontalSpaces: -2, verticalSpaces: -2 }],
+                type: 'jump'
+            },
+            'black',
+            ['c', 3],
+            ['e', 5],
+            true,
+            {
+                promotionTarget: 'bar'
             }
         );
     });
@@ -258,6 +277,7 @@ function generateMoveTest(
     expected: boolean,
     testOptions?: {
         otherColorPositions?: BoardPosition[];
+        promotionTarget?: testPieceNames[keyof testPieceNames];
     }
 ) {
     const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
@@ -289,11 +309,20 @@ function generateMoveTest(
 
     const moveFunction = generateVerifyJumpMoveFunctions(moveConfig);
 
+    const moveOptions: MoveOptions<testPieceNames> | undefined =
+        testOptions?.promotionTarget
+            ? {
+                  type: 'promotion',
+                  promotionTarget: testOptions.promotionTarget
+              }
+            : undefined;
+
     const result = moveFunction(
         board,
         piece,
         startingPosition,
-        destinationPosition
+        destinationPosition,
+        moveOptions
     );
 
     if (expected) {
@@ -303,7 +332,8 @@ function generateMoveTest(
             moveName: moveConfig.name,
             pieceColor: playerColor,
             pieceName: pieceConfig.name,
-            type: 'jump'
+            type: 'jump',
+            promotedTo: testOptions?.promotionTarget
         });
     } else {
         expect(result).toEqual(false);

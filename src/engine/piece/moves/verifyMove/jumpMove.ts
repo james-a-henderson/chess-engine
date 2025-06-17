@@ -3,6 +3,7 @@ import {
     CaptureAvailability,
     JumpMove,
     MoveConditionFunction,
+    MoveOptions,
     PlayerColor,
     verifyLegalMoveFunction
 } from '../../../../types';
@@ -42,7 +43,8 @@ function generateFunction<PieceNames extends string[]>(
         board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
-        destination: BoardPosition
+        destination: BoardPosition,
+        moveOptions?: MoveOptions<PieceNames>
     ) => {
         if (positionsAreEqual(currentSpace, destination)) {
             //destination space can't be the space the piece currently occupies
@@ -97,7 +99,11 @@ function generateFunction<PieceNames extends string[]>(
                 moveName: moveName,
                 pieceColor: piece.playerColor,
                 pieceName: piece.pieceName,
-                type: 'jump'
+                type: 'jump',
+                promotedTo:
+                    moveOptions?.type === 'promotion'
+                        ? moveOptions.promotionTarget
+                        : undefined
             };
         }
 

@@ -217,6 +217,56 @@ describe('generateVerifyStandardMoveFunctions', () => {
         );
     });
 
+    test('generated function returns promotedTo if promotion is specified in moveOptions', () => {
+        const move: StandardMove<testPieceNames> = {
+            name: 'test',
+            captureAvailability: 'optional',
+            directions: ['forward'],
+            maxSpaces: 'unlimited',
+            type: 'standard'
+        };
+
+        const pieceConfig: PieceConfig<testPieceNames> = {
+            name: 'generic',
+            notation: 'P',
+            displayCharacters: {
+                white: 'P',
+                black: 'p'
+            },
+            moves: [move],
+            startingPositions: {
+                white: [['a', 1]]
+            }
+        };
+
+        const config: GameRules<testPieceNames> = {
+            ...rulesConfig,
+            pieces: [pieceConfig]
+        };
+        const engine = new GameEngine(config);
+        const board = engine.board;
+        const piece = board.getSpace(['a', 1]).piece!;
+
+        const moveFunction = generateVerifyStandardMoveFunctions(
+            move,
+            boardConfig
+        );
+
+        const result = moveFunction(board, piece, ['a', 1], ['a', 2], {
+            type: 'promotion',
+            promotionTarget: 'dummy'
+        });
+        expect(result).toEqual({
+            destinationSpace: ['a', 2],
+            originSpace: ['a', 1],
+            moveName: 'test',
+            pieceColor: 'white',
+            pieceName: 'generic',
+            type: 'standard',
+            promotedTo: 'dummy'
+        });
+    });
+
     describe('Piece in between starting position and destination position', () => {
         test.each([
             {

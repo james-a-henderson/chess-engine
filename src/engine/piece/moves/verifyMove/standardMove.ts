@@ -8,6 +8,7 @@ import {
 import {
     emptyVerifyMovesFunction,
     MoveConditionFunction,
+    MoveOptions,
     verifyLegalMoveFunction
 } from '../../../../types/moves';
 import { RectangularBoard } from '../../../board';
@@ -81,7 +82,8 @@ function generateFunction<PieceNames extends string[]>(
         board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
-        destination: BoardPosition
+        destination: BoardPosition,
+        moveOptions?: MoveOptions<PieceNames>
     ) => {
         if (positionsAreEqual(currentSpace, destination)) {
             //destination cannot be the space the piece currently occupies
@@ -164,7 +166,11 @@ function generateFunction<PieceNames extends string[]>(
             pieceName: piece.pieceName,
             pieceColor: piece.playerColor,
             moveName: moveName,
-            type: 'standard'
+            type: 'standard',
+            promotedTo:
+                moveOptions?.type === 'promotion'
+                    ? moveOptions.promotionTarget
+                    : undefined
         };
     };
 }
