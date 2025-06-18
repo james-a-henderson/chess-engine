@@ -1,4 +1,10 @@
-import { GameRules, IllegalMoveError, MoveRecord, PieceConfig } from '../types';
+import {
+    GameRules,
+    IllegalMoveError,
+    MoveRecord,
+    PieceConfig,
+    PieceConfigurationError
+} from '../types';
 import { GameEngine } from './GameEngine';
 import { Piece } from './piece';
 
@@ -331,6 +337,63 @@ describe('GameEngine gameplay', () => {
                 expect(engine.getSpace(['e', 1]).piece?.playerColor).toEqual(
                     'white'
                 );
+            });
+        });
+
+        describe('promotion move', () => {
+            const rookConfig: PieceConfig<testPieceNames> = {
+                name: 'rook',
+                moves: [],
+                notation: 'R',
+                displayCharacters: {
+                    white: '♖',
+                    black: '♜'
+                },
+                startingPositions: {}
+            };
+            test('promotes properly', () => {
+                const rulesConfig: GameRules<testPieceNames> = {
+                    ...testConfig,
+                    pieces: [testPiece, rookConfig]
+                };
+                const engine = new GameEngine(rulesConfig);
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 2],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard',
+                    promotedTo: 'rook'
+                });
+
+                expect(engine.getSpace(['a', 2]).piece).toBeUndefined();
+
+                engine.makeMove(['a', 1], ['a', 2]);
+
+                expect(engine.getSpace(['a', 2]).piece?.pieceName).toEqual(
+                    'rook'
+                );
+                expect(engine.getSpace(['a', 2]).piece?.playerColor).toEqual(
+                    'white'
+                );
+            });
+
+            test('throws error if attemtping to promote to piece with no configuration', () => {
+                const engine = new GameEngine(testConfig);
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 2],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard',
+                    promotedTo: 'rook'
+                });
+
+                expect(() => {
+                    engine.makeMove(['a', 1], ['a', 2]);
+                }).toThrow(PieceConfigurationError);
             });
         });
     });

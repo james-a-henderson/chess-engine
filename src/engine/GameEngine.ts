@@ -16,7 +16,8 @@ import { Piece } from './piece';
 import {
     PieceConfigurationError,
     PlayerConfigurationError,
-    IllegalMoveError
+    IllegalMoveError,
+    GameError
 } from '../types/errors';
 import {
     BoardSpace,
@@ -160,6 +161,10 @@ export class GameEngine<PieceNames extends string[]> {
                 break;
         }
 
+        if (move.promotedTo) {
+            this.promotePiece(move.destinationSpace, move.promotedTo);
+        }
+
         this.updateCurrentPlayer();
         this._moves.push(move);
     }
@@ -215,6 +220,43 @@ export class GameEngine<PieceNames extends string[]> {
 
         piece?.increaseMoveCount();
         targetPiece?.increaseMoveCount();
+    }
+
+    private promotePiece(
+        position: BoardPosition,
+        promoteTo: PieceNames[keyof PieceNames]
+    ) {
+        const space = this.getSpace(position);
+        const piece = space.piece;
+        if (!piece) {
+            throw new GameError('Attempting to promote on space with no piece');
+        }
+
+        const pieceConfig = this.getPieceConfig(promoteTo);
+
+        const newPiece = new Piece(
+            pieceConfig,
+            piece.playerColor,
+            this._config.board
+        );
+        space.piece = newPiece;
+    }
+
+    private getPieceConfig(
+        pieceName: PieceNames[keyof PieceNames]
+    ): PieceConfig<PieceNames> {
+        const config = this._config.pieces.find((value) => {
+            return value.name === pieceName;
+        });
+
+        if (!config) {
+            throw new PieceConfigurationError(
+                pieceName,
+                'Cannot find configuration for piece'
+            );
+        }
+
+        return config;
     }
 
     private updateCurrentPlayer() {
