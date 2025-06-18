@@ -340,6 +340,147 @@ describe('integration tests', () => {
                     ['♙', '♙', '♙', '♕', '♙', '♙', '♙', '♙'],
                     [' ', ' ', '♔', '♖', ' ', '♗', '♘', '♖']
                 ]
+            },
+            {
+                testName: 'Promotion test',
+                moves: [
+                    [
+                        ['a', 2],
+                        ['a', 4]
+                    ],
+                    [
+                        ['c', 7],
+                        ['c', 5]
+                    ],
+                    [
+                        ['a', 4],
+                        ['a', 5]
+                    ],
+                    [
+                        ['c', 5],
+                        ['c', 4]
+                    ],
+                    [
+                        ['a', 5],
+                        ['a', 6]
+                    ],
+                    [
+                        ['c', 4],
+                        ['c', 3]
+                    ],
+                    [
+                        ['a', 6],
+                        ['b', 7]
+                    ],
+                    [
+                        ['c', 3],
+                        ['b', 2]
+                    ],
+                    [
+                        ['b', 7],
+                        ['a', 8],
+                        { type: 'promotion', promotionTarget: 'rook' }
+                    ],
+                    [
+                        ['b', 2],
+                        ['a', 1],
+                        { type: 'promotion', promotionTarget: 'rook' }
+                    ],
+                    [
+                        ['c', 2],
+                        ['c', 4]
+                    ],
+                    [
+                        ['a', 7],
+                        ['a', 5]
+                    ],
+                    [
+                        ['c', 4],
+                        ['c', 5]
+                    ],
+                    [
+                        ['a', 5],
+                        ['a', 4]
+                    ],
+                    [
+                        ['c', 5],
+                        ['c', 6]
+                    ],
+                    [
+                        ['a', 4],
+                        ['a', 3]
+                    ],
+                    [
+                        ['c', 6],
+                        ['c', 7]
+                    ],
+                    [
+                        ['a', 3],
+                        ['a', 2]
+                    ],
+                    [
+                        ['c', 7],
+                        ['b', 8],
+                        { type: 'promotion', promotionTarget: 'bishop' }
+                    ],
+                    [
+                        ['a', 2],
+                        ['b', 1],
+                        { type: 'promotion', promotionTarget: 'knight' }
+                    ],
+                    [
+                        ['f', 2],
+                        ['f', 4]
+                    ],
+                    [
+                        ['h', 7],
+                        ['h', 5]
+                    ],
+                    [
+                        ['f', 4],
+                        ['f', 5]
+                    ],
+                    [
+                        ['h', 5],
+                        ['h', 4]
+                    ],
+                    [
+                        ['f', 5],
+                        ['f', 6]
+                    ],
+                    [
+                        ['h', 4],
+                        ['h', 3]
+                    ],
+                    [
+                        ['f', 6],
+                        ['g', 7]
+                    ],
+                    [
+                        ['h', 3],
+                        ['g', 2]
+                    ],
+                    [
+                        ['g', 7],
+                        ['h', 8],
+                        { type: 'promotion', promotionTarget: 'queen' }
+                    ],
+                    [
+                        ['g', 2],
+                        ['h', 1],
+                        { type: 'promotion', promotionTarget: 'queen' }
+                    ]
+                ] as gameMoveStandard[],
+                expectedBoard: [
+                    ['♖', '♗', '♝', '♛', '♚', '♝', '♞', '♕'],
+                    [' ', ' ', ' ', '♟', '♟', '♟', ' ', ' '],
+                    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                    [' ', ' ', ' ', '♙', '♙', ' ', ' ', '♙'],
+                    ['♜', '♞', '♗', '♕', '♔', '♗', '♘', '♛']
+                ]
             }
         ])(
             'Standard rules general test: $testName',
@@ -574,6 +715,99 @@ describe('integration tests', () => {
                         ['c', 4]
                     ],
                     [['e', 1], ['g', 1], { type: 'castle' }]
+                ] as gameMoveStandard[]
+            },
+            {
+                testName: 'Cannot promote pawn before back rank',
+                moves: [
+                    [
+                        ['e', 2],
+                        ['e', 4],
+                        { type: 'promotion', promotionTarget: 'queen' }
+                    ]
+                ] as gameMoveStandard[]
+            },
+            {
+                testName: 'Must specify promotionTarget on promotion move',
+                moves: [
+                    [
+                        ['a', 2],
+                        ['a', 4]
+                    ],
+                    [
+                        ['c', 7],
+                        ['c', 5]
+                    ],
+                    [
+                        ['a', 4],
+                        ['a', 5]
+                    ],
+                    [
+                        ['c', 5],
+                        ['c', 4]
+                    ],
+                    [
+                        ['a', 5],
+                        ['a', 6]
+                    ],
+                    [
+                        ['c', 4],
+                        ['c', 3]
+                    ],
+                    [
+                        ['a', 6],
+                        ['b', 7]
+                    ],
+                    [
+                        ['c', 3],
+                        ['b', 2]
+                    ],
+                    [
+                        ['b', 7],
+                        ['a', 8]
+                    ]
+                ] as gameMoveStandard[]
+            },
+            {
+                testName: 'promotionTarget must be valid configured piece',
+                moves: [
+                    [
+                        ['a', 2],
+                        ['a', 4]
+                    ],
+                    [
+                        ['c', 7],
+                        ['c', 5]
+                    ],
+                    [
+                        ['a', 4],
+                        ['a', 5]
+                    ],
+                    [
+                        ['c', 5],
+                        ['c', 4]
+                    ],
+                    [
+                        ['a', 5],
+                        ['a', 6]
+                    ],
+                    [
+                        ['c', 4],
+                        ['c', 3]
+                    ],
+                    [
+                        ['a', 6],
+                        ['b', 7]
+                    ],
+                    [
+                        ['c', 3],
+                        ['b', 2]
+                    ],
+                    [
+                        ['b', 7],
+                        ['a', 8],
+                        { type: 'promotion', promotionTarget: 'king' }
+                    ]
                 ] as gameMoveStandard[]
             }
         ])(
