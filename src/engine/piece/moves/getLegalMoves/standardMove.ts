@@ -77,7 +77,7 @@ function generateFunction<PieceNames extends string[]>(
         };
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, board)) {
+            if (!conditionFunction(piece, board, currentSpace)) {
                 return availableMoves;
             }
         }

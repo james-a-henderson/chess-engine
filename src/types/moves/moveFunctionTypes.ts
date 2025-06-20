@@ -55,7 +55,9 @@ export type GetLegalMovesFunction<PieceNames extends string[]> = (
 
 export type MoveConditionFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
-    board: RectangularBoard<PieceNames>
+    board: RectangularBoard<PieceNames>,
+    piecePosition: BoardPosition,
+    previousMove?: MoveRecord<PieceNames>
 ) => boolean;
 
 export function emptyGetMovesFunction(): AvailableMoves {

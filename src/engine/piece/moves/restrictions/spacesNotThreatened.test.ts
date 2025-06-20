@@ -48,7 +48,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
                 ['c', 3]
             ]
         });
-        const result = func(piece, board);
+        const result = func(piece, board, ['a', 1]);
 
         expect(result).toEqual(true);
     });
@@ -91,7 +91,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
                 ['c', 3]
             ]
         });
-        const result = func(piece, board);
+        const result = func(piece, board, ['c', 1]);
 
         expect(result).toEqual(true);
     });
@@ -134,7 +134,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
                 ['c', 3]
             ]
         });
-        const result = func(piece, board);
+        const result = func(piece, board, ['a', 1]);
 
         expect(result).toEqual(false);
     });
@@ -158,7 +158,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
         });
 
         expect(() => {
-            func(piece, board);
+            func(piece, board, ['c', 1]);
         }).toThrow(RulesConfigurationError);
     });
 });

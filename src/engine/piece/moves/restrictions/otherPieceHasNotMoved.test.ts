@@ -58,7 +58,7 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(fooPiece, board);
+        const result = func(fooPiece, board, ['a', 1]);
 
         expect(result).toEqual(true);
     });
@@ -78,7 +78,7 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(fooPiece, board);
+        const result = func(fooPiece, board, ['c', 1]);
 
         expect(result).toEqual(false);
     });
@@ -103,7 +103,7 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(fooPiece1, board);
+        const result = func(fooPiece1, board, ['a', 1]);
 
         expect(result).toEqual(false);
     });
@@ -128,7 +128,7 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(fooPiece, board);
+        const result = func(fooPiece, board, ['a', 1]);
 
         expect(result).toEqual(false);
     });
@@ -154,7 +154,7 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(fooPiece, board);
+        const result = func(fooPiece, board, ['c', 1]);
 
         expect(result).toEqual(false);
     });
@@ -181,7 +181,7 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
         );
 
         expect(() => {
-            func(fooPiece, board);
+            func(fooPiece, board, ['a', 1]);
         }).toThrow(RulesConfigurationError);
     });
 });
