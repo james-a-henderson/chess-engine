@@ -3,7 +3,6 @@ import {
     BoardPosition,
     CastleMove,
     GetLegalMovesFunction,
-    RectangularBoardConfig,
     RulesConfigurationError
 } from '../../../../types';
 import { RectangularBoard } from '../../../board';
@@ -12,15 +11,9 @@ import { generateVerifyLegalMoveFunction } from '../verifyMove';
 
 export function generateGetLegalCastleMovesFunction<
     PieceNames extends string[]
->(
-    move: CastleMove<PieceNames>,
-    boardConfig: RectangularBoardConfig
-): GetLegalMovesFunction<PieceNames> {
+>(move: CastleMove<PieceNames>): GetLegalMovesFunction<PieceNames> {
     //since there's only one possible move for each castle move, we can lean on the verify move code
-    const verifyCastleMoveFunction = generateVerifyLegalMoveFunction(
-        move,
-        boardConfig
-    );
+    const verifyCastleMoveFunction = generateVerifyLegalMoveFunction(move);
 
     return (
         board: RectangularBoard<PieceNames>,

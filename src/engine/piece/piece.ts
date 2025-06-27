@@ -193,7 +193,7 @@ export class Piece<PieceNames extends string[]> {
     private registerMoves(boardConfig: RectangularBoardConfig) {
         this._config.moves.forEach((move) => {
             this._verifyLegalMoveFunctions.push(
-                generateVerifyLegalMoveFunction(move, boardConfig)
+                generateVerifyLegalMoveFunction(move)
             );
             this._getLegalMoveFunctions.push(
                 generateGetLegalMoveFunctions(move, boardConfig)
