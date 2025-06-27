@@ -1,10 +1,5 @@
 import { BoardPosition } from '../../../../types';
-import {
-    CaptureAvailability,
-    Direction,
-    RectangularBoardConfig,
-    StandardMove
-} from '../../../../types/configuration';
+import { Direction, StandardMove } from '../../../../types/configuration';
 import {
     emptyVerifyMovesFunction,
     MoveConditionFunction,
@@ -24,10 +19,7 @@ import {
 
 export function generateVerifyStandardMoveFunctions<
     PieceNames extends string[]
->(
-    move: StandardMove<PieceNames>,
-    boardConfig: RectangularBoardConfig
-): verifyLegalMoveFunction<PieceNames> {
+>(move: StandardMove<PieceNames>): verifyLegalMoveFunction<PieceNames> {
     if (move.alternateCaptureLocations) {
         //todo: add alternate capture locations
         return emptyVerifyMovesFunction;
@@ -54,29 +46,13 @@ export function generateVerifyStandardMoveFunctions<
         move.moveConditions ?? []
     );
 
-    const maxSpaces =
-        move.maxSpaces === 'unlimited'
-            ? Math.max(boardConfig.height, boardConfig.width)
-            : move.maxSpaces;
-    const minSpaces = move.minSpaces ? move.minSpaces : 1;
-    return generateFunction(
-        move.captureAvailability,
-        directions,
-        maxSpaces,
-        minSpaces,
-        conditionFunctions,
-        move.name
-    );
+    return generateFunction(move, conditionFunctions);
 }
 
 //todo: rename
 function generateFunction<PieceNames extends string[]>(
-    captureAvailability: CaptureAvailability,
-    directions: Direction[],
-    maxSpaces: number,
-    minSpaces: number,
-    conditionFunctions: MoveConditionFunction<PieceNames>[],
-    moveName: string
+    move: StandardMove<PieceNames>,
+    conditionFunctions: MoveConditionFunction<PieceNames>[]
 ): verifyLegalMoveFunction<PieceNames> {
     return (
         board: RectangularBoard<PieceNames>,
@@ -95,7 +71,7 @@ function generateFunction<PieceNames extends string[]>(
                 piece,
                 board,
                 destination,
-                captureAvailability
+                move.captureAvailability
             )
         ) {
             return false;
@@ -125,7 +101,7 @@ function generateFunction<PieceNames extends string[]>(
             return false;
         }
 
-        if (!directions.includes(direction)) {
+        if (move.directions !== 'all' && !move.directions.includes(direction)) {
             return false;
         }
 
@@ -136,6 +112,12 @@ function generateFunction<PieceNames extends string[]>(
             destinationFileIndex,
             destinationRankIndex
         );
+
+        const maxSpaces =
+            move.maxSpaces === 'unlimited'
+                ? Math.max(board.height, board.width)
+                : move.maxSpaces;
+        const minSpaces = move.minSpaces ? move.minSpaces : 1;
 
         //check if move length is within maximum and minimum number of spaces
         if (moveLength > maxSpaces || moveLength < minSpaces) {
@@ -165,7 +147,7 @@ function generateFunction<PieceNames extends string[]>(
             destinationSpace: destination,
             pieceName: piece.pieceName,
             pieceColor: piece.playerColor,
-            moveName: moveName,
+            moveName: move.name,
             type: 'standard',
             promotedTo:
                 moveOptions?.type === 'promotion'
