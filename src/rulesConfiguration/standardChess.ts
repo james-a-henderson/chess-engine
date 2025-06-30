@@ -77,9 +77,9 @@ export const standardChessConfig: GameRules<
                 },
                 {
                     type: 'standard',
-                    name: 'enPassant',
+                    name: 'enPassantLeft',
                     captureAvailability: 'required',
-                    directions: ['leftForward', 'rightForward'],
+                    directions: ['leftForward'],
                     maxSpaces: 1,
                     moveConditions: [
                         {
@@ -90,14 +90,38 @@ export const standardChessConfig: GameRules<
                                 {
                                     direction: 'left',
                                     numSpaces: 1
-                                },
+                                }
+                            ]
+                        }
+                    ],
+                    alternateCaptureLocation: {
+                        direction: 'backward',
+                        numSpaces: 1
+                    }
+                },
+                {
+                    type: 'standard',
+                    name: 'enPassantRight',
+                    captureAvailability: 'required',
+                    directions: ['rightForward'],
+                    maxSpaces: 1,
+                    moveConditions: [
+                        {
+                            condition: 'specificPreviousMove',
+                            previousMoveName: 'pawnDoubleMove',
+                            pieces: ['pawn'],
+                            locations: [
                                 {
                                     direction: 'right',
                                     numSpaces: 1
                                 }
                             ]
                         }
-                    ]
+                    ],
+                    alternateCaptureLocation: {
+                        direction: 'backward',
+                        numSpaces: 1
+                    }
                 }
             ],
             startingPositions: {

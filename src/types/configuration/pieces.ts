@@ -28,10 +28,10 @@ export type StandardMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
     maxSpaces: number | 'unlimited';
     minSpaces?: number;
     //relative location based on player position
-    alternateCaptureLocations?: {
+    alternateCaptureLocation?: {
         direction: Direction;
         numSpaces: number;
-    }[];
+    };
 };
 
 export type JumpCoordinate = {
