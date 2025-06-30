@@ -1,6 +1,7 @@
 import {
     BoardConfigurationError,
     BoardPosition,
+    Direction,
     IllegalMoveError,
     InvalidSpaceError,
     PieceConfig,
@@ -336,6 +337,65 @@ describe('RectangularBoard', () => {
                     }).toThrow(InvalidSpaceError);
                 }
             );
+        });
+    });
+
+    describe('getSpaceRelativePosition', () => {
+        describe.each([
+            ['forward', ['d', 5], ['d', 7]],
+            ['backward', ['d', 3], ['d', 1]],
+            ['left', ['c', 4], ['a', 4]],
+            ['right', ['e', 4], ['g', 4]],
+            ['leftForward', ['c', 5], ['a', 7]],
+            ['rightForward', ['e', 5], ['g', 7]],
+            ['leftBackward', ['c', 3], ['a', 1]],
+            ['rightBackward', ['e', 3], ['g', 1]]
+        ])(
+            'Direction: %s',
+            (
+                direction: string,
+                oneSpacePosition: (string | number)[],
+                threeSpacesPosition: (string | number)[]
+            ) => {
+                const startingPosition: BoardPosition = ['d', 4];
+                const board = new RectangularBoard({ width: 8, height: 8 }, []);
+                test(`numSpaces of 1 has position of ${oneSpacePosition[0]}${oneSpacePosition[1]}`, () => {
+                    const space = board.getSpaceRelativePosition(
+                        startingPosition,
+                        direction as Direction,
+                        1
+                    );
+                    expect(space.position[0]).toEqual(oneSpacePosition[0]);
+                    expect(space.position[1]).toEqual(oneSpacePosition[1]);
+                });
+
+                test(`numSpaces of 3 has position of ${threeSpacesPosition[0]}${threeSpacesPosition[1]}`, () => {
+                    const space = board.getSpaceRelativePosition(
+                        startingPosition,
+                        direction as Direction,
+                        3
+                    );
+                    expect(space.position[0]).toEqual(threeSpacesPosition[0]);
+                    expect(space.position[1]).toEqual(threeSpacesPosition[1]);
+                });
+
+                test('numSpaces of 6 throws InvalidSpaceError', () => {
+                    expect(() =>
+                        board.getSpaceRelativePosition(
+                            startingPosition,
+                            direction as Direction,
+                            6
+                        )
+                    ).toThrow(InvalidSpaceError);
+                });
+            }
+        );
+
+        test('throws if numSpaces is 0', () => {
+            const board = new RectangularBoard({ width: 8, height: 8 }, []);
+            expect(() =>
+                board.getSpaceRelativePosition(['c', 4], 'forward', 0)
+            ).toThrow(InvalidSpaceError);
         });
     });
 

@@ -3,6 +3,7 @@ import {
     BoardConfigurationError,
     BoardPosition,
     BoardSpace,
+    Direction,
     IllegalMoveError,
     InvalidSpaceError,
     MAXIMUM_BOARD_SIZE,
@@ -61,6 +62,48 @@ export class RectangularBoard<PieceNames extends string[]> {
         this.assertValidIndicies([fileIndex, rankIndex]);
 
         return this._spaces[fileIndex][rankIndex];
+    }
+
+    public getSpaceRelativePosition(
+        position: BoardPosition,
+        direction: Direction,
+        numSpaces: number
+    ): BoardSpace<PieceNames> {
+        if (numSpaces <= 0) {
+            throw new InvalidSpaceError('numSpaces must be at least 1');
+        }
+
+        const [fileIndex, rankIndex] = this.coordinatesToIndicies(position);
+        switch (direction) {
+            case 'forward':
+                return this.getSpace([fileIndex, rankIndex + numSpaces]);
+            case 'backward':
+                return this.getSpace([fileIndex, rankIndex - numSpaces]);
+            case 'left':
+                return this.getSpace([fileIndex - numSpaces, rankIndex]);
+            case 'right':
+                return this.getSpace([fileIndex + numSpaces, rankIndex]);
+            case 'leftForward':
+                return this.getSpace([
+                    fileIndex - numSpaces,
+                    rankIndex + numSpaces
+                ]);
+            case 'rightForward':
+                return this.getSpace([
+                    fileIndex + numSpaces,
+                    rankIndex + numSpaces
+                ]);
+            case 'leftBackward':
+                return this.getSpace([
+                    fileIndex - numSpaces,
+                    rankIndex - numSpaces
+                ]);
+            case 'rightBackward':
+                return this.getSpace([
+                    fileIndex + numSpaces,
+                    rankIndex - numSpaces
+                ]);
+        }
     }
 
     public getPieceSpaces({
