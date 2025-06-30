@@ -16,17 +16,6 @@ import { generateVerifyStandardMoveFunctions } from './standardMove';
 
 type testPieceNames = ['generic', 'forward', 'dummy'];
 
-const dummyPiece: PieceConfig<testPieceNames> = {
-    name: 'dummy',
-    notation: 'D',
-    displayCharacters: {
-        white: 'D',
-        black: 'd'
-    },
-    moves: [],
-    startingPositions: {} //override on tests
-};
-
 const boardConfig: RectangularBoardConfig = {
     height: 8,
     width: 8
@@ -344,13 +333,26 @@ describe('generateVerifyStandardMoveFunctions', () => {
                 destinationPosition: (string | number)[];
                 otherPiecePosition: (string | number)[];
             }) => {
-                generatePieceInBetweenTest(
+                const testOptions: testOptions =
+                    testPieceColor === otherPieceColor
+                        ? {
+                              sameColorStartingPositions: [
+                                  otherPiecePosition as BoardPosition
+                              ]
+                          }
+                        : {
+                              otherColorStartingPositions: [
+                                  otherPiecePosition as BoardPosition
+                              ]
+                          };
+
+                generateMoveTest(
                     moveConfig,
                     testPieceColor as PlayerColor,
-                    otherPieceColor as PlayerColor,
                     startingPosition as BoardPosition,
                     destinationPosition as BoardPosition,
-                    otherPiecePosition as BoardPosition
+                    false,
+                    testOptions
                 );
             }
         );
@@ -358,23 +360,15 @@ describe('generateVerifyStandardMoveFunctions', () => {
 
     describe('Piece of same color on destination', () => {
         test('Returns false if piece is white and white piece is on destination', () => {
-            generateSameColorPieceOnDestinationTest(
-                forwardMove,
-                'white',
-                ['a', 4],
-                ['a', 7],
-                false
-            );
+            generateMoveTest(forwardMove, 'white', ['a', 4], ['a', 7], false, {
+                sameColorStartingPositions: [['a', 7]]
+            });
         });
 
         test('Returns false if piece is black and black piece is on destination', () => {
-            generateSameColorPieceOnDestinationTest(
-                forwardMove,
-                'black',
-                ['h', 4],
-                ['h', 2],
-                false
-            );
+            generateMoveTest(forwardMove, 'black', ['h', 4], ['h', 2], false, {
+                sameColorStartingPositions: [['h', 2]]
+            });
         });
     });
 
@@ -2215,13 +2209,21 @@ describe('generateVerifyStandardMoveFunctions', () => {
     });
 });
 
+type testOptions = {
+    sameColorStartingPositions?: BoardPosition[];
+    otherColorStartingPositions?: BoardPosition[];
+};
+
 function generateMoveTest(
     moveConfig: StandardMove<testPieceNames>,
     playerColor: PlayerColor,
     startingPosition: BoardPosition,
     destinationPosition: BoardPosition,
-    expected: boolean
+    expected: boolean,
+    testOptions?: testOptions
 ) {
+    const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
+
     const pieceConfig: PieceConfig<testPieceNames> = {
         name: 'generic',
         notation: 'P',
@@ -2231,7 +2233,12 @@ function generateMoveTest(
         },
         moves: [moveConfig],
         startingPositions: {
-            [playerColor]: [startingPosition]
+            [playerColor]: testOptions?.sameColorStartingPositions
+                ? [startingPosition, ...testOptions.sameColorStartingPositions]
+                : [startingPosition],
+            [otherColor]: testOptions?.otherColorStartingPositions
+                ? testOptions.otherColorStartingPositions
+                : []
         }
     };
 
@@ -2240,105 +2247,6 @@ function generateMoveTest(
         pieces: [pieceConfig]
     };
 
-    const engine = new GameEngine(config);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
-
-    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
-
-    const result = moveFunction(
-        board,
-        piece,
-        startingPosition,
-        destinationPosition
-    );
-
-    if (expected) {
-        expect(result).toEqual({
-            destinationSpace: destinationPosition,
-            originSpace: startingPosition,
-            moveName: moveConfig.name,
-            pieceColor: playerColor,
-            pieceName: pieceConfig.name,
-            type: 'standard'
-        });
-    } else {
-        expect(result).toEqual(false);
-    }
-}
-
-function generatePieceInBetweenTest(
-    moveConfig: StandardMove<testPieceNames>,
-    testPieceColor: PlayerColor,
-    otherPieceColor: PlayerColor,
-    startingPosition: BoardPosition,
-    destinationPosition: BoardPosition,
-    otherPiecePosition: BoardPosition
-) {
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'generic',
-        notation: 'P',
-        displayCharacters: {
-            white: 'P',
-            black: 'p'
-        },
-        moves: [moveConfig],
-        startingPositions: {
-            [testPieceColor]: [startingPosition]
-        }
-    };
-
-    const capturePieceConfig: PieceConfig<testPieceNames> = {
-        ...dummyPiece,
-        startingPositions: {
-            [otherPieceColor]: [otherPiecePosition]
-        }
-    };
-    const config: GameRules<testPieceNames> = {
-        ...rulesConfig,
-        pieces: [pieceConfig, capturePieceConfig]
-    };
-    const engine = new GameEngine(config);
-    const board = engine.board;
-    const piece = engine.getSpace(startingPosition).piece!;
-
-    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
-
-    expect(
-        moveFunction(board, piece, startingPosition, destinationPosition)
-    ).toEqual(false);
-}
-
-function generateSameColorPieceOnDestinationTest(
-    moveConfig: StandardMove<testPieceNames>,
-    playerColor: PlayerColor,
-    startingPosition: BoardPosition,
-    destinationPosition: BoardPosition,
-    expected: boolean
-) {
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'generic',
-        notation: 'P',
-        displayCharacters: {
-            white: 'P',
-            black: 'p'
-        },
-        moves: [moveConfig],
-        startingPositions: {
-            [playerColor]: [startingPosition]
-        }
-    };
-
-    const otherPieceConfig: PieceConfig<testPieceNames> = {
-        ...dummyPiece,
-        startingPositions: {
-            [playerColor]: [destinationPosition]
-        }
-    };
-    const config: GameRules<testPieceNames> = {
-        ...rulesConfig,
-        pieces: [pieceConfig, otherPieceConfig]
-    };
     const engine = new GameEngine(config);
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
