@@ -22,17 +22,27 @@ type MoveBase<PieceNames extends string[]> = {
     moveConditions?: MoveCondition<PieceNames>[];
 };
 
-export type StandardMove<PieceNames extends string[]> = MoveBase<PieceNames> & {
+export type StandardMoveNoAlternateCaptureLocation<
+    PieceNames extends string[]
+> = MoveBase<PieceNames> & {
     type: 'standard';
     directions: Direction[] | 'all';
     maxSpaces: number | 'unlimited';
     minSpaces?: number;
-    //relative location based on player position
-    alternateCaptureLocation?: {
-        direction: Direction;
-        numSpaces: number;
-    };
 };
+
+export type StandardMoveAlternateCaptureLocation<PieceNames extends string[]> =
+    StandardMoveNoAlternateCaptureLocation<PieceNames> & {
+        captureAvailability: 'required';
+        alternateCaptureLocation: {
+            direction: Direction;
+            numSpaces: number;
+        };
+    };
+
+export type StandardMove<PieceNames extends string[]> =
+    | StandardMoveNoAlternateCaptureLocation<PieceNames>
+    | StandardMoveAlternateCaptureLocation<PieceNames>;
 
 export type JumpCoordinate = {
     horizontalSpaces: number;

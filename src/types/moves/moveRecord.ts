@@ -9,6 +9,7 @@ type MoveRecordBase<PieceNames extends string[]> = {
     destinationSpace: BoardPosition;
     originSpace: BoardPosition;
     promotedTo?: PieceNames[keyof PieceNames];
+    altCaptureLocation?: BoardPosition;
 };
 
 export type MoveRecordStandard<PieceNames extends string[]> =

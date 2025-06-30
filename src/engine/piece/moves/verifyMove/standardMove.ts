@@ -1,5 +1,9 @@
 import { BoardPosition } from '../../../../types';
-import { Direction, StandardMove } from '../../../../types/configuration';
+import {
+    Direction,
+    StandardMove,
+    StandardMoveAlternateCaptureLocation
+} from '../../../../types/configuration';
 import {
     emptyVerifyMovesFunction,
     MoveConditionFunction,
@@ -14,17 +18,13 @@ import {
     getMoveConditionFunctions,
     makeNextSpaceIterator,
     positionsAreEqual,
+    reverseDirection,
     validateCaptureRules
 } from '../helpers';
 
 export function generateVerifyStandardMoveFunctions<
     PieceNames extends string[]
 >(move: StandardMove<PieceNames>): verifyLegalMoveFunction<PieceNames> {
-    if (move.alternateCaptureLocations) {
-        //todo: add alternate capture locations
-        return emptyVerifyMovesFunction;
-    }
-
     const directions: Direction[] =
         move.directions !== 'all'
             ? move.directions
@@ -61,12 +61,25 @@ function generateFunction<PieceNames extends string[]>(
         destination: BoardPosition,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
+        let altCaptureLocation = undefined;
         if (positionsAreEqual(currentSpace, destination)) {
             //destination cannot be the space the piece currently occupies
             return false;
         }
 
-        if (
+        if ('alternateCaptureLocation' in move) {
+            const altCaptureResult = validateAlternateCaptureLocation(
+                board,
+                piece,
+                move,
+                destination
+            );
+            if (altCaptureResult) {
+                altCaptureLocation = altCaptureResult;
+            } else {
+                return false;
+            }
+        } else if (
             !validateCaptureRules(
                 piece,
                 board,
@@ -152,7 +165,44 @@ function generateFunction<PieceNames extends string[]>(
             promotedTo:
                 moveOptions?.type === 'promotion'
                     ? moveOptions.promotionTarget
-                    : undefined
+                    : undefined,
+            altCaptureLocation: altCaptureLocation
         };
     };
+}
+
+function validateAlternateCaptureLocation<PieceNames extends string[]>(
+    board: RectangularBoard<PieceNames>,
+    piece: Piece<PieceNames>,
+    move: StandardMoveAlternateCaptureLocation<PieceNames>,
+    destination: BoardPosition
+): BoardPosition | false {
+    const direction =
+        piece.playerColor === 'white'
+            ? move.alternateCaptureLocation.direction
+            : reverseDirection(move.alternateCaptureLocation.direction);
+
+    try {
+        const destinationSpace = board.getSpace(destination);
+        const captureSpace = board.getSpaceRelativePosition(
+            destination,
+            direction,
+            move.alternateCaptureLocation.numSpaces
+        );
+
+        if (destinationSpace.piece) {
+            return false; //cannot move onto space with piece if alternate capture location is specified
+        }
+
+        if (
+            !captureSpace.piece ||
+            captureSpace.piece.playerColor === piece.playerColor
+        ) {
+            return false;
+        }
+
+        return captureSpace.position;
+    } catch (error) {
+        return false;
+    }
 }

@@ -2207,11 +2207,97 @@ describe('generateVerifyStandardMoveFunctions', () => {
             }
         );
     });
+
+    describe('alternate capture location', () => {
+        test('Valid return value when opposite color piece is on alt capture location', () => {
+            const moveConfig: StandardMove<testPieceNames> = {
+                ...forwardMove,
+                captureAvailability: 'required',
+                alternateCaptureLocation: {
+                    direction: 'left',
+                    numSpaces: 1
+                }
+            };
+
+            generateMoveTest(moveConfig, 'white', ['d', 4], ['d', 5], true, {
+                otherColorStartingPositions: [['c', 5]],
+                altCaptureLocation: ['c', 5]
+            });
+        });
+
+        test('Returns false if opposite color piece is not on alt capture location', () => {
+            const moveConfig: StandardMove<testPieceNames> = {
+                ...forwardMove,
+                captureAvailability: 'required',
+                alternateCaptureLocation: {
+                    direction: 'left',
+                    numSpaces: 1
+                }
+            };
+
+            generateMoveTest(moveConfig, 'black', ['d', 6], ['d', 5], false, {
+                otherColorStartingPositions: [['c', 5]],
+                altCaptureLocation: ['c', 5]
+            });
+        });
+
+        test('Returns false if same color piece is on destination space', () => {
+            const moveConfig: StandardMove<testPieceNames> = {
+                ...forwardMove,
+                captureAvailability: 'required',
+                alternateCaptureLocation: {
+                    direction: 'left',
+                    numSpaces: 1
+                }
+            };
+
+            generateMoveTest(moveConfig, 'white', ['d', 4], ['d', 5], false, {
+                sameColorStartingPositions: [['d', 5]],
+                otherColorStartingPositions: [['c', 5]],
+                altCaptureLocation: ['c', 5]
+            });
+        });
+
+        test('Returns false if opposite color piece is on destination space', () => {
+            const moveConfig: StandardMove<testPieceNames> = {
+                ...forwardMove,
+                captureAvailability: 'required',
+                alternateCaptureLocation: {
+                    direction: 'right',
+                    numSpaces: 1
+                }
+            };
+
+            generateMoveTest(moveConfig, 'black', ['d', 6], ['d', 5], false, {
+                otherColorStartingPositions: [
+                    ['c', 5],
+                    ['d', 5]
+                ],
+                altCaptureLocation: ['c', 5]
+            });
+        });
+
+        test('Returns false if alternate capture location is off of board', () => {
+            const moveConfig: StandardMove<testPieceNames> = {
+                ...forwardMove,
+                captureAvailability: 'required',
+                alternateCaptureLocation: {
+                    direction: 'left',
+                    numSpaces: 1
+                }
+            };
+
+            generateMoveTest(moveConfig, 'white', ['a', 4], ['a', 5], false, {
+                otherColorStartingPositions: [['c', 5]]
+            });
+        });
+    });
 });
 
 type testOptions = {
     sameColorStartingPositions?: BoardPosition[];
     otherColorStartingPositions?: BoardPosition[];
+    altCaptureLocation?: BoardPosition;
 };
 
 function generateMoveTest(
@@ -2267,7 +2353,8 @@ function generateMoveTest(
             moveName: moveConfig.name,
             pieceColor: playerColor,
             pieceName: pieceConfig.name,
-            type: 'standard'
+            type: 'standard',
+            altCaptureLocation: testOptions?.altCaptureLocation
         });
     } else {
         expect(result).toEqual(false);
