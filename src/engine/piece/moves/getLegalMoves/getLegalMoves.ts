@@ -18,7 +18,7 @@ export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
         case 'jump':
             return generateGetLegalJumpMovesFunction(move);
         case 'castle':
-            return generateGetLegalCastleMovesFunction(move, boardConfig);
+            return generateGetLegalCastleMovesFunction(move);
         default:
             //todo: implement other move types
             return emptyGetMovesFunction;

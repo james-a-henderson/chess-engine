@@ -185,10 +185,7 @@ function getTestResult(
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
 
-    const getMoveFunction = generateGetLegalCastleMovesFunction(
-        moveConfig,
-        boardConfig
-    );
+    const getMoveFunction = generateGetLegalCastleMovesFunction(moveConfig);
 
     return getMoveFunction(board, piece, startingPosition);
 }

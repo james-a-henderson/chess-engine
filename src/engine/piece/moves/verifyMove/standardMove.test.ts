@@ -121,7 +121,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
             type: 'standard'
         };
 
-        const result = generateVerifyStandardMoveFunctions(move, boardConfig);
+        const result = generateVerifyStandardMoveFunctions(move);
         expect(result).toEqual(emptyVerifyMovesFunction);
     });
 
@@ -160,10 +160,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
         const board = engine.board;
         const piece = board.getSpace(['a', 1]).piece!;
 
-        const moveFunction = generateVerifyStandardMoveFunctions(
-            move,
-            boardConfig
-        );
+        const moveFunction = generateVerifyStandardMoveFunctions(move);
 
         //simulate piece move
         piece.increaseMoveCount();
@@ -247,10 +244,7 @@ describe('generateVerifyStandardMoveFunctions', () => {
         const board = engine.board;
         const piece = board.getSpace(['a', 1]).piece!;
 
-        const moveFunction = generateVerifyStandardMoveFunctions(
-            move,
-            boardConfig
-        );
+        const moveFunction = generateVerifyStandardMoveFunctions(move);
 
         const result = moveFunction(board, piece, ['a', 1], ['a', 2], {
             type: 'promotion',
@@ -2250,10 +2244,7 @@ function generateMoveTest(
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
 
-    const moveFunction = generateVerifyStandardMoveFunctions(
-        moveConfig,
-        boardConfig
-    );
+    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
 
     const result = moveFunction(
         board,
@@ -2311,10 +2302,7 @@ function generatePieceInBetweenTest(
     const board = engine.board;
     const piece = engine.getSpace(startingPosition).piece!;
 
-    const moveFunction = generateVerifyStandardMoveFunctions(
-        moveConfig,
-        boardConfig
-    );
+    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
 
     expect(
         moveFunction(board, piece, startingPosition, destinationPosition)
@@ -2355,10 +2343,7 @@ function generateSameColorPieceOnDestinationTest(
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
 
-    const moveFunction = generateVerifyStandardMoveFunctions(
-        moveConfig,
-        boardConfig
-    );
+    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
 
     const result = moveFunction(
         board,
@@ -2408,10 +2393,7 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
     const board = engine.board;
     const piece = engine.getSpace(startingPosition).piece!;
 
-    const moveFunction = generateVerifyStandardMoveFunctions(
-        moveConfig,
-        boardConfig
-    );
+    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
 
     expect(() =>
         moveFunction(board, piece, startingPosition, destinationPosition)
