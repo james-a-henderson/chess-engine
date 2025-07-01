@@ -525,6 +525,7 @@ function generateMoveTest(
         piece,
         startingPosition,
         destinationPosition,
+        undefined,
         {
             type: 'castle'
         }

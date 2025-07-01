@@ -322,6 +322,7 @@ function generateMoveTest(
         piece,
         startingPosition,
         destinationPosition,
+        undefined,
         moveOptions
     );
 

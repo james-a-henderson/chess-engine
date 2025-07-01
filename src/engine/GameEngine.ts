@@ -132,6 +132,7 @@ export class GameEngine<PieceNames extends string[]> {
             this.board,
             targetPosition,
             destinationPosition,
+            this.lastMove,
             moveOptions
         );
     }
@@ -175,7 +176,9 @@ export class GameEngine<PieceNames extends string[]> {
         const originSpace = this.getSpace(move.originSpace);
         const destinationSpace = this.getSpace(move.destinationSpace);
 
-        if (destinationSpace.piece) {
+        if (move.altCaptureLocation) {
+            this.capturePiece(move.altCaptureLocation);
+        } else if (destinationSpace.piece) {
             //we assume if we get to this point, the capture is valid
             //todo: handle en passant capture
             this.capturePiece(move.destinationSpace);

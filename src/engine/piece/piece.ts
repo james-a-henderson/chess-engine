@@ -115,6 +115,7 @@ export class Piece<PieceNames extends string[]> {
         board: RectangularBoard<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition,
+        previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ): MoveRecord<PieceNames> | false {
         if (
@@ -134,6 +135,7 @@ export class Piece<PieceNames extends string[]> {
                 this,
                 currentSpace,
                 destination,
+                previousMove,
                 moveOptions
             );
 

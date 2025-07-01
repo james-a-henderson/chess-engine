@@ -209,6 +209,27 @@ describe('GameEngine gameplay', () => {
                 engine.makeMove(['a', 1], ['a', 8]);
                 expect(piece?.moveCount).toEqual(1);
             });
+
+            test('alternate capture location removes piece', () => {
+                jest.spyOn(Piece.prototype, 'verifyMove').mockReturnValueOnce({
+                    destinationSpace: ['a', 2],
+                    originSpace: ['a', 1],
+                    pieceColor: 'white',
+                    pieceName: 'foo',
+                    moveName: 'test',
+                    type: 'standard',
+                    altCaptureLocation: ['a', 8]
+                });
+
+                //ensure piece is at space before move
+                expect(engine.getSpace(['a', 8]).piece?.pieceName).toEqual(
+                    'foo'
+                );
+
+                engine.makeMove(['a', 1], ['a', 2]);
+
+                expect(engine.getSpace(['a', 8]).piece).toBeUndefined();
+            });
         });
 
         describe('castle move', () => {

@@ -4,6 +4,7 @@ import {
     CastleMove,
     MoveConditionFunction,
     MoveOptions,
+    MoveRecord,
     verifyLegalMoveFunction
 } from '../../../../types';
 import { RectangularBoard } from '../../../board';
@@ -36,6 +37,7 @@ function generateFunction<PieceNames extends string[]>(
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition,
+        previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
         if (moveOptions?.type !== 'castle') {
@@ -82,7 +84,7 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, board, currentSpace)) {
+            if (!conditionFunction(piece, board, currentSpace, previousMove)) {
                 return false;
             }
         }

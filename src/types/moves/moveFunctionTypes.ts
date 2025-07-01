@@ -26,6 +26,7 @@ export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition,
     destination: BoardPosition,
+    previousMove?: MoveRecord<PieceNames>,
     moveOptions?: MoveOptions<PieceNames>
 ) => MoveRecord<PieceNames> | false;
 

@@ -544,6 +544,7 @@ describe('piece', () => {
                         {} as RectangularBoard<testPieceNames>,
                         ['a', 4],
                         ['a', 1],
+                        undefined,
                         { type: 'promotion', promotionTarget: 'bar' }
                     )
                 ).toEqual(false);
@@ -589,6 +590,7 @@ describe('piece', () => {
                         {} as RectangularBoard<testPieceNames>,
                         ['a', 4],
                         ['a', 8],
+                        undefined,
                         { type: 'promotion', promotionTarget: 'baz' }
                     )
                 ).toEqual(false);
@@ -612,6 +614,7 @@ describe('piece', () => {
                         {} as RectangularBoard<testPieceNames>,
                         ['a', 4],
                         ['a', 1],
+                        undefined,
                         { type: 'promotion', promotionTarget: 'bar' }
                     )
                 ).toBeTruthy();
@@ -635,6 +638,7 @@ describe('piece', () => {
                         {} as RectangularBoard<testPieceNames>,
                         ['a', 4],
                         ['a', 1],
+                        undefined,
                         { type: 'promotion', promotionTarget: 'bar' }
                     )
                 ).toEqual(false);
@@ -658,6 +662,7 @@ describe('piece', () => {
                         {} as RectangularBoard<testPieceNames>,
                         ['a', 4],
                         ['a', 3],
+                        undefined,
                         { type: 'promotion', promotionTarget: 'bar' }
                     )
                 ).toEqual(false);

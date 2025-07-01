@@ -13,6 +13,7 @@ import {
     generateOtherPieceHasNotMovedFunction,
     generateSpacesNotThreatenedFunction
 } from './restrictions';
+import { generateSpecificPreviousMoveFunction } from './restrictions/specificPreviousMove';
 
 export function validateCaptureRules<PieceNames extends string[]>(
     piece: Piece<PieceNames>,
@@ -95,7 +96,12 @@ export function getMoveConditionFunctions<PieceNames extends string[]>(
                 );
                 break;
             case 'specificPreviousMove':
-            //not implemented yet
+                conditionFunctions.push(
+                    generateSpecificPreviousMoveFunction(
+                        condition.previousMoveName,
+                        condition.locations
+                    )
+                );
         }
     }
 

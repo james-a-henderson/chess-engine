@@ -8,6 +8,7 @@ import {
     emptyVerifyMovesFunction,
     MoveConditionFunction,
     MoveOptions,
+    MoveRecord,
     verifyLegalMoveFunction
 } from '../../../../types/moves';
 import { RectangularBoard } from '../../../board';
@@ -59,6 +60,7 @@ function generateFunction<PieceNames extends string[]>(
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition,
+        previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
         let altCaptureLocation = undefined;
@@ -91,7 +93,7 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, board, currentSpace)) {
+            if (!conditionFunction(piece, board, currentSpace, previousMove)) {
                 return false;
             }
         }

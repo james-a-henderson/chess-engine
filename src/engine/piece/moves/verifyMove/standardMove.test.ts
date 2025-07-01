@@ -235,10 +235,17 @@ describe('generateVerifyStandardMoveFunctions', () => {
 
         const moveFunction = generateVerifyStandardMoveFunctions(move);
 
-        const result = moveFunction(board, piece, ['a', 1], ['a', 2], {
-            type: 'promotion',
-            promotionTarget: 'dummy'
-        });
+        const result = moveFunction(
+            board,
+            piece,
+            ['a', 1],
+            ['a', 2],
+            undefined,
+            {
+                type: 'promotion',
+                promotionTarget: 'dummy'
+            }
+        );
         expect(result).toEqual({
             destinationSpace: ['a', 2],
             originSpace: ['a', 1],

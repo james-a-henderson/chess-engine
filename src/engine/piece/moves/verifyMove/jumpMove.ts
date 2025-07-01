@@ -4,6 +4,7 @@ import {
     JumpMove,
     MoveConditionFunction,
     MoveOptions,
+    MoveRecord,
     PlayerColor,
     verifyLegalMoveFunction
 } from '../../../../types';
@@ -44,6 +45,7 @@ function generateFunction<PieceNames extends string[]>(
         piece: Piece<PieceNames>,
         currentSpace: BoardPosition,
         destination: BoardPosition,
+        previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
         if (positionsAreEqual(currentSpace, destination)) {
