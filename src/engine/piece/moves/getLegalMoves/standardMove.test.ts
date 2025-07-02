@@ -329,7 +329,7 @@ describe('generateGetLegalStandardMovesFunction', () => {
         });
     });
 
-    describe.skip('alternate capture locations', () => {
+    describe('alternate capture locations', () => {
         test('returns move if opponent piece is in alternate capture location', () => {
             const result = getTestResult(['forward'], 1, 1, ['b', 2], {
                 captureAvailability: 'required',
@@ -345,6 +345,7 @@ describe('generateGetLegalStandardMovesFunction', () => {
             const result = getTestResult(['forward'], 1, 1, ['b', 2], {
                 captureAvailability: 'required',
                 otherColorStartingPositions: [['c', 1]],
+                pieceColor: 'black',
                 alternateCaptureLocation: { direction: 'left', numSpaces: 1 }
             });
             expect(result.captureMoves).toHaveLength(1);
@@ -364,6 +365,7 @@ describe('generateGetLegalStandardMovesFunction', () => {
         test('does not return any moves if opponent piece is in destination location', () => {
             const result = getTestResult(['forward'], 1, 1, ['b', 2], {
                 captureAvailability: 'required',
+                pieceColor: 'black',
                 otherColorStartingPositions: [
                     ['c', 1],
                     ['b', 1]
@@ -485,16 +487,30 @@ function getTestResult(
         };
     }
 ): AvailableMoves {
-    const move: StandardMove<testPieceNames> = {
-        ...baseMoveConfig,
-        captureAvailability: testOptions?.captureAvailability
-            ? testOptions.captureAvailability
-            : 'optional',
-        maxSpaces: maxSpaces,
-        minSpaces: minSpaces,
-        directions: directions,
-        alternateCaptureLocation: testOptions?.alternateCaptureLocation
-    };
+    let move: StandardMove<testPieceNames>;
+
+    if (testOptions?.alternateCaptureLocation) {
+        move = {
+            ...baseMoveConfig,
+            captureAvailability: testOptions?.captureAvailability
+                ? testOptions.captureAvailability
+                : 'optional',
+            maxSpaces: maxSpaces,
+            minSpaces: minSpaces,
+            directions: directions,
+            alternateCaptureLocation: testOptions.alternateCaptureLocation
+        };
+    } else {
+        move = {
+            ...baseMoveConfig,
+            captureAvailability: testOptions?.captureAvailability
+                ? testOptions.captureAvailability
+                : 'optional',
+            maxSpaces: maxSpaces,
+            minSpaces: minSpaces,
+            directions: directions
+        };
+    }
 
     const color: PlayerColor = testOptions?.pieceColor
         ? testOptions.pieceColor

@@ -10,7 +10,11 @@ import {
 } from '../../../../types';
 import { RectangularBoard } from '../../../board/rectangularBoard';
 import { Piece } from '../../piece';
-import { getMoveConditionFunctions, makeNextSpaceIterator } from '../helpers';
+import {
+    getMoveConditionFunctions,
+    makeNextSpaceIterator,
+    reverseDirection
+} from '../helpers';
 
 //todo: filter out spaces that fail board.verifyMovePositionValid
 export function generateGetLegalStandardMovesFunction<
@@ -132,6 +136,7 @@ function getMovesForDirection<PieceNames extends string[]>(
 
             if (space.piece) {
                 if (
+                    !('alternateCaptureLocation' in move) &&
                     space.piece.playerColor !== piece.playerColor &&
                     (move.captureAvailability === 'optional' ||
                         move.captureAvailability === 'required')
@@ -146,16 +151,42 @@ function getMovesForDirection<PieceNames extends string[]>(
             }
 
             //no piece on space
-            switch (move.captureAvailability) {
-                case 'optional':
+            if ('alternateCaptureLocation' in move) {
+                const altCaptureDirection =
+                    piece.playerColor === 'white'
+                        ? move.alternateCaptureLocation.direction
+                        : reverseDirection(
+                              move.alternateCaptureLocation.direction
+                          );
+
+                //this will throw invalidSpaceError if not valid, which is caught later
+                const captureSpace = board.getSpaceRelativePosition(
+                    space.position,
+                    altCaptureDirection,
+                    move.alternateCaptureLocation.numSpaces
+                );
+
+                availableMoves.spacesThreatened.push(captureSpace.position);
+
+                if (
+                    captureSpace.piece &&
+                    captureSpace.piece.playerColor !== piece.playerColor
+                ) {
                     availableMoves.moves.push(space.position);
-                    availableMoves.spacesThreatened.push(space.position);
-                    break;
-                case 'required':
-                    availableMoves.spacesThreatened.push(space.position);
-                    break;
-                case 'forbidden':
-                    availableMoves.moves.push(space.position);
+                    availableMoves.captureMoves.push(space.position);
+                }
+            } else {
+                switch (move.captureAvailability) {
+                    case 'optional':
+                        availableMoves.moves.push(space.position);
+                        availableMoves.spacesThreatened.push(space.position);
+                        break;
+                    case 'required':
+                        availableMoves.spacesThreatened.push(space.position);
+                        break;
+                    case 'forbidden':
+                        availableMoves.moves.push(space.position);
+                }
             }
         } catch (error) {
             if (error instanceof InvalidSpaceError) {
