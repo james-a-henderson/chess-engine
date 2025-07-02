@@ -1,4 +1,4 @@
-import { PieceConfig, RectangularBoardConfig } from '../../../../types';
+import { PieceConfig } from '../../../../types';
 import { Piece } from '../../piece';
 import { firstPieceMove } from './firstPieceMove';
 
@@ -19,20 +19,15 @@ describe('firstPieceMove', () => {
         }
     };
 
-    const boardConfig: RectangularBoardConfig = {
-        height: 8,
-        width: 8
-    };
-
     test('returns true if piece has not moved', () => {
-        const piece = new Piece(pieceConfig, 'white', boardConfig);
+        const piece = new Piece(pieceConfig, 'white');
 
         const result = firstPieceMove(piece);
         expect(result).toEqual(true);
     });
 
     test('returns false if piece has moved once', () => {
-        const piece = new Piece(pieceConfig, 'white', boardConfig);
+        const piece = new Piece(pieceConfig, 'white');
 
         piece.increaseMoveCount();
 
@@ -41,7 +36,7 @@ describe('firstPieceMove', () => {
     });
 
     test('returns false if piece has moved three times', () => {
-        const piece = new Piece(pieceConfig, 'white', boardConfig);
+        const piece = new Piece(pieceConfig, 'white');
 
         piece.increaseMoveCount();
         piece.increaseMoveCount();

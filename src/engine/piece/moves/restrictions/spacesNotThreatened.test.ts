@@ -28,7 +28,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
     };
 
     test('returns true if attacking player has no pieces', () => {
-        const piece = new Piece(pieceConfig, 'white', boardConfig);
+        const piece = new Piece(pieceConfig, 'white');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -54,7 +54,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
     });
 
     test('returns true of attacking player has pieces that are not attacking threatened spaces', () => {
-        const piece = new Piece(pieceConfig, 'black', boardConfig);
+        const piece = new Piece(pieceConfig, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -97,7 +97,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
     });
 
     test('returns false if attacking player is threataning one space', () => {
-        const piece = new Piece(pieceConfig, 'white', boardConfig);
+        const piece = new Piece(pieceConfig, 'white');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -140,7 +140,7 @@ describe('genearteSpacesNotThreatenedFunction', () => {
     });
 
     test('throws error if threatened spaces are not specified for player color', () => {
-        const piece = new Piece(pieceConfig, 'black', boardConfig);
+        const piece = new Piece(pieceConfig, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {

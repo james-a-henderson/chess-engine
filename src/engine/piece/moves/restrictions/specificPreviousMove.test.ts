@@ -46,8 +46,8 @@ describe('generateSpecificPreviousMoveFunction', () => {
         pieceName: 'bar'
     };
     test('Generated function returns false if previous move has different name then configured', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigBar, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -75,8 +75,8 @@ describe('generateSpecificPreviousMoveFunction', () => {
     });
 
     test('Generated function returns true if previous move is correct and positions are not configured', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigBar, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -101,8 +101,8 @@ describe('generateSpecificPreviousMoveFunction', () => {
     });
 
     test('Generated function returns false if previously moved piece is in an invalid direction', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigBar, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -130,8 +130,8 @@ describe('generateSpecificPreviousMoveFunction', () => {
     });
 
     test('Generated function returns true if previously moved piece in configured location', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigBar, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -156,8 +156,8 @@ describe('generateSpecificPreviousMoveFunction', () => {
     });
 
     test('Generated function returns false if previously moved piece is not in configured location', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigBar, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -182,8 +182,8 @@ describe('generateSpecificPreviousMoveFunction', () => {
     });
 
     test('Generated function returns true if previously moved piece is in one of many configured locations', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigBar, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -212,8 +212,8 @@ describe('generateSpecificPreviousMoveFunction', () => {
     });
 
     test('Generated function correctly flips direction for black piece', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'black', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'white', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'black');
+        const barPiece = new Piece(pieceConfigBar, 'white');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {

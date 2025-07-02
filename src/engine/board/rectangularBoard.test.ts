@@ -59,18 +59,10 @@ describe('RectangularBoard', () => {
     let testPieceBlackBaz: Piece<testPieceNames>;
 
     beforeEach(() => {
-        testPieceFoo = new Piece(testPieceFooConfig, 'white', testBoardConfig);
-        testPieceBar = new Piece(testPieceBarConfig, 'black', testBoardConfig);
-        testPieceWhiteBaz = new Piece(
-            testPieceBazConfig,
-            'white',
-            testBoardConfig
-        );
-        testPieceBlackBaz = new Piece(
-            testPieceBazConfig,
-            'black',
-            testBoardConfig
-        );
+        testPieceFoo = new Piece(testPieceFooConfig, 'white');
+        testPieceBar = new Piece(testPieceBarConfig, 'black');
+        testPieceWhiteBaz = new Piece(testPieceBazConfig, 'white');
+        testPieceBlackBaz = new Piece(testPieceBazConfig, 'black');
     });
 
     describe('constructor', () => {

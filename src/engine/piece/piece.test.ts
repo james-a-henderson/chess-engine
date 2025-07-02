@@ -55,11 +55,6 @@ describe('piece', () => {
         moves: []
     };
 
-    const boardConfig = {
-        height: 8,
-        width: 8
-    };
-
     beforeEach(() => {
         generateVerifyLegalMoveFunctionsMock.mockReset();
         generateGetLegalMoveFunctionsMock.mockReset();
@@ -70,22 +65,12 @@ describe('piece', () => {
     });
     describe('getDisplayCharacter', () => {
         test('returns correct character when player is white', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'white');
             expect(piece.getDisplayCharacter()).toEqual('F');
         });
 
         test('returns correct character when player is black', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'black',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'black');
             expect(piece.getDisplayCharacter()).toEqual('f');
         });
     });
@@ -99,7 +84,7 @@ describe('piece', () => {
         });
 
         test('returns no moves if piece has no moves', () => {
-            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
+            const piece = new Piece(pieceConfigNoMoves, 'white');
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -120,7 +105,7 @@ describe('piece', () => {
                     spacesThreatened: []
                 };
             });
-            const piece = new Piece(pieceConfig, 'white', boardConfig);
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -141,7 +126,7 @@ describe('piece', () => {
                     spacesThreatened: [['a', 3]]
                 };
             });
-            const piece = new Piece(pieceConfig, 'white', boardConfig);
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -164,7 +149,7 @@ describe('piece', () => {
                 };
             });
 
-            const piece = new Piece(pieceConfig, 'white', boardConfig);
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -212,7 +197,7 @@ describe('piece', () => {
                         spacesThreatened: [['a', 2]]
                     };
                 });
-            const piece = new Piece(config, 'white', boardConfig);
+            const piece = new Piece(config, 'white');
 
             const result = piece.getLegalMoves(
                 {} as RectangularBoard<testPieceNames>,
@@ -235,12 +220,7 @@ describe('piece', () => {
         });
 
         test('returns false with no moves', () => {
-            const piece = new Piece(
-                pieceConfigNoMoves,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigNoMoves, 'white');
             const result = piece.hasLegalMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -256,12 +236,7 @@ describe('piece', () => {
                     spacesThreatened: []
                 };
             });
-            const piece = new Piece(
-                pieceConfig,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.hasLegalMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -277,12 +252,7 @@ describe('piece', () => {
                     spacesThreatened: [['a', 3]]
                 };
             });
-            const piece = new Piece(
-                pieceConfig,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.hasLegalMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -325,7 +295,7 @@ describe('piece', () => {
                         spacesThreatened: [['a', 2]]
                     };
                 });
-            const piece = new Piece(config, 'white', boardConfig);
+            const piece = new Piece(config, 'white');
 
             const result = piece.hasLegalMove(
                 {} as RectangularBoard<testPieceNames>,
@@ -369,7 +339,7 @@ describe('piece', () => {
                         spacesThreatened: [['a', 3]]
                     };
                 });
-            const piece = new Piece(config, 'white', boardConfig);
+            const piece = new Piece(config, 'white');
 
             const result = piece.hasLegalMove(
                 {} as RectangularBoard<testPieceNames>,
@@ -387,12 +357,7 @@ describe('piece', () => {
                     specialMoves: [{ type: 'castle', destination: ['a', 3] }]
                 };
             });
-            const piece = new Piece(
-                pieceConfig,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.hasLegalMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1]
@@ -428,7 +393,7 @@ describe('piece', () => {
         };
 
         test('returns false with no moves', () => {
-            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
+            const piece = new Piece(pieceConfigNoMoves, 'white');
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
@@ -439,7 +404,7 @@ describe('piece', () => {
 
         test('returns true with one move that returns true', () => {
             generateVerifyLegalMoveFunctionsMock.mockReturnValue(legalMove);
-            const piece = new Piece(pieceConfig, 'white', boardConfig);
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
@@ -450,12 +415,7 @@ describe('piece', () => {
 
         test('returns false with one move that returns false', () => {
             generateVerifyLegalMoveFunctionsMock.mockReturnValue(illegalMove);
-            const piece = new Piece(
-                pieceConfig,
-                'white',
-
-                boardConfig
-            );
+            const piece = new Piece(pieceConfig, 'white');
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
@@ -473,11 +433,7 @@ describe('piece', () => {
             );
             generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(legalMove);
 
-            const piece = new Piece(
-                pieceConfigMultipleMoves,
-                'white',
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigMultipleMoves, 'white');
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
@@ -496,11 +452,7 @@ describe('piece', () => {
             generateVerifyLegalMoveFunctionsMock.mockReturnValueOnce(
                 illegalMove
             );
-            const piece = new Piece(
-                pieceConfigMultipleMoves,
-                'white',
-                boardConfig
-            );
+            const piece = new Piece(pieceConfigMultipleMoves, 'white');
             const result = piece.verifyMove(
                 {} as RectangularBoard<testPieceNames>,
                 ['a', 1],
@@ -520,7 +472,7 @@ describe('piece', () => {
                     promotionConfig: undefined
                 };
 
-                const piece = new Piece(config, 'white', boardConfig);
+                const piece = new Piece(config, 'white');
 
                 expect(
                     piece.verifyMove(
@@ -537,7 +489,7 @@ describe('piece', () => {
                     promotionConfig: undefined
                 };
 
-                const piece = new Piece(config, 'black', boardConfig);
+                const piece = new Piece(config, 'black');
 
                 expect(
                     piece.verifyMove(
@@ -562,7 +514,7 @@ describe('piece', () => {
                     }
                 };
 
-                const piece = new Piece(config, 'white', boardConfig);
+                const piece = new Piece(config, 'white');
                 expect(
                     piece.verifyMove(
                         {} as RectangularBoard<testPieceNames>,
@@ -584,7 +536,7 @@ describe('piece', () => {
                     }
                 };
 
-                const piece = new Piece(config, 'black', boardConfig);
+                const piece = new Piece(config, 'black');
                 expect(
                     piece.verifyMove(
                         {} as RectangularBoard<testPieceNames>,
@@ -608,7 +560,7 @@ describe('piece', () => {
                     }
                 };
 
-                const piece = new Piece(config, 'white', boardConfig);
+                const piece = new Piece(config, 'white');
                 expect(
                     piece.verifyMove(
                         {} as RectangularBoard<testPieceNames>,
@@ -632,7 +584,7 @@ describe('piece', () => {
                     }
                 };
 
-                const piece = new Piece(config, 'black', boardConfig);
+                const piece = new Piece(config, 'black');
                 expect(
                     piece.verifyMove(
                         {} as RectangularBoard<testPieceNames>,
@@ -656,7 +608,7 @@ describe('piece', () => {
                     }
                 };
 
-                const piece = new Piece(config, 'white', boardConfig);
+                const piece = new Piece(config, 'white');
                 expect(
                     piece.verifyMove(
                         {} as RectangularBoard<testPieceNames>,
@@ -680,7 +632,7 @@ describe('piece', () => {
                     }
                 };
 
-                const piece = new Piece(config, 'black', boardConfig);
+                const piece = new Piece(config, 'black');
                 expect(
                     piece.verifyMove(
                         {} as RectangularBoard<testPieceNames>,
@@ -694,19 +646,19 @@ describe('piece', () => {
 
     describe('moveCount', () => {
         test('moveCount is initialized to 0', () => {
-            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
+            const piece = new Piece(pieceConfigNoMoves, 'white');
             expect(piece.moveCount).toEqual(0);
         });
 
         test('moveCount is 1 after one move', () => {
-            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
+            const piece = new Piece(pieceConfigNoMoves, 'white');
 
             piece.increaseMoveCount();
             expect(piece.moveCount).toEqual(1);
         });
 
         test('moveCount is 3 after three moves', () => {
-            const piece = new Piece(pieceConfigNoMoves, 'white', boardConfig);
+            const piece = new Piece(pieceConfigNoMoves, 'white');
 
             piece.increaseMoveCount();
             piece.increaseMoveCount();

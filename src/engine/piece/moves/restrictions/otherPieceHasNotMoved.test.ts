@@ -39,8 +39,8 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
     };
 
     test('returns true if piece is on target space and has not moved', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigBar, 'white', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigBar, 'white');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -64,7 +64,7 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
     });
 
     test('returns false if no piece is on target space', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -84,8 +84,8 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
     });
 
     test('returns false if incorrect piece is on target space', () => {
-        const fooPiece1 = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const fooPiece2 = new Piece(pieceConfigFoo, 'white', boardConfig);
+        const fooPiece1 = new Piece(pieceConfigFoo, 'white');
+        const fooPiece2 = new Piece(pieceConfigFoo, 'white');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -109,8 +109,8 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
     });
 
     test('returns false if piece of incorrect color is on target space', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'white', boardConfig);
-        const barPiece = new Piece(pieceConfigFoo, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'white');
+        const barPiece = new Piece(pieceConfigFoo, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -134,8 +134,8 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
     });
 
     test('returns false if correct piece is on target space but it has previously moved', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'black', boardConfig);
-        const barPiece = new Piece(pieceConfigFoo, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'black');
+        const barPiece = new Piece(pieceConfigFoo, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
@@ -160,8 +160,8 @@ describe('generateOtherPieceHasNotMovedFunction', () => {
     });
 
     test('Throws error if piece color is not in configuration', () => {
-        const fooPiece = new Piece(pieceConfigFoo, 'black', boardConfig);
-        const barPiece = new Piece(pieceConfigFoo, 'black', boardConfig);
+        const fooPiece = new Piece(pieceConfigFoo, 'black');
+        const barPiece = new Piece(pieceConfigFoo, 'black');
 
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {

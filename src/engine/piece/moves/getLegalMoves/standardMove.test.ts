@@ -329,6 +329,62 @@ describe('generateGetLegalStandardMovesFunction', () => {
         });
     });
 
+    describe.skip('alternate capture locations', () => {
+        test('returns move if opponent piece is in alternate capture location', () => {
+            const result = getTestResult(['forward'], 1, 1, ['b', 2], {
+                captureAvailability: 'required',
+                otherColorStartingPositions: [['a', 3]],
+                pieceColor: 'white',
+                alternateCaptureLocation: { direction: 'left', numSpaces: 1 }
+            });
+            expect(result.moves).toHaveLength(1);
+            expect(result.moves[0]).toEqual(['b', 3]);
+        });
+
+        test('returns capture move if opponent piece is in alternate capture location', () => {
+            const result = getTestResult(['forward'], 1, 1, ['b', 2], {
+                captureAvailability: 'required',
+                otherColorStartingPositions: [['c', 1]],
+                alternateCaptureLocation: { direction: 'left', numSpaces: 1 }
+            });
+            expect(result.captureMoves).toHaveLength(1);
+            expect(result.captureMoves[0]).toEqual(['b', 1]);
+        });
+
+        test('does not return any moves is opponent piece is not in alternate capture location', () => {
+            const result = getTestResult(['forward'], 1, 1, ['b', 2], {
+                captureAvailability: 'required',
+                pieceColor: 'white',
+                alternateCaptureLocation: { direction: 'left', numSpaces: 1 }
+            });
+            expect(result.moves).toHaveLength(0);
+            expect(result.captureMoves).toHaveLength(0);
+        });
+
+        test('does not return any moves if opponent piece is in destination location', () => {
+            const result = getTestResult(['forward'], 1, 1, ['b', 2], {
+                captureAvailability: 'required',
+                otherColorStartingPositions: [
+                    ['c', 1],
+                    ['b', 1]
+                ],
+                alternateCaptureLocation: { direction: 'left', numSpaces: 1 }
+            });
+            expect(result.moves).toHaveLength(0);
+            expect(result.captureMoves).toHaveLength(0);
+        });
+
+        test('returns threatened space as alternate capture location', () => {
+            const result = getTestResult(['forward'], 1, 1, ['b', 2], {
+                captureAvailability: 'required',
+                pieceColor: 'white',
+                alternateCaptureLocation: { direction: 'left', numSpaces: 1 }
+            });
+            expect(result.spacesThreatened).toHaveLength(1);
+            expect(result.spacesThreatened[0]).toEqual(['a', 3]);
+        });
+    });
+
     test('returns 8 items when directions is set to all and maxSpaces is set to 1', () => {
         const result = getTestResult('all', 1, 1, ['e', 5]);
         expect(result.moves).toHaveLength(8);
@@ -423,6 +479,10 @@ function getTestResult(
         captureAvailability?: CaptureAvailability;
         sameColorStartingPositions?: BoardPosition[];
         otherColorStartingPositions?: BoardPosition[];
+        alternateCaptureLocation?: {
+            direction: Direction;
+            numSpaces: number;
+        };
     }
 ): AvailableMoves {
     const move: StandardMove<testPieceNames> = {
@@ -432,7 +492,8 @@ function getTestResult(
             : 'optional',
         maxSpaces: maxSpaces,
         minSpaces: minSpaces,
-        directions: directions
+        directions: directions,
+        alternateCaptureLocation: testOptions?.alternateCaptureLocation
     };
 
     const color: PlayerColor = testOptions?.pieceColor
@@ -462,10 +523,7 @@ function getTestResult(
     const board = engine.board;
     const piece = board.getSpace(startingPosition).piece!;
 
-    const getMovesFunction = generateGetLegalStandardMovesFunction(
-        move,
-        boardConfig
-    );
+    const getMovesFunction = generateGetLegalStandardMovesFunction(move);
 
     return getMovesFunction(board, piece, startingPosition);
 }

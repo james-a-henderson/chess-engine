@@ -1,13 +1,11 @@
 import {
     AvailableMoves,
     BoardPosition,
-    CaptureAvailability,
     Direction,
     emptyGetMovesFunction,
     GetLegalMovesFunction,
     InvalidSpaceError,
     MoveConditionFunction,
-    RectangularBoardConfig,
     StandardMove
 } from '../../../../types';
 import { RectangularBoard } from '../../../board/rectangularBoard';
@@ -17,14 +15,18 @@ import { getMoveConditionFunctions, makeNextSpaceIterator } from '../helpers';
 //todo: filter out spaces that fail board.verifyMovePositionValid
 export function generateGetLegalStandardMovesFunction<
     PieceNames extends string[]
->(
-    move: StandardMove<PieceNames>,
-    boardConfig: RectangularBoardConfig
-): GetLegalMovesFunction<PieceNames> {
+>(move: StandardMove<PieceNames>): GetLegalMovesFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 
+    return generateFunction(move, conditionFunctions);
+}
+
+function generateFunction<PieceNames extends string[]>(
+    move: StandardMove<PieceNames>,
+    conditionFunctions: MoveConditionFunction<PieceNames>[]
+): GetLegalMovesFunction<PieceNames> {
     const directions: Direction[] =
         move.directions !== 'all'
             ? move.directions
@@ -44,27 +46,6 @@ export function generateGetLegalStandardMovesFunction<
         return emptyGetMovesFunction;
     }
 
-    const maxSpaces =
-        move.maxSpaces === 'unlimited'
-            ? Math.max(boardConfig.height, boardConfig.width)
-            : move.maxSpaces;
-    const minSpaces = move.minSpaces ? move.minSpaces : 1;
-    return generateFunction(
-        move.captureAvailability,
-        directions,
-        maxSpaces,
-        minSpaces,
-        conditionFunctions
-    );
-}
-
-function generateFunction<PieceNames extends string[]>(
-    captureAvailability: CaptureAvailability,
-    directions: Direction[],
-    maxSpaces: number,
-    minSpaces: number,
-    conditionFunctions: MoveConditionFunction<PieceNames>[]
-): GetLegalMovesFunction<PieceNames> {
     return (
         board: RectangularBoard<PieceNames>,
         piece: Piece<PieceNames>,
@@ -84,13 +65,11 @@ function generateFunction<PieceNames extends string[]>(
 
         for (const direction of directions) {
             const directionMoves = getMovesForDirection(
+                move,
                 direction,
                 piece,
                 currentSpace,
-                board,
-                captureAvailability,
-                maxSpaces,
-                minSpaces
+                board
             );
 
             availableMoves.moves.push(...directionMoves.moves);
@@ -105,14 +84,18 @@ function generateFunction<PieceNames extends string[]>(
 }
 
 function getMovesForDirection<PieceNames extends string[]>(
+    move: StandardMove<PieceNames>,
     direction: Direction,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition,
-    board: RectangularBoard<PieceNames>,
-    captureAvailability: CaptureAvailability,
-    maxSpaces: number,
-    minSpaces: number
+    board: RectangularBoard<PieceNames>
 ): AvailableMoves {
+    const maxSpaces =
+        move.maxSpaces === 'unlimited'
+            ? Math.max(board.height, board.width)
+            : move.maxSpaces;
+    const minSpaces = move.minSpaces ? move.minSpaces : 1;
+
     const availableMoves: AvailableMoves = {
         moves: [],
         captureMoves: [],
@@ -150,8 +133,8 @@ function getMovesForDirection<PieceNames extends string[]>(
             if (space.piece) {
                 if (
                     space.piece.playerColor !== piece.playerColor &&
-                    (captureAvailability === 'optional' ||
-                        captureAvailability === 'required')
+                    (move.captureAvailability === 'optional' ||
+                        move.captureAvailability === 'required')
                 ) {
                     availableMoves.moves.push(space.position);
                     availableMoves.captureMoves.push(space.position);
@@ -163,7 +146,7 @@ function getMovesForDirection<PieceNames extends string[]>(
             }
 
             //no piece on space
-            switch (captureAvailability) {
+            switch (move.captureAvailability) {
                 case 'optional':
                     availableMoves.moves.push(space.position);
                     availableMoves.spacesThreatened.push(space.position);

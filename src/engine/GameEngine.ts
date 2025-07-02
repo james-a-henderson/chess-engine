@@ -237,11 +237,7 @@ export class GameEngine<PieceNames extends string[]> {
 
         const pieceConfig = this.getPieceConfig(promoteTo);
 
-        const newPiece = new Piece(
-            pieceConfig,
-            piece.playerColor,
-            this._config.board
-        );
+        const newPiece = new Piece(pieceConfig, piece.playerColor);
         space.piece = newPiece;
     }
 
@@ -303,11 +299,7 @@ export class GameEngine<PieceNames extends string[]> {
             )) {
                 const playerColor = color as PlayerColor; //we know this must be a PlayerColor because startingPosition entries must be PlayerColor
                 for (const position of startingPositions) {
-                    const piece = new Piece(
-                        pieceConfig,
-                        playerColor,
-                        this._config.board
-                    );
+                    const piece = new Piece(pieceConfig, playerColor);
 
                     placements.push({ piece: piece, position: position });
                 }

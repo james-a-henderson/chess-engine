@@ -1,20 +1,18 @@
 import {
     emptyGetMovesFunction,
     GetLegalMovesFunction,
-    Move,
-    RectangularBoardConfig
+    Move
 } from '../../../../types';
 import { generateGetLegalCastleMovesFunction } from './castleMove';
 import { generateGetLegalJumpMovesFunction } from './jumpMove';
 import { generateGetLegalStandardMovesFunction } from './standardMove';
 
 export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
-    move: Move<PieceNames>,
-    boardConfig: RectangularBoardConfig
+    move: Move<PieceNames>
 ): GetLegalMovesFunction<PieceNames> {
     switch (move.type) {
         case 'standard':
-            return generateGetLegalStandardMovesFunction(move, boardConfig);
+            return generateGetLegalStandardMovesFunction(move);
         case 'jump':
             return generateGetLegalJumpMovesFunction(move);
         case 'castle':

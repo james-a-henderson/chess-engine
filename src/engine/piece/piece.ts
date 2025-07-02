@@ -6,11 +6,7 @@ import {
     MoveRecord,
     verifyLegalMoveFunction
 } from '../../types';
-import {
-    PieceConfig,
-    PlayerColor,
-    RectangularBoardConfig
-} from '../../types/configuration';
+import { PieceConfig, PlayerColor } from '../../types/configuration';
 import { RectangularBoard } from '../board';
 import { generateGetLegalMoveFunctions } from './moves';
 import { generateVerifyLegalMoveFunction } from './moves/verifyMove';
@@ -27,11 +23,7 @@ export class Piece<PieceNames extends string[]> {
         promotionTargets: PieceNames[keyof PieceNames][];
     };
 
-    constructor(
-        config: PieceConfig<PieceNames>,
-        playerColor: PlayerColor,
-        boardConfig: RectangularBoardConfig
-    ) {
+    constructor(config: PieceConfig<PieceNames>, playerColor: PlayerColor) {
         this._config = config;
         this._playerColor = playerColor;
 
@@ -43,7 +35,7 @@ export class Piece<PieceNames extends string[]> {
             };
         }
 
-        this.registerMoves(boardConfig);
+        this.registerMoves();
     }
 
     get pieceName() {
@@ -192,13 +184,13 @@ export class Piece<PieceNames extends string[]> {
         return false;
     }
 
-    private registerMoves(boardConfig: RectangularBoardConfig) {
+    private registerMoves() {
         this._config.moves.forEach((move) => {
             this._verifyLegalMoveFunctions.push(
                 generateVerifyLegalMoveFunction(move)
             );
             this._getLegalMoveFunctions.push(
-                generateGetLegalMoveFunctions(move, boardConfig)
+                generateGetLegalMoveFunctions(move)
             );
         });
     }
