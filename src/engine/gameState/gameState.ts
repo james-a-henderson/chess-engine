@@ -1,16 +1,28 @@
-import { BoardPosition, MoveRecord, PlayerColor } from '../../types';
+import {
+    BoardPosition,
+    MoveRecord,
+    PlayerColor,
+    RectangularBoardConfig
+} from '../../types';
 
 export type GameState<PieceNames extends string[]> = {
     board: BoardSpaceStatus<PieceNames>[][];
+    boardConfig: RectangularBoardConfig;
     currentPlayer: PlayerColor;
     status: GameStatus;
     lastMove?: MoveRecord<PieceNames>;
 };
 
-type PieceState<PieceNames extends string[]> = {
+export type PieceState<PieceNames extends string[]> = {
     name: PieceNames[keyof PieceNames];
     color: PlayerColor;
     moveCount: number;
+};
+
+//todo: rename something simpler after refactor
+export type GameStatePiecePlacement<PieceNames extends string[]> = {
+    position: BoardPosition;
+    piece: PieceState<PieceNames>;
 };
 
 //todo: update name to something simpler
