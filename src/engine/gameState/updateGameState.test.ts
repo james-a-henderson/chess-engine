@@ -1,4 +1,5 @@
 import { MoveRecord, RectangularBoardConfig } from '../../types';
+import { rectangularBoardHelper } from '../board';
 import { GameStatePiecePlacement } from './gameState';
 import { generateGameState } from './generateGameState';
 import { updateGameState } from './updateGameState';
@@ -32,9 +33,15 @@ describe('updateGameState', () => {
         //this test *probably* isn't necessary, but I want to make doubly sure that the input isn't changed and deep copy is properly used
         expect(state.currentPlayer).toEqual('white');
         expect(state.lastMove).toBeUndefined();
-        expect(state.board[0][0].piece?.color).toEqual('white');
-        expect(state.board[0][0].piece?.name).toEqual('foo');
-        expect(state.board[1][0].piece).toBeUndefined();
+        expect(
+            rectangularBoardHelper.getSpace(state, ['a', 1]).piece?.color
+        ).toEqual('white');
+        expect(
+            rectangularBoardHelper.getSpace(state, ['a', 1]).piece?.name
+        ).toEqual('foo');
+        expect(
+            rectangularBoardHelper.getSpace(state, ['b', 1]).piece
+        ).toBeUndefined();
     });
 
     describe('Basic move', () => {
@@ -70,16 +77,25 @@ describe('updateGameState', () => {
         });
 
         test('Piece is in destination space', () => {
-            expect(result.board[1][0].piece?.color).toEqual('white');
-            expect(result.board[1][0].piece?.name).toEqual('foo');
+            expect(
+                rectangularBoardHelper.getSpace(result, ['b', 1]).piece?.color
+            ).toEqual('white');
+            expect(
+                rectangularBoardHelper.getSpace(result, ['b', 1]).piece?.name
+            ).toEqual('foo');
         });
 
         test('Piece move count is updated', () => {
-            expect(result.board[1][0].piece?.moveCount).toEqual(1);
+            expect(
+                rectangularBoardHelper.getSpace(result, ['b', 1]).piece
+                    ?.moveCount
+            ).toEqual(1);
         });
 
         test('Piece moved off of starting space', () => {
-            expect(result.board[0][0].piece).toBeUndefined();
+            expect(
+                rectangularBoardHelper.getSpace(result, ['a', 1]).piece
+            ).toBeUndefined();
         });
     });
 
@@ -108,7 +124,9 @@ describe('updateGameState', () => {
         const result = updateGameState(state, move);
 
         test('Moved piece is in destination space', () => {
-            expect(result.board[0][1].piece?.color).toEqual('white');
+            expect(
+                rectangularBoardHelper.getSpace(result, ['a', 2]).piece?.color
+            ).toEqual('white');
         });
 
         test('Captured piece is recorded', () => {
