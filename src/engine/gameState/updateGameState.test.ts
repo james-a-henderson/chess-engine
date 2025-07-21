@@ -1,13 +1,14 @@
-import { MoveRecord, RectangularBoardConfig } from '../../types';
+import { GameError, MoveRecord, RectangularBoardConfig } from '../../types';
 import { rectangularBoardHelper } from '../board';
-import { GameStatePiecePlacement } from './gameState';
+import { GameState, GameStatePiecePlacement } from './gameState';
 import { generateGameState } from './generateGameState';
 import { updateGameState } from './updateGameState';
 
 type pieceNames = ['foo', 'bar'];
 
 describe('updateGameState', () => {
-    const boardConfig: RectangularBoardConfig = { width: 2, height: 2 };
+    const smallBoardConfig: RectangularBoardConfig = { width: 2, height: 2 };
+    const standardBoardConfig: RectangularBoardConfig = { width: 8, height: 8 };
     test('Input Game state is not changed', () => {
         const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
             {
@@ -19,7 +20,11 @@ describe('updateGameState', () => {
                 position: ['a', 2]
             }
         ];
-        const state = generateGameState(piecePlacements, 'white', boardConfig);
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            smallBoardConfig
+        );
 
         updateGameState(state, {
             type: 'standard',
@@ -55,7 +60,11 @@ describe('updateGameState', () => {
                 position: ['a', 2]
             }
         ];
-        const state = generateGameState(piecePlacements, 'white', boardConfig);
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            smallBoardConfig
+        );
 
         const move: MoveRecord<pieceNames> = {
             type: 'standard',
@@ -99,7 +108,128 @@ describe('updateGameState', () => {
         });
     });
 
-    describe('basic capture move', () => {
+    describe('castle move', () => {
+        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+            {
+                piece: { color: 'white', moveCount: 0, name: 'foo' },
+                position: ['e', 1]
+            },
+            {
+                piece: { color: 'white', moveCount: 0, name: 'bar' },
+                position: ['a', 1]
+            },
+            {
+                piece: { color: 'white', moveCount: 0, name: 'bar' },
+                position: ['h', 1]
+            }
+        ];
+        let state: GameState<pieceNames>;
+
+        beforeEach(() => {
+            state = generateGameState(
+                piecePlacements,
+                'white',
+                standardBoardConfig
+            );
+        });
+
+        test('Castling pieces are in correct position after castle move', () => {
+            const move: MoveRecord<pieceNames> = {
+                type: 'castle',
+                originSpace: ['e', 1],
+                destinationSpace: ['g', 1],
+                pieceColor: 'white',
+                pieceName: 'foo',
+                moveName: 'castleTest',
+                castleTarget: {
+                    pieceName: 'bar',
+                    originSpace: ['h', 1],
+                    destinationSpace: ['f', 1]
+                }
+            };
+
+            const result = updateGameState(state, move);
+
+            expect(
+                rectangularBoardHelper.getSpace(result, ['g', 1]).piece?.name
+            ).toEqual('foo');
+            expect(
+                rectangularBoardHelper.getSpace(result, ['f', 1]).piece?.name
+            ).toEqual('bar');
+        });
+
+        test('Castling pieces have updated move count', () => {
+            const move: MoveRecord<pieceNames> = {
+                type: 'castle',
+                originSpace: ['e', 1],
+                destinationSpace: ['g', 1],
+                pieceColor: 'white',
+                pieceName: 'foo',
+                moveName: 'castleTest',
+                castleTarget: {
+                    pieceName: 'bar',
+                    originSpace: ['h', 1],
+                    destinationSpace: ['f', 1]
+                }
+            };
+
+            const result = updateGameState(state, move);
+
+            expect(
+                rectangularBoardHelper.getSpace(result, ['g', 1]).piece
+                    ?.moveCount
+            ).toEqual(1);
+            expect(
+                rectangularBoardHelper.getSpace(result, ['f', 1]).piece
+                    ?.moveCount
+            ).toEqual(1);
+        });
+
+        test('Castling pieces are in correct position after castle move when pieces swap spaces', () => {
+            const move: MoveRecord<pieceNames> = {
+                type: 'castle',
+                originSpace: ['e', 1],
+                destinationSpace: ['a', 1],
+                pieceColor: 'white',
+                pieceName: 'foo',
+                moveName: 'castleTest',
+                castleTarget: {
+                    pieceName: 'bar',
+                    originSpace: ['a', 1],
+                    destinationSpace: ['e', 1]
+                }
+            };
+
+            const result = updateGameState(state, move);
+
+            expect(
+                rectangularBoardHelper.getSpace(result, ['a', 1]).piece?.name
+            ).toEqual('foo');
+            expect(
+                rectangularBoardHelper.getSpace(result, ['e', 1]).piece?.name
+            ).toEqual('bar');
+        });
+
+        test('Throws error if target piece is not on its origin space', () => {
+            const move: MoveRecord<pieceNames> = {
+                type: 'castle',
+                originSpace: ['e', 1],
+                destinationSpace: ['g', 1],
+                pieceColor: 'white',
+                pieceName: 'foo',
+                moveName: 'castleTest',
+                castleTarget: {
+                    pieceName: 'bar',
+                    originSpace: ['g', 1],
+                    destinationSpace: ['f', 1]
+                }
+            };
+
+            expect(() => updateGameState(state, move)).toThrow(GameError);
+        });
+    });
+
+    describe('capture move', () => {
         const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
             {
                 piece: { color: 'white', moveCount: 0, name: 'foo' },
@@ -110,7 +240,11 @@ describe('updateGameState', () => {
                 position: ['a', 2]
             }
         ];
-        const state = generateGameState(piecePlacements, 'white', boardConfig);
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            smallBoardConfig
+        );
 
         const move: MoveRecord<pieceNames> = {
             type: 'standard',
@@ -146,7 +280,11 @@ describe('updateGameState', () => {
                 position: ['a', 1]
             }
         ];
-        const state = generateGameState(piecePlacements, 'white', boardConfig);
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            smallBoardConfig
+        );
 
         const move: MoveRecord<pieceNames> = {
             type: 'standard',

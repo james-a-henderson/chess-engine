@@ -2,6 +2,7 @@ import {
     BoardPosition,
     GameError,
     MoveRecord,
+    MoveRecordCastle,
     MoveRecordJump,
     MoveRecordStandard
 } from '../../types';
@@ -22,7 +23,7 @@ export function updateGameState<PieceNames extends string[]>(
             makeStandardMove(newState, move);
             break;
         case 'castle':
-        //todo: add castle moves
+            makeCastleMove(newState, move);
     }
 
     if (move.promotedTo) {
@@ -71,6 +72,45 @@ function makeStandardMove<PieceNames extends string[]>(
 
     destinationSpace.piece = originSpace.piece;
     originSpace.piece = undefined;
+}
+
+function makeCastleMove<PieceNames extends string[]>(
+    state: GameState<PieceNames>,
+    move: MoveRecordCastle<PieceNames>
+) {
+    const originSpace = rectangularBoardHelper.getSpace(
+        state,
+        move.originSpace
+    );
+    const destinationSpace = rectangularBoardHelper.getSpace(
+        state,
+        move.destinationSpace
+    );
+
+    const targetOriginSpace = rectangularBoardHelper.getSpace(
+        state,
+        move.castleTarget.originSpace
+    );
+    const targetDestinationSpace = rectangularBoardHelper.getSpace(
+        state,
+        move.castleTarget.destinationSpace
+    );
+
+    const piece = originSpace.piece;
+    const targetPiece = targetOriginSpace.piece;
+
+    if (!piece || !targetPiece) {
+        throw new GameError('Castling pieces not found');
+    }
+
+    originSpace.piece = undefined;
+    targetOriginSpace.piece = undefined;
+
+    destinationSpace.piece = piece;
+    targetDestinationSpace.piece = targetPiece;
+
+    piece.moveCount++;
+    targetPiece.moveCount++;
 }
 
 function promotePiece<PieceNames extends string[]>(
