@@ -49,7 +49,16 @@ function makeStandardMove<PieceNames extends string[]>(
             move.altCaptureLocation
         );
         //todo: track captured pieces
-        altCaptureSpace.piece = undefined;
+        if (altCaptureSpace.piece) {
+            state.capturedPieces[altCaptureSpace.piece.color].push(
+                altCaptureSpace.piece
+            );
+            altCaptureSpace.piece = undefined;
+        }
+    } else if (destinationSpace.piece) {
+        state.capturedPieces[destinationSpace.piece.color].push(
+            destinationSpace.piece
+        );
     }
 
     originSpace.piece!.moveCount++;

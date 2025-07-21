@@ -22,7 +22,11 @@ export function generateGameState<PieceNames extends string[]>(
         boardConfig: boardConfig,
         currentPlayer: currentPlayer,
         status: { status: 'inProgress' }, //I might make this configurable later
-        board: generateEmptyBoard(boardConfig)
+        board: generateEmptyBoard(boardConfig),
+        capturedPieces: {
+            white: [],
+            black: []
+        }
     };
 
     //place pieces

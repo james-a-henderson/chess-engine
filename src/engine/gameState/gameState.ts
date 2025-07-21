@@ -10,6 +10,7 @@ export type GameState<PieceNames extends string[]> = {
     boardConfig: RectangularBoardConfig;
     currentPlayer: PlayerColor;
     status: GameStatus;
+    capturedPieces: Record<PlayerColor, PieceState<PieceNames>[]>;
     lastMove?: MoveRecord<PieceNames>;
 };
 
