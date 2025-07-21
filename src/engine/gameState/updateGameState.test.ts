@@ -1,32 +1,24 @@
-import { MoveRecord } from '../../types';
-import { GameState } from './gameState';
+import { MoveRecord, RectangularBoardConfig } from '../../types';
+import { GameStatePiecePlacement } from './gameState';
+import { generateGameState } from './generateGameState';
 import { updateGameState } from './updateGameState';
 
 type pieceNames = ['foo'];
 
 describe('updateGameState', () => {
+    const boardConfig: RectangularBoardConfig = { width: 2, height: 2 };
     test('Input Game state is not changed', () => {
-        const state: GameState<pieceNames> = {
-            currentPlayer: 'white',
-            status: { status: 'inProgress' },
-            boardConfig: { width: 2, height: 2 },
-            board: [
-                [
-                    {
-                        position: ['a', 1],
-                        piece: { color: 'white', moveCount: 0, name: 'foo' }
-                    },
-                    { position: ['b', 1], piece: undefined }
-                ],
-                [
-                    {
-                        position: ['a', 2],
-                        piece: { color: 'black', moveCount: 0, name: 'foo' }
-                    },
-                    { position: ['b', 2], piece: undefined }
-                ]
-            ]
-        };
+        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+            {
+                piece: { color: 'white', moveCount: 0, name: 'foo' },
+                position: ['a', 1]
+            },
+            {
+                piece: { color: 'black', moveCount: 0, name: 'foo' },
+                position: ['a', 2]
+            }
+        ];
+        const state = generateGameState(piecePlacements, 'white', boardConfig);
 
         updateGameState(state, {
             type: 'standard',
@@ -42,31 +34,21 @@ describe('updateGameState', () => {
         expect(state.lastMove).toBeUndefined();
         expect(state.board[0][0].piece?.color).toEqual('white');
         expect(state.board[0][0].piece?.name).toEqual('foo');
-        expect(state.board[0][1].piece).toBeUndefined();
+        expect(state.board[1][0].piece).toBeUndefined();
     });
 
     describe('Basic move', () => {
-        const state: GameState<pieceNames> = {
-            currentPlayer: 'white',
-            status: { status: 'inProgress' },
-            boardConfig: { width: 2, height: 2 },
-            board: [
-                [
-                    {
-                        position: ['a', 1],
-                        piece: { color: 'white', moveCount: 0, name: 'foo' }
-                    },
-                    { position: ['b', 1], piece: undefined }
-                ],
-                [
-                    {
-                        position: ['a', 2],
-                        piece: { color: 'black', moveCount: 0, name: 'foo' }
-                    },
-                    { position: ['b', 2], piece: undefined }
-                ]
-            ]
-        };
+        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+            {
+                piece: { color: 'white', moveCount: 0, name: 'foo' },
+                position: ['a', 1]
+            },
+            {
+                piece: { color: 'black', moveCount: 0, name: 'foo' },
+                position: ['a', 2]
+            }
+        ];
+        const state = generateGameState(piecePlacements, 'white', boardConfig);
 
         const move: MoveRecord<pieceNames> = {
             type: 'standard',
