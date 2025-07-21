@@ -9,6 +9,7 @@ describe('updateGameState', () => {
         const state: GameState<pieceNames> = {
             currentPlayer: 'white',
             status: { status: 'inProgress' },
+            boardConfig: { width: 2, height: 2 },
             board: [
                 [
                     {
@@ -48,6 +49,7 @@ describe('updateGameState', () => {
         const state: GameState<pieceNames> = {
             currentPlayer: 'white',
             status: { status: 'inProgress' },
+            boardConfig: { width: 2, height: 2 },
             board: [
                 [
                     {

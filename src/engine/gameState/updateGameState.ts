@@ -1,11 +1,6 @@
-import { fileLetterToIndex } from '../../common';
-import {
-    BoardPosition,
-    MoveRecord,
-    MoveRecordJump,
-    MoveRecordStandard
-} from '../../types';
-import { BoardSpaceStatus, GameState } from './gameState';
+import { MoveRecord, MoveRecordJump, MoveRecordStandard } from '../../types';
+import { rectangularBoardHelper } from '../board';
+import { GameState } from './gameState';
 
 //when we get here, we assume that the move has been verified
 export function updateGameState<PieceNames extends string[]>(
@@ -39,11 +34,20 @@ function makeStandardMove<PieceNames extends string[]>(
     state: GameState<PieceNames>,
     move: MoveRecordStandard<PieceNames> | MoveRecordJump<PieceNames>
 ) {
-    const originSpace = getSpace(state, move.originSpace);
-    const destinationSpace = getSpace(state, move.destinationSpace);
+    const originSpace = rectangularBoardHelper.getSpace(
+        state,
+        move.originSpace
+    );
+    const destinationSpace = rectangularBoardHelper.getSpace(
+        state,
+        move.destinationSpace
+    );
 
     if (move.altCaptureLocation) {
-        const altCaptureSpace = getSpace(state, move.altCaptureLocation);
+        const altCaptureSpace = rectangularBoardHelper.getSpace(
+            state,
+            move.altCaptureLocation
+        );
         //todo: track captured pieces
         altCaptureSpace.piece = undefined;
     }
@@ -52,31 +56,4 @@ function makeStandardMove<PieceNames extends string[]>(
 
     destinationSpace.piece = originSpace.piece;
     originSpace.piece = undefined;
-}
-
-//todo: move these functions to generally accessable location
-function getSpace<PieceNames extends string[]>(
-    state: GameState<PieceNames>,
-    position: BoardPosition | [number, number]
-): BoardSpaceStatus<PieceNames> {
-    let fileIndex: number;
-    let rankIndex: number;
-
-    if (typeof position[0] === 'string') {
-        [fileIndex, rankIndex] = coordinatesToIndicies([
-            position[0],
-            position[1]
-        ]);
-    } else {
-        [fileIndex, rankIndex] = position;
-    }
-
-    return state.board[fileIndex][rankIndex];
-}
-
-function coordinatesToIndicies(coordinates: BoardPosition): [number, number] {
-    const fileIndex = fileLetterToIndex(coordinates[0]);
-    const rankIndex = coordinates[1] - 1;
-
-    return [fileIndex, rankIndex];
 }
