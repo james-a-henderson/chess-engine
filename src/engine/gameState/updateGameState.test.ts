@@ -230,45 +230,100 @@ describe('updateGameState', () => {
     });
 
     describe('capture move', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
-            {
-                piece: { color: 'white', moveCount: 0, name: 'foo' },
-                position: ['a', 1]
-            },
-            {
-                piece: { color: 'black', moveCount: 0, name: 'foo' },
-                position: ['a', 2]
-            }
-        ];
-        const state = generateGameState(
-            piecePlacements,
-            'white',
-            smallBoardConfig
-        );
+        describe('normal capture location', () => {
+            const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+                {
+                    piece: { color: 'white', moveCount: 0, name: 'foo' },
+                    position: ['a', 1]
+                },
+                {
+                    piece: { color: 'black', moveCount: 0, name: 'foo' },
+                    position: ['a', 2]
+                }
+            ];
+            const state = generateGameState(
+                piecePlacements,
+                'white',
+                smallBoardConfig
+            );
 
-        const move: MoveRecord<pieceNames> = {
-            type: 'standard',
-            originSpace: ['a', 1],
-            destinationSpace: ['a', 2],
-            moveName: 'test',
-            pieceColor: 'white',
-            pieceName: 'foo'
-        };
+            const move: MoveRecord<pieceNames> = {
+                type: 'standard',
+                originSpace: ['a', 1],
+                destinationSpace: ['a', 2],
+                moveName: 'test',
+                pieceColor: 'white',
+                pieceName: 'foo'
+            };
 
-        const result = updateGameState(state, move);
+            const result = updateGameState(state, move);
 
-        test('Moved piece is in destination space', () => {
-            expect(
-                rectangularBoardHelper.getSpace(result, ['a', 2]).piece?.color
-            ).toEqual('white');
+            test('Moved piece is in destination space', () => {
+                expect(
+                    rectangularBoardHelper.getSpace(result, ['a', 2]).piece
+                        ?.color
+                ).toEqual('white');
+            });
+
+            test('Captured piece is recorded', () => {
+                expect(result.capturedPieces.black).toHaveLength(1);
+                expect(result.capturedPieces.black[0]).toEqual({
+                    name: 'foo',
+                    moveCount: 0,
+                    color: 'black'
+                });
+            });
         });
 
-        test('Captured piece is recorded', () => {
-            expect(result.capturedPieces.black).toHaveLength(1);
-            expect(result.capturedPieces.black[0]).toEqual({
-                name: 'foo',
-                moveCount: 0,
-                color: 'black'
+        describe('alternate capture location', () => {
+            const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+                {
+                    piece: { color: 'white', moveCount: 0, name: 'foo' },
+                    position: ['a', 1]
+                },
+                {
+                    piece: { color: 'black', moveCount: 0, name: 'foo' },
+                    position: ['a', 2]
+                }
+            ];
+            const state = generateGameState(
+                piecePlacements,
+                'white',
+                smallBoardConfig
+            );
+
+            const move: MoveRecord<pieceNames> = {
+                type: 'standard',
+                originSpace: ['a', 1],
+                destinationSpace: ['b', 1],
+                moveName: 'test',
+                pieceColor: 'white',
+                pieceName: 'foo',
+                altCaptureLocation: ['a', 2]
+            };
+
+            const result = updateGameState(state, move);
+
+            test('Moved piece is in destination space', () => {
+                expect(
+                    rectangularBoardHelper.getSpace(result, ['b', 1]).piece
+                        ?.color
+                ).toEqual('white');
+            });
+
+            test('Piece in alternate capture space has been captured', () => {
+                expect(
+                    rectangularBoardHelper.getSpace(result, ['a', 2]).piece
+                ).toBeUndefined();
+            });
+
+            test('Captured piece is recorded', () => {
+                expect(result.capturedPieces.black).toHaveLength(1);
+                expect(result.capturedPieces.black[0]).toEqual({
+                    name: 'foo',
+                    moveCount: 0,
+                    color: 'black'
+                });
             });
         });
     });
