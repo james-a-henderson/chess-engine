@@ -4,7 +4,7 @@ import { GameStatePiecePlacement } from './gameState';
 import { generateGameState } from './generateGameState';
 import { updateGameState } from './updateGameState';
 
-type pieceNames = ['foo'];
+type pieceNames = ['foo', 'bar'];
 
 describe('updateGameState', () => {
     const boardConfig: RectangularBoardConfig = { width: 2, height: 2 };
@@ -137,5 +137,31 @@ describe('updateGameState', () => {
                 color: 'black'
             });
         });
+    });
+
+    test('Promotion move updates piece name', () => {
+        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+            {
+                piece: { color: 'white', moveCount: 0, name: 'foo' },
+                position: ['a', 1]
+            }
+        ];
+        const state = generateGameState(piecePlacements, 'white', boardConfig);
+
+        const move: MoveRecord<pieceNames> = {
+            type: 'standard',
+            originSpace: ['a', 1],
+            destinationSpace: ['b', 1],
+            moveName: 'test',
+            pieceColor: 'white',
+            pieceName: 'foo',
+            promotedTo: 'bar'
+        };
+
+        const result = updateGameState(state, move);
+
+        expect(
+            rectangularBoardHelper.getSpace(result, ['b', 1]).piece?.name
+        ).toEqual('bar');
     });
 });

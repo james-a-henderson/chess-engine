@@ -1,4 +1,10 @@
-import { MoveRecord, MoveRecordJump, MoveRecordStandard } from '../../types';
+import {
+    BoardPosition,
+    GameError,
+    MoveRecord,
+    MoveRecordJump,
+    MoveRecordStandard
+} from '../../types';
 import { rectangularBoardHelper } from '../board';
 import { GameState } from './gameState';
 
@@ -20,7 +26,7 @@ export function updateGameState<PieceNames extends string[]>(
     }
 
     if (move.promotedTo) {
-        //todo: handle piece promotion
+        promotePiece(newState, move.destinationSpace, move.promotedTo);
     }
 
     //todo: handle more then two player colors
@@ -65,4 +71,18 @@ function makeStandardMove<PieceNames extends string[]>(
 
     destinationSpace.piece = originSpace.piece;
     originSpace.piece = undefined;
+}
+
+function promotePiece<PieceNames extends string[]>(
+    state: GameState<PieceNames>,
+    position: BoardPosition,
+    promoteTo: PieceNames[keyof PieceNames]
+) {
+    const space = rectangularBoardHelper.getSpace(state, position);
+    const piece = space.piece;
+    if (!piece) {
+        throw new GameError('Attempting to promote on space with no piece');
+    }
+
+    piece.name = promoteTo;
 }
