@@ -5,9 +5,14 @@ import { rectangularBoardHelper } from './rectangularBoardHelper';
 
 type testPieceNames = ['foo', 'bar'];
 describe('rectangularBoardHelper', () => {
-    const testBoardConfig: RectangularBoardConfig = {
+    const smallBoardConfig: RectangularBoardConfig = {
         width: 3,
         height: 3
+    };
+
+    const fullSizeBoardConfig: RectangularBoardConfig = {
+        height: 8,
+        width: 8
     };
     describe('getSpace', () => {
         let gameState: GameState<testPieceNames>;
@@ -27,7 +32,7 @@ describe('rectangularBoardHelper', () => {
             gameState = generateGameState(
                 piecePlacements,
                 'white',
-                testBoardConfig
+                smallBoardConfig
             );
         });
 
@@ -158,6 +163,91 @@ describe('rectangularBoardHelper', () => {
                     }).toThrow(InvalidSpaceError);
                 }
             );
+        });
+    });
+
+    describe('indiciesToCoordinates', () => {
+        test.each([
+            [0, 0, 'a', 1],
+            [7, 7, 'h', 8],
+            [0, 7, 'a', 8],
+            [7, 0, 'h', 1],
+            [4, 5, 'e', 6]
+        ])(
+            'Indicies %d, %d expected: %s%d',
+            (
+                fileIndex: number,
+                rankIndex: number,
+                expectedFile: string,
+                expectedRank: number
+            ) => {
+                const result = rectangularBoardHelper.indiciesToCoordinates(
+                    fullSizeBoardConfig,
+                    [fileIndex, rankIndex]
+                );
+                expect(result[0]).toEqual(expectedFile);
+                expect(result[1]).toEqual(expectedRank);
+            }
+        );
+
+        test.each([
+            [1, 10],
+            [-5, 5],
+            [5, -5],
+            [8, 8],
+            [Infinity, 1],
+            [0, Infinity]
+        ])(
+            'Indicies %d, %d throws error',
+            (fileIndex: number, rankIndex: number) => {
+                expect(() => {
+                    rectangularBoardHelper.indiciesToCoordinates(
+                        fullSizeBoardConfig,
+                        [fileIndex, rankIndex]
+                    );
+                }).toThrow(InvalidSpaceError);
+            }
+        );
+    });
+
+    describe('coordinatestoIndicies', () => {
+        test.each([
+            ['a', 1, 0, 0],
+            ['a', 8, 0, 7],
+            ['h', 1, 7, 0],
+            ['h', 8, 7, 7],
+            ['b', 4, 1, 3]
+        ])(
+            'Coordinates %s%d expected: %d, %d',
+            (
+                file: string,
+                rank: number,
+                expectedFileIndex: number,
+                expectedRankIndex: number
+            ) => {
+                const result = rectangularBoardHelper.coordinatesToIndicies(
+                    fullSizeBoardConfig,
+                    [file, rank]
+                );
+                expect(result[0]).toEqual(expectedFileIndex);
+                expect(result[1]).toEqual(expectedRankIndex);
+            }
+        );
+
+        test.each([
+            ['', 1],
+            ['a', 0],
+            ['i', 5],
+            ['c', -3],
+            ['aa', 6],
+            ['f', Infinity]
+        ])('Coordinates %s%d throws error', (file: string, rank: number) => {
+            expect(() => {
+                rectangularBoardHelper.coordinatesToIndicies(
+                    fullSizeBoardConfig,
+                    [file, rank]
+                );
+            }).toThrow(InvalidSpaceError);
         });
     });
 });
