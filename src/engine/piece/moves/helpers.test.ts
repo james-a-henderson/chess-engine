@@ -2,18 +2,22 @@ import {
     BoardPosition,
     CaptureAvailability,
     Direction,
+    GameError,
     GameRules,
     MoveCondition,
     PieceConfig,
     PlayerColor
 } from '../../../types';
 import { GameEngine } from '../../GameEngine';
+import { GameStatePiecePlacement } from '../../gameState';
+import { generateGameState } from '../../gameState/generateGameState';
 import {
     getMoveConditionFunctions,
     makeNextSpaceIterator,
     positionsAreEqual,
     reverseDirection,
-    validateCaptureRules
+    validateCaptureRules,
+    validateCaputureRulesV2
 } from './helpers';
 
 import * as MoveRestrictions from './restrictions';
@@ -173,6 +177,161 @@ describe('helpers', () => {
 
             test('returns true if piece is white and destination space contains no piece', () => {
                 generateCaptureTest(
+                    'forbidden',
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    false,
+                    true
+                );
+            });
+        });
+    });
+
+    describe('validateCaptureRulesV2', () => {
+        test('Throws error if no piece on origin space', () => {
+            const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+                {
+                    piece: { color: 'white', moveCount: 0, name: 'foo' },
+                    position: ['a', 1]
+                }
+            ];
+            const state = generateGameState(piecePlacements, 'white', {
+                width: 8,
+                height: 8
+            });
+            expect(() =>
+                validateCaputureRulesV2(state, ['b', 2], ['c', 3], 'optional')
+            ).toThrow(GameError);
+        });
+        describe('required', () => {
+            test('returns true if piece is black and destination space contains white piece', () => {
+                generateCaptureTestV2(
+                    'required',
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    true,
+                    true
+                );
+            });
+
+            test('returns false if piece is black and destination space contains no piece', () => {
+                generateCaptureTestV2(
+                    'required',
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    false,
+                    false
+                );
+            });
+
+            test('returns true if piece is white and destination space contains black piece', () => {
+                generateCaptureTestV2(
+                    'required',
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    true,
+                    true
+                );
+            });
+
+            test('returns false if piece is white and destination space contains no piece', () => {
+                generateCaptureTestV2(
+                    'required',
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    false,
+                    false
+                );
+            });
+        });
+
+        describe('optional', () => {
+            test('returns true if piece is black and destination space contains white piece', () => {
+                generateCaptureTestV2(
+                    'optional',
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    true,
+                    true
+                );
+            });
+
+            test('returns true if piece is black and destination space contains no piece', () => {
+                generateCaptureTestV2(
+                    'optional',
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    false,
+                    true
+                );
+            });
+
+            test('returns true if piece is white and destination space contains black piece', () => {
+                generateCaptureTestV2(
+                    'optional',
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    true,
+                    true
+                );
+            });
+
+            test('returns true if piece is white and destination space contains no piece', () => {
+                generateCaptureTestV2(
+                    'optional',
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    false,
+                    true
+                );
+            });
+        });
+
+        describe('forbidden', () => {
+            test('returns false if piece is black and destination space contains white piece', () => {
+                generateCaptureTestV2(
+                    'forbidden',
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    true,
+                    false
+                );
+            });
+
+            test('returns true if piece is black and destination space contains no piece', () => {
+                generateCaptureTestV2(
+                    'forbidden',
+                    'black',
+                    ['c', 3],
+                    ['c', 5],
+                    false,
+                    true
+                );
+            });
+
+            test('returns false if piece is white and destination space contains black piece', () => {
+                generateCaptureTestV2(
+                    'forbidden',
+                    'white',
+                    ['c', 5],
+                    ['c', 3],
+                    true,
+                    false
+                );
+            });
+
+            test('returns true if piece is white and destination space contains no piece', () => {
+                generateCaptureTestV2(
                     'forbidden',
                     'white',
                     ['c', 5],
@@ -652,6 +811,46 @@ function generateCaptureTest(
     const result = validateCaptureRules(
         piece,
         board,
+        destinationPosition,
+        captureAvailability
+    );
+
+    expect(result).toEqual(expected);
+}
+
+function generateCaptureTestV2(
+    captureAvailability: CaptureAvailability,
+    playerColor: PlayerColor,
+    startingPosition: BoardPosition,
+    destinationPosition: BoardPosition,
+    pieceOnPosition: boolean,
+    expected: boolean
+) {
+    const captureColor: PlayerColor =
+        playerColor === 'white' ? 'black' : 'white';
+
+    const movePiecePlacement: GameStatePiecePlacement<testPieceNames> = {
+        piece: { name: 'foo', moveCount: 0, color: playerColor },
+        position: startingPosition
+    };
+    const capturePiecePlacement: GameStatePiecePlacement<testPieceNames> = {
+        piece: { name: 'bar', moveCount: 0, color: captureColor },
+        position: destinationPosition
+    };
+
+    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] =
+        pieceOnPosition
+            ? [movePiecePlacement, capturePiecePlacement]
+            : [movePiecePlacement];
+
+    const state = generateGameState(piecePlacements, playerColor, {
+        width: 8,
+        height: 8
+    });
+
+    const result = validateCaputureRulesV2(
+        state,
+        startingPosition,
         destinationPosition,
         captureAvailability
     );

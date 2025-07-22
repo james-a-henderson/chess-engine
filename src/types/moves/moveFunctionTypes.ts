@@ -1,4 +1,5 @@
 import { RectangularBoard } from '../../engine/board/rectangularBoard';
+import { GameState } from '../../engine/gameState';
 import { Piece } from '../../engine/piece';
 import { BoardPosition } from '../common';
 import { MoveRecord } from './moveRecord';
@@ -25,6 +26,14 @@ export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     board: RectangularBoard<PieceNames>,
     piece: Piece<PieceNames>,
     currentSpace: BoardPosition,
+    destination: BoardPosition,
+    previousMove?: MoveRecord<PieceNames>,
+    moveOptions?: MoveOptions<PieceNames>
+) => MoveRecord<PieceNames> | false;
+
+export type verifyLegalMoveFunctionV2<PieceNames extends string[]> = (
+    state: GameState<PieceNames>,
+    origin: BoardPosition,
     destination: BoardPosition,
     previousMove?: MoveRecord<PieceNames>,
     moveOptions?: MoveOptions<PieceNames>
@@ -57,6 +66,12 @@ export type GetLegalMovesFunction<PieceNames extends string[]> = (
 export type MoveConditionFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
     board: RectangularBoard<PieceNames>,
+    piecePosition: BoardPosition,
+    previousMove?: MoveRecord<PieceNames>
+) => boolean;
+
+export type MoveConditionFunctionV2<PieceNames extends string[]> = (
+    state: GameState<PieceNames>,
     piecePosition: BoardPosition,
     previousMove?: MoveRecord<PieceNames>
 ) => boolean;

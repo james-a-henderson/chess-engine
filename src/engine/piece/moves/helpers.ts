@@ -2,11 +2,14 @@ import {
     BoardPosition,
     CaptureAvailability,
     Direction,
+    GameError,
     MoveCondition,
     MoveConditionFunction,
+    MoveConditionFunctionV2,
     PlayerColor
 } from '../../../types';
-import { RectangularBoard } from '../../board';
+import { RectangularBoard, rectangularBoardHelper } from '../../board';
+import { GameState } from '../../gameState';
 import { Piece } from '../piece';
 import {
     firstPieceMove,
@@ -26,6 +29,43 @@ export function validateCaptureRules<PieceNames extends string[]>(
     if (destinationSpace.piece) {
         const destinationPiece = destinationSpace.piece;
         if (destinationPiece.playerColor === piece.playerColor) {
+            //cannot move a piece onto the same space as piece of same color
+            return false;
+        }
+
+        if (captureAvailability === 'forbidden') {
+            //captures not allowed
+            return false;
+        }
+    } else if (captureAvailability === 'required') {
+        //cannot move to empty space, must capture
+        return false;
+    }
+
+    return true;
+}
+
+export function validateCaputureRulesV2<PieceNames extends string[]>(
+    state: GameState<PieceNames>,
+    origin: BoardPosition,
+    destination: BoardPosition,
+    captureAvailability: CaptureAvailability
+): boolean {
+    const originSpace = rectangularBoardHelper.getSpace(state, origin);
+    const destinationSpace = rectangularBoardHelper.getSpace(
+        state,
+        destination
+    );
+
+    if (!originSpace.piece) {
+        throw new GameError('No piece on origin space');
+    }
+
+    if (destinationSpace.piece) {
+        const originPiece = originSpace.piece;
+        const destinationPiece = destinationSpace.piece;
+
+        if (originPiece.color === destinationPiece.color) {
             //cannot move a piece onto the same space as piece of same color
             return false;
         }
@@ -106,6 +146,15 @@ export function getMoveConditionFunctions<PieceNames extends string[]>(
     }
 
     return conditionFunctions;
+}
+
+export function getMoveConditionFunctionsV2<
+    PieceNames extends string[]
+>() //pieceName: PieceNames[keyof PieceNames],
+//conditions: MoveCondition<PieceNames>[]
+: MoveConditionFunctionV2<PieceNames>[] {
+    //todo: fill out once condition functions have been updated
+    return [];
 }
 
 export function determineMoveDirection(
