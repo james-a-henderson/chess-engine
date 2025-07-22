@@ -8,7 +8,7 @@ import { GameState, GameStatePiecePlacement } from '../gameState';
 import { generateGameState } from '../gameState/generateGameState';
 import { rectangularBoardHelper } from './rectangularBoardHelper';
 
-type testPieceNames = ['foo', 'bar'];
+type testPieceNames = ['foo', 'bar', 'baz'];
 describe('rectangularBoardHelper', () => {
     const smallBoardConfig: RectangularBoardConfig = {
         width: 3,
@@ -230,6 +230,131 @@ describe('rectangularBoardHelper', () => {
                 });
             }
         );
+    });
+    describe('getPieceSpaces', () => {
+        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+            {
+                piece: { color: 'white', moveCount: 0, name: 'foo' },
+                position: ['a', 1]
+            },
+            {
+                piece: { color: 'white', moveCount: 0, name: 'baz' },
+                position: ['a', 3]
+            },
+            {
+                piece: { color: 'black', moveCount: 0, name: 'bar' },
+                position: ['c', 1]
+            },
+            {
+                piece: { color: 'black', moveCount: 0, name: 'baz' },
+                position: ['c', 3]
+            }
+        ];
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            smallBoardConfig
+        );
+
+        test('returns 4 pieces when no filters are applied', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {});
+            expect(result).toHaveLength(4);
+        });
+
+        test('returns only white pieces when isColor is set to white', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                isColor: 'white'
+            });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.color).toEqual('white');
+            }
+        });
+
+        test('returns only black pieces when isColor is set to black', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                isColor: 'black'
+            });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.color).toEqual('black');
+            }
+        });
+
+        test('returns only white pieces when notColor is set to black', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                notColor: 'black'
+            });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.color).toEqual('white');
+            }
+        });
+
+        test('returns only black pieces when notColor is set to white', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                notColor: 'white'
+            });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.color).toEqual('black');
+            }
+        });
+
+        test('returns only pieces of given name when name is set', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                name: 'baz'
+            });
+            expect(result).toHaveLength(2);
+
+            for (const space of result) {
+                expect(space.piece?.name).toEqual('baz');
+            }
+        });
+
+        test('returns only piece of given name and color when name and color are both set', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                name: 'baz',
+                isColor: 'black'
+            });
+
+            expect(result).toHaveLength(1);
+            expect(result[0].piece?.name).toEqual('baz');
+            expect(result[0].piece?.color).toEqual('black');
+        });
+
+        test('returns correct position', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                name: 'baz',
+                isColor: 'black'
+            });
+
+            expect(result).toHaveLength(1);
+            expect(result[0].position).toEqual(['c', 3]);
+        });
+
+        test('returns empty array when no pieces satisfy conditions', () => {
+            const result = rectangularBoardHelper.getPieceSpaces(state, {
+                name: 'bar',
+                isColor: 'white'
+            });
+
+            expect(result).toHaveLength(0);
+        });
+
+        test('returns empty array when board has no pieces', () => {
+            const emptyState = generateGameState([], 'white', smallBoardConfig);
+
+            const result = rectangularBoardHelper.getPieceSpaces(
+                emptyState,
+                {}
+            );
+            expect(result).toHaveLength(0);
+        });
     });
 
     describe('indiciesToCoordinates', () => {

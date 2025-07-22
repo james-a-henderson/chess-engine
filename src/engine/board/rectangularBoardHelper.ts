@@ -3,6 +3,7 @@ import {
     BoardPosition,
     Direction,
     InvalidSpaceError,
+    PlayerColor,
     RectangularBoardConfig
 } from '../../types';
 import { BoardSpaceStatus, GameState } from '../gameState';
@@ -90,6 +91,45 @@ export const rectangularBoardHelper = {
         }
     },
 
+    getPieceSpaces<PieceNames extends string[]>(
+        state: GameState<PieceNames>,
+        {
+            name,
+            isColor,
+            notColor
+        }: {
+            name?: PieceNames[keyof PieceNames];
+            isColor?: PlayerColor;
+            notColor?: PlayerColor;
+        }
+    ): BoardSpaceStatus<PieceNames>[] {
+        const spaces: BoardSpaceStatus<PieceNames>[] = [];
+
+        for (const space of boardSpaces(state)) {
+            if (!space.piece) {
+                continue;
+            }
+
+            const piece = space.piece;
+
+            if (isColor && piece.color !== isColor) {
+                continue;
+            }
+
+            if (notColor && piece.color === notColor) {
+                continue;
+            }
+
+            if (name && piece.name !== name) {
+                continue;
+            }
+
+            spaces.push(space);
+        }
+
+        return spaces;
+    },
+
     indiciesToCoordinates(
         boardConfig: RectangularBoardConfig,
         indicies: [number, number]
@@ -141,5 +181,15 @@ function assertValidCoordinates(
         rankIndex < 0
     ) {
         throw new InvalidSpaceError('Invalid coordinates');
+    }
+}
+
+function* boardSpaces<PieceNames extends string[]>(
+    state: GameState<PieceNames>
+) {
+    for (let i = 0; i < state.boardConfig.width; i++) {
+        for (let j = 0; j < state.boardConfig.height; j++) {
+            yield state.board[i][j];
+        }
     }
 }
