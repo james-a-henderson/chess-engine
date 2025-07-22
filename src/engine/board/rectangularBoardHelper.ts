@@ -1,6 +1,7 @@
 import { fileLetterToIndex, indexToFileLetter } from '../../common';
 import {
     BoardPosition,
+    Direction,
     InvalidSpaceError,
     RectangularBoardConfig
 } from '../../types';
@@ -27,6 +28,66 @@ export const rectangularBoardHelper = {
         assertValidIndicies(state.boardConfig, [fileIndex, rankIndex]);
 
         return state.board[fileIndex][rankIndex];
+    },
+
+    getSpaceRelativePosition<PieceNames extends string[]>(
+        state: GameState<PieceNames>,
+        position: BoardPosition,
+        direction: Direction,
+        numSpaces: number
+    ): BoardSpaceStatus<PieceNames> {
+        if (numSpaces <= 0) {
+            throw new InvalidSpaceError('numSpaces must be at least 1');
+        }
+
+        const [fileIndex, rankIndex] =
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                position
+            );
+
+        switch (direction) {
+            case 'forward':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex,
+                    rankIndex + numSpaces
+                ]);
+            case 'backward':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex,
+                    rankIndex - numSpaces
+                ]);
+            case 'left':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex - numSpaces,
+                    rankIndex
+                ]);
+            case 'right':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex + numSpaces,
+                    rankIndex
+                ]);
+            case 'leftForward':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex - numSpaces,
+                    rankIndex + numSpaces
+                ]);
+            case 'rightForward':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex + numSpaces,
+                    rankIndex + numSpaces
+                ]);
+            case 'leftBackward':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex - numSpaces,
+                    rankIndex - numSpaces
+                ]);
+            case 'rightBackward':
+                return rectangularBoardHelper.getSpace(state, [
+                    fileIndex + numSpaces,
+                    rankIndex - numSpaces
+                ]);
+        }
     },
 
     indiciesToCoordinates(

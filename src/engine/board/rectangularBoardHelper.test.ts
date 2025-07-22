@@ -1,4 +1,9 @@
-import { InvalidSpaceError, RectangularBoardConfig } from '../../types';
+import {
+    BoardPosition,
+    Direction,
+    InvalidSpaceError,
+    RectangularBoardConfig
+} from '../../types';
 import { GameState, GameStatePiecePlacement } from '../gameState';
 import { generateGameState } from '../gameState/generateGameState';
 import { rectangularBoardHelper } from './rectangularBoardHelper';
@@ -164,6 +169,67 @@ describe('rectangularBoardHelper', () => {
                 }
             );
         });
+    });
+
+    describe('getSpaceRelativePosition', () => {
+        describe.each([
+            ['forward', ['d', 5], ['d', 7]],
+            ['backward', ['d', 3], ['d', 1]],
+            ['left', ['c', 4], ['a', 4]],
+            ['right', ['e', 4], ['g', 4]],
+            ['leftForward', ['c', 5], ['a', 7]],
+            ['rightForward', ['e', 5], ['g', 7]],
+            ['leftBackward', ['c', 3], ['a', 1]],
+            ['rightBackward', ['e', 3], ['g', 1]]
+        ])(
+            'Direction: %s',
+            (
+                direction: string,
+                oneSpacePosition: (string | number)[],
+                threeSpacesPosition: (string | number)[]
+            ) => {
+                const startingPosition: BoardPosition = ['d', 4];
+                const state = generateGameState(
+                    [],
+                    'white',
+                    fullSizeBoardConfig
+                );
+                test(`numSpaces of 1 has position of ${oneSpacePosition[0]}${oneSpacePosition[1]}`, () => {
+                    const space =
+                        rectangularBoardHelper.getSpaceRelativePosition(
+                            state,
+                            startingPosition,
+                            direction as Direction,
+                            1
+                        );
+                    expect(space.position[0]).toEqual(oneSpacePosition[0]);
+                    expect(space.position[1]).toEqual(oneSpacePosition[1]);
+                });
+
+                test(`numSpaces of 3 has position of ${threeSpacesPosition[0]}${threeSpacesPosition[1]}`, () => {
+                    const space =
+                        rectangularBoardHelper.getSpaceRelativePosition(
+                            state,
+                            startingPosition,
+                            direction as Direction,
+                            3
+                        );
+                    expect(space.position[0]).toEqual(threeSpacesPosition[0]);
+                    expect(space.position[1]).toEqual(threeSpacesPosition[1]);
+                });
+
+                test('numSpaces of 6 throws InvalidSpaceError', () => {
+                    expect(() =>
+                        rectangularBoardHelper.getSpaceRelativePosition(
+                            state,
+                            startingPosition,
+                            direction as Direction,
+                            6
+                        )
+                    ).toThrow(InvalidSpaceError);
+                });
+            }
+        );
     });
 
     describe('indiciesToCoordinates', () => {
