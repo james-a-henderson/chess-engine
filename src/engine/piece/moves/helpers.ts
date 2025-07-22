@@ -148,11 +148,12 @@ export function getMoveConditionFunctions<PieceNames extends string[]>(
     return conditionFunctions;
 }
 
-export function getMoveConditionFunctionsV2<
-    PieceNames extends string[]
->() //pieceName: PieceNames[keyof PieceNames],
-//conditions: MoveCondition<PieceNames>[]
-: MoveConditionFunctionV2<PieceNames>[] {
+export function getMoveConditionFunctionsV2<PieceNames extends string[]>(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    pieceName: PieceNames[keyof PieceNames],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    conditions: MoveCondition<PieceNames>[]
+): MoveConditionFunctionV2<PieceNames>[] {
     //todo: fill out once condition functions have been updated
     return [];
 }
