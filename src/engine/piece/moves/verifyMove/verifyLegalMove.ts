@@ -5,6 +5,7 @@ import {
     verifyLegalMoveFunctionV2
 } from '../../../../types';
 import { generateVerifyCastleMoveFunctions } from './castleMove';
+import { generateVerifyCastleMoveFunctionV2 } from './castleMoveV2';
 import { generateVerifyJumpMoveFunctions } from './jumpMove';
 import { generateVerifyJumpMoveFunctionV2 } from './jumpMoveV2';
 import { generateVerifyStandardMoveFunctions } from './standardMove';
@@ -35,6 +36,7 @@ export function generateVerifyLegalMoveFunctionV2<PieceNames extends string[]>(
         case 'jump':
             return generateVerifyJumpMoveFunctionV2(pieceName, move);
         case 'castle':
+            return generateVerifyCastleMoveFunctionV2(pieceName, move);
         default:
             return emptyVerifyMovesFunction;
     }
