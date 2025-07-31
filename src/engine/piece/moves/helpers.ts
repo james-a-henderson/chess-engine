@@ -13,8 +13,11 @@ import { GameState } from '../../gameState';
 import { Piece } from '../piece';
 import {
     firstPieceMove,
+    firstPieceMoveV2,
     generateOtherPieceHasNotMovedFunction,
-    generateSpacesNotThreatenedFunction
+    generateOtherPieceHasNotMovedFunctionV2,
+    generateSpacesNotThreatenedFunction,
+    generateSpecificPreviousMoveFunctionV2
 } from './restrictions';
 import { generateSpecificPreviousMoveFunction } from './restrictions/specificPreviousMove';
 
@@ -149,13 +152,37 @@ export function getMoveConditionFunctions<PieceNames extends string[]>(
 }
 
 export function getMoveConditionFunctionsV2<PieceNames extends string[]>(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pieceName: PieceNames[keyof PieceNames],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     conditions: MoveCondition<PieceNames>[]
 ): MoveConditionFunctionV2<PieceNames>[] {
-    //todo: fill out once condition functions have been updated
-    return [];
+    const conditionFunctions: MoveConditionFunctionV2<PieceNames>[] = [];
+
+    for (const condition of conditions) {
+        switch (condition.condition) {
+            case 'firstPieceMove':
+                conditionFunctions.push(firstPieceMoveV2);
+                break;
+            case 'otherPieceHasNotMoved':
+                conditionFunctions.push(
+                    generateOtherPieceHasNotMovedFunctionV2(
+                        condition.piece,
+                        condition.piecePositionForColor
+                    )
+                );
+                break;
+            case 'spacesNotThreatened':
+                //todo: still need to implement V2
+                break;
+            case 'specificPreviousMove':
+                conditionFunctions.push(
+                    generateSpecificPreviousMoveFunctionV2(
+                        condition.previousMoveName,
+                        condition.locations
+                    )
+                );
+        }
+    }
+
+    return conditionFunctions;
 }
 
 export function determineMoveDirection(

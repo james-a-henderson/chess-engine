@@ -13,6 +13,7 @@ import { GameStatePiecePlacement } from '../../gameState';
 import { generateGameState } from '../../gameState/generateGameState';
 import {
     getMoveConditionFunctions,
+    getMoveConditionFunctionsV2,
     makeNextSpaceIterator,
     positionsAreEqual,
     reverseDirection,
@@ -520,6 +521,91 @@ describe('helpers', () => {
             ];
 
             const result = getMoveConditionFunctions(input);
+
+            expect(result).toHaveLength(2);
+        });
+    });
+
+    describe('getMoveConditionFunctionsV2', () => {
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+        test('returns empty array with no conditions', () => {
+            const result = getMoveConditionFunctionsV2([]);
+
+            expect(result).toHaveLength(0);
+        });
+
+        test('returns firstPieceMove function with ConditionFirstPieceMove input', () => {
+            const input: MoveCondition<testPieceNames>[] = [
+                { condition: 'firstPieceMove' }
+            ];
+
+            const result = getMoveConditionFunctionsV2(input);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toEqual(MoveRestrictions.firstPieceMoveV2);
+        });
+
+        test('returns otherPieceHasNotMoved function with otherPieceHasNotMoved input', () => {
+            const testFunction = () => {
+                return true;
+            };
+            jest.spyOn(
+                MoveRestrictions,
+                'generateOtherPieceHasNotMovedFunctionV2'
+            ).mockImplementation(() => {
+                return testFunction;
+            });
+
+            const input: MoveCondition<testPieceNames>[] = [
+                {
+                    condition: 'otherPieceHasNotMoved',
+                    piece: 'bar',
+                    piecePositionForColor: {}
+                }
+            ];
+            const result = getMoveConditionFunctionsV2(input);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toEqual(testFunction);
+        });
+
+        //spaces not threatened not implemented yet
+        test.skip('returns spacesNotThreatened function with spacesNotThreatened input', () => {
+            const testFunction = () => {
+                return true;
+            };
+            jest.spyOn(
+                MoveRestrictions,
+                'generateSpacesNotThreatenedFunction'
+            ).mockImplementation(() => {
+                return testFunction;
+            });
+
+            const input: MoveCondition<testPieceNames>[] = [
+                {
+                    condition: 'spacesNotThreatened',
+                    spacesForColor: {}
+                }
+            ];
+            const result = getMoveConditionFunctionsV2(input);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toEqual(testFunction);
+        });
+
+        test('returns array of size 2 if input has two conditions', () => {
+            const input: MoveCondition<testPieceNames>[] = [
+                { condition: 'firstPieceMove' },
+                {
+                    condition: 'otherPieceHasNotMoved',
+                    piece: 'bar',
+                    piecePositionForColor: {}
+                }
+            ];
+
+            const result = getMoveConditionFunctionsV2(input);
 
             expect(result).toHaveLength(2);
         });
