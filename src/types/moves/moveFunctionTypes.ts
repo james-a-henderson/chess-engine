@@ -63,6 +63,12 @@ export type GetLegalMovesFunction<PieceNames extends string[]> = (
     currentSpace: BoardPosition
 ) => AvailableMoves;
 
+export type GetLegalMovesFunctionV2<PieceNames extends string[]> = (
+    state: GameState<PieceNames>,
+    origin: BoardPosition,
+    previousMove?: MoveRecord<PieceNames>
+) => AvailableMoves;
+
 export type MoveConditionFunction<PieceNames extends string[]> = (
     piece: Piece<PieceNames>,
     board: RectangularBoard<PieceNames>,
