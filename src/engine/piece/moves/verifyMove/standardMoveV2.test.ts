@@ -2167,8 +2167,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
         );
     });
 
-    //alternate capture locations not implemented
-    describe.skip('alternate capture location', () => {
+    describe('alternate capture location', () => {
         test('Valid return value when opposite color piece is on alt capture location', () => {
             const moveConfig: StandardMove<testPieceNames> = {
                 ...forwardMove,

@@ -6,6 +6,7 @@ import {
     MoveOptions,
     MoveRecord,
     StandardMove,
+    StandardMoveAlternateCaptureLocation,
     verifyLegalMoveFunctionV2
 } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
@@ -16,6 +17,7 @@ import {
     getMoveConditionFunctionsV2,
     makeNextSpaceIterator,
     positionsAreEqual,
+    reverseDirection,
     validateCaputureRulesV2
 } from '../helpers';
 
@@ -61,7 +63,7 @@ function generateFunction<PieceNames extends string[]>(
         previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
-        const altCaptureLocation = undefined;
+        let altCaptureLocation = undefined;
 
         if (positionsAreEqual(origin, destination)) {
             //destination cannot be the space the piece currently occupies
@@ -81,7 +83,17 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         if ('alternateCaptureLocation' in move) {
-            //todo: deal with alt capture location
+            const altCaptureResult = validateAlternateCaptureLocation(
+                state,
+                move,
+                destination
+            );
+
+            if (altCaptureResult) {
+                altCaptureLocation = altCaptureResult;
+            } else {
+                return false;
+            }
         } else if (
             !validateCaputureRulesV2(
                 state,
@@ -177,4 +189,43 @@ function generateFunction<PieceNames extends string[]>(
             altCaptureLocation: altCaptureLocation
         };
     };
+}
+
+function validateAlternateCaptureLocation<PieceNames extends string[]>(
+    state: GameState<PieceNames>,
+    move: StandardMoveAlternateCaptureLocation<PieceNames>,
+    destination: BoardPosition
+): BoardPosition | false {
+    const direction =
+        state.currentPlayer === 'white'
+            ? move.alternateCaptureLocation.direction
+            : reverseDirection(move.alternateCaptureLocation.direction);
+
+    try {
+        const destinationSpace = rectangularBoardHelper.getSpace(
+            state,
+            destination
+        );
+        const captureSpace = rectangularBoardHelper.getSpaceRelativePosition(
+            state,
+            destination,
+            direction,
+            move.alternateCaptureLocation.numSpaces
+        );
+
+        if (destinationSpace.piece) {
+            return false; //cannot move onto space with piece if alternate capture location is specified
+        }
+
+        if (
+            !captureSpace.piece ||
+            captureSpace.piece.color === state.currentPlayer
+        ) {
+            return false;
+        }
+
+        return captureSpace.position;
+    } catch (error) {
+        return false;
+    }
 }
