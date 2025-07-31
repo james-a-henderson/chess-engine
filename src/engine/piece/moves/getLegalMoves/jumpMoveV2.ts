@@ -1,0 +1,107 @@
+import {
+    AvailableMoves,
+    BoardPosition,
+    GameError,
+    GetLegalMovesFunctionV2,
+    InvalidSpaceError,
+    JumpMove,
+    MoveRecord
+} from '../../../../types';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
+import { getMoveConditionFunctionsV2 } from '../helpers';
+
+export function generateGetLegalJumpMovesFunctionV2<
+    PieceNames extends string[]
+>(move: JumpMove<PieceNames>): GetLegalMovesFunctionV2<PieceNames> {
+    const conditionFunctions = getMoveConditionFunctionsV2(
+        move.moveConditions ?? []
+    );
+
+    return (
+        state: GameState<PieceNames>,
+        origin: BoardPosition,
+        previousMove?: MoveRecord<PieceNames>
+    ) => {
+        const availableMoves: AvailableMoves = {
+            moves: [],
+            captureMoves: [],
+            spacesThreatened: []
+        };
+
+        const originSpace = rectangularBoardHelper.getSpace(state, origin);
+
+        if (originSpace.piece?.color !== state.currentPlayer) {
+            throw new GameError('Invalid origin space');
+        }
+
+        for (const conditionFunction of conditionFunctions) {
+            if (!conditionFunction(state, origin, previousMove)) {
+                return availableMoves;
+            }
+        }
+
+        const [originFileIndex, originRankIndex] =
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                origin
+            );
+
+        for (const coordinate of move.jumpCoordinates) {
+            let horizontalSpaces = coordinate.horizontalSpaces;
+            let verticalSpaces = coordinate.verticalSpaces;
+
+            if (state.currentPlayer === 'black') {
+                //invert coordinates for black
+                horizontalSpaces = -horizontalSpaces;
+                verticalSpaces = -verticalSpaces;
+            }
+
+            const fileIndex = originFileIndex + horizontalSpaces;
+            const rankIndex = originRankIndex + verticalSpaces;
+
+            try {
+                const space = rectangularBoardHelper.getSpace(state, [
+                    fileIndex,
+                    rankIndex
+                ]);
+
+                if (space.piece?.color === state.currentPlayer) {
+                    continue;
+                }
+
+                switch (move.captureAvailability) {
+                    case 'optional':
+                        availableMoves.moves.push(space.position);
+                        availableMoves.spacesThreatened.push(space.position);
+                        if (space.piece) {
+                            availableMoves.captureMoves.push(space.position);
+                        }
+                        break;
+                    case 'required':
+                        //piece is threatening space, even if move is not legal
+                        availableMoves.spacesThreatened.push(space.position);
+                        if (space.piece) {
+                            availableMoves.moves.push(space.position);
+                            availableMoves.captureMoves.push(space.position);
+                        }
+                        break;
+                    case 'forbidden':
+                        if (!space.piece) {
+                            availableMoves.moves.push(space.position);
+                        }
+                }
+            } catch (error) {
+                if (error instanceof InvalidSpaceError) {
+                    //space is off the board
+                    continue;
+                }
+
+                //some unexpected error occured, so we re-throw
+                throw error;
+            }
+        }
+
+        return availableMoves;
+    };
+}
