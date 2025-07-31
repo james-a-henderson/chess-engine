@@ -23,7 +23,6 @@ export function generateVerifyCastleMoveFunctionV2<PieceNames extends string[]>(
     move: CastleMove<PieceNames>
 ): verifyLegalMoveFunctionV2<PieceNames> {
     const conditionFunctions = getMoveConditionFunctionsV2(
-        pieceName,
         move.moveConditions ?? []
     );
 

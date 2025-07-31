@@ -11,7 +11,7 @@ describe('generateVerifyCastleMoveFunctionV2', () => {
         jest.restoreAllMocks();
     });
 
-    test.skip('generated function returns false if move has firstPieceMove condition and piece has moved', () => {
+    test('generated function returns false if move has firstPieceMove condition and piece has moved', () => {
         const moveConfig: CastleMove<testPieceNames> = {
             name: 'castleMove',
             captureAvailability: 'forbidden',

@@ -43,7 +43,6 @@ export function generateVerifyStandardMoveFunctionV2<
     }
 
     const conditionFunctions = getMoveConditionFunctionsV2(
-        pieceName,
         move.moveConditions ?? []
     );
 

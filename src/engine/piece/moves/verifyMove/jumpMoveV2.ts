@@ -20,7 +20,6 @@ export function generateVerifyJumpMoveFunctionV2<PieceNames extends string[]>(
     move: JumpMove<PieceNames>
 ): verifyLegalMoveFunctionV2<PieceNames> {
     const conditionFunctions = getMoveConditionFunctionsV2(
-        pieceName,
         move.moveConditions ?? []
     );
 

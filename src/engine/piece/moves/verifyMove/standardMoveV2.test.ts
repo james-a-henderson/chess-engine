@@ -92,7 +92,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
     });
 
     //don't have move condition functions implemented yet
-    test.skip('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
+    test('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
         const move: StandardMove<testPieceNames> = {
             name: 'condition',
             captureAvailability: 'optional',
