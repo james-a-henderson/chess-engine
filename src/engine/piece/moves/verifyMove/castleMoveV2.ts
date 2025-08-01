@@ -2,6 +2,7 @@ import {
     BoardPosition,
     CastleConfigForColor,
     CastleMove,
+    LegalMovesForPiece,
     MoveConditionFunctionV2,
     MoveOptions,
     MoveRecord,
@@ -38,6 +39,7 @@ function generateFunction<PieceNames extends string[]>(
         state: GameState<PieceNames>,
         origin: BoardPosition,
         destination: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
         previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
@@ -81,7 +83,13 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(state, origin, previousMove)) {
+            if (
+                !conditionFunction(state, {
+                    piecePosition: origin,
+                    getLegalMovesFunctions: getLegalMovesFunctions,
+                    previousMove: previousMove
+                })
+            ) {
                 return false;
             }
         }

@@ -37,9 +37,13 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
             []
         );
 
-        const result = func(state, ['a', 1], {
-            ...moveRecord,
-            moveName: 'notTest'
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            previousMove: {
+                ...moveRecord,
+                moveName: 'notTest'
+            },
+            getLegalMovesFunctions: {}
         });
 
         expect(result).toEqual(false);
@@ -64,7 +68,11 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
             []
         );
 
-        const result = func(state, ['a', 1], moveRecord);
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            previousMove: moveRecord,
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(true);
     });
@@ -88,9 +96,13 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
             [{ direction: 'right', numSpaces: 2 }]
         );
 
-        const result = func(state, ['a', 1], {
-            ...moveRecord,
-            destinationSpace: ['b', 3]
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            previousMove: {
+                ...moveRecord,
+                destinationSpace: ['b', 3]
+            },
+            getLegalMovesFunctions: {}
         });
 
         expect(result).toEqual(false);
@@ -115,7 +127,11 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
             [{ direction: 'right', numSpaces: 2 }]
         );
 
-        const result = func(state, ['a', 1], moveRecord);
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            previousMove: moveRecord,
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(true);
     });
@@ -139,7 +155,11 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
             [{ direction: 'right', numSpaces: 1 }]
         );
 
-        const result = func(state, ['a', 1], moveRecord);
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            previousMove: moveRecord,
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(false);
     });
@@ -167,7 +187,11 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
             ]
         );
 
-        const result = func(state, ['a', 1], moveRecord);
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            previousMove: moveRecord,
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(true);
     });
@@ -191,10 +215,14 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
             [{ direction: 'right', numSpaces: 2 }]
         );
 
-        const result = func(state, ['c', 1], {
-            ...moveRecord,
-            destinationSpace: ['a', 1],
-            pieceColor: 'white'
+        const result = func(state, {
+            piecePosition: ['c', 1],
+            getLegalMovesFunctions: {},
+            previousMove: {
+                ...moveRecord,
+                destinationSpace: ['a', 1],
+                pieceColor: 'white'
+            }
         });
 
         expect(result).toEqual(true);

@@ -35,6 +35,7 @@ export type verifyLegalMoveFunctionV2<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
     origin: BoardPosition,
     destination: BoardPosition,
+    getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
     previousMove?: MoveRecord<PieceNames>,
     moveOptions?: MoveOptions<PieceNames>
 ) => MoveRecord<PieceNames> | false;
@@ -66,6 +67,7 @@ export type GetLegalMovesFunction<PieceNames extends string[]> = (
 export type GetLegalMovesFunctionV2<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
     origin: BoardPosition,
+    getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
     previousMove?: MoveRecord<PieceNames>
 ) => AvailableMoves;
 
@@ -78,8 +80,11 @@ export type MoveConditionFunction<PieceNames extends string[]> = (
 
 export type MoveConditionFunctionV2<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
-    piecePosition: BoardPosition,
-    previousMove?: MoveRecord<PieceNames>
+    props: {
+        piecePosition: BoardPosition;
+        previousMove?: MoveRecord<PieceNames>;
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>;
+    }
 ) => boolean;
 
 export function emptyGetMovesFunction(): AvailableMoves {

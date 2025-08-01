@@ -16,10 +16,15 @@ export function generateSpecificPreviousMoveFunctionV2<
 ): MoveConditionFunctionV2<PieceNames> {
     return (
         state: GameState<PieceNames>,
-        piecePosition: BoardPosition,
-        previousMove?: MoveRecord<PieceNames>
+        props: {
+            piecePosition: BoardPosition;
+            previousMove?: MoveRecord<PieceNames>;
+        }
     ) => {
-        if (!previousMove || previousMove.moveName !== previousMoveName) {
+        if (
+            !props.previousMove ||
+            props.previousMove.moveName !== previousMoveName
+        ) {
             return false;
         }
 
@@ -31,12 +36,12 @@ export function generateSpecificPreviousMoveFunctionV2<
         const [pieceFileIndex, pieceRankIndex] =
             rectangularBoardHelper.coordinatesToIndicies(
                 state.boardConfig,
-                piecePosition
+                props.piecePosition
             );
         const [previousPieceFileIndex, previousPieceRankIndex] =
             rectangularBoardHelper.coordinatesToIndicies(
                 state.boardConfig,
-                previousMove.destinationSpace
+                props.previousMove.destinationSpace
             );
 
         const direction = determineMoveDirection(

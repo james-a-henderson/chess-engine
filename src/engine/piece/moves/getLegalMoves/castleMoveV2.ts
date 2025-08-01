@@ -3,6 +3,7 @@ import {
     BoardPosition,
     CastleMove,
     GetLegalMovesFunctionV2,
+    LegalMovesForPiece,
     MoveRecord,
     RulesConfigurationError
 } from '../../../../types';
@@ -24,6 +25,7 @@ export function generateGetLegalCastleMovesFunctionV2<
     return (
         state: GameState<PieceNames>,
         origin: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
         previousMove?: MoveRecord<PieceNames>
     ) => {
         const availableMoves: AvailableMoves = {
@@ -46,6 +48,7 @@ export function generateGetLegalCastleMovesFunctionV2<
             state,
             origin,
             castleDestination,
+            getLegalMovesFunctions,
             previousMove
         );
 

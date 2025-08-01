@@ -508,5 +508,5 @@ function getTestResult(
 
     const getMovesFunction = generateGetLegalStandardMovesFunctionV2(move);
 
-    return getMovesFunction(state, startingPosition);
+    return getMovesFunction(state, startingPosition, {});
 }

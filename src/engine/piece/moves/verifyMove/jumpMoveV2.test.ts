@@ -54,7 +54,7 @@ describe('generateVerifyJumpMoveFunctionV2', () => {
 
         const moveFunction = generateVerifyJumpMoveFunctionV2('foo', move);
 
-        const result = moveFunction(state, ['c', 3], ['e', 5]);
+        const result = moveFunction(state, ['c', 3], ['e', 5], {});
 
         expect(result).toEqual(false);
     });
@@ -278,6 +278,7 @@ function generateMoveTest(
         state,
         startingPosition,
         destinationPosition,
+        {},
         undefined,
         moveOptions
     );

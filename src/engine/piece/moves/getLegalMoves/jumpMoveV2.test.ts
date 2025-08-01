@@ -365,5 +365,5 @@ function getTestResult(
 
     const getMovesFunction = generateGetLegalJumpMovesFunctionV2(move);
 
-    return getMovesFunction(state, startingPosition);
+    return getMovesFunction(state, startingPosition, {});
 }

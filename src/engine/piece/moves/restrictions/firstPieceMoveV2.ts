@@ -4,8 +4,8 @@ import { GameState } from '../../../gameState';
 
 export function firstPieceMoveV2<PieceNames extends string[]>(
     state: GameState<PieceNames>,
-    piecePosition: BoardPosition
+    props: { piecePosition: BoardPosition }
 ): boolean {
-    const space = rectangularBoardHelper.getSpace(state, piecePosition);
+    const space = rectangularBoardHelper.getSpace(state, props.piecePosition);
     return space?.piece?.moveCount === 0;
 }

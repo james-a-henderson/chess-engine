@@ -120,7 +120,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
             move
         );
 
-        const result = moveFunction(state, ['a', 2], ['a', 3]);
+        const result = moveFunction(state, ['a', 2], ['a', 3], {});
         expect(result).toEqual(false);
     });
 
@@ -194,7 +194,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
             move
         );
 
-        const result = moveFunction(state, ['a', 1], ['a', 2], undefined, {
+        const result = moveFunction(state, ['a', 1], ['a', 2], {}, undefined, {
             type: 'promotion',
             promotionTarget: 'dummy'
         });
@@ -2297,7 +2297,12 @@ function generateMoveTest(
         moveConfig
     );
 
-    const result = moveFunction(state, startingPosition, destinationPosition);
+    const result = moveFunction(
+        state,
+        startingPosition,
+        destinationPosition,
+        {}
+    );
 
     if (expected) {
         expect(result).toEqual({
@@ -2335,6 +2340,6 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
     );
 
     expect(() =>
-        moveFunction(state, startingPosition, destinationPosition)
+        moveFunction(state, startingPosition, destinationPosition, {})
     ).toThrow(InvalidSpaceError);
 }

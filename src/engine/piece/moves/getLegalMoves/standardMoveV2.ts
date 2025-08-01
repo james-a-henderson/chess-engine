@@ -6,6 +6,7 @@ import {
     GameError,
     GetLegalMovesFunctionV2,
     InvalidSpaceError,
+    LegalMovesForPiece,
     MoveRecord,
     StandardMove
 } from '../../../../types';
@@ -45,6 +46,7 @@ export function generateGetLegalStandardMovesFunctionV2<
     return (
         state: GameState<PieceNames>,
         origin: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
         previousMove?: MoveRecord<PieceNames>
     ) => {
         const availableMoves: AvailableMoves = {
@@ -54,7 +56,13 @@ export function generateGetLegalStandardMovesFunctionV2<
         };
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(state, origin, previousMove)) {
+            if (
+                !conditionFunction(state, {
+                    piecePosition: origin,
+                    getLegalMovesFunctions: getLegalMovesFunctions,
+                    previousMove: previousMove
+                })
+            ) {
                 return availableMoves;
             }
         }

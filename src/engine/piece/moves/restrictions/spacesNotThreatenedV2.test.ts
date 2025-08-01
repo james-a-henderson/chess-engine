@@ -13,21 +13,21 @@ describe('spacesNotThreatenedV2', () => {
     const boardConfig: RectangularBoardConfig = { width: 8, height: 8 };
 
     test('throws error if configuration not set for color', () => {
-        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>(
-            { black: [['h', 8]] },
-            {}
-        );
+        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+            black: [['h', 8]]
+        });
 
         const state = generateGameState<pieceNames>([], 'white', boardConfig);
 
-        expect(() => func(state, ['a', 1])).toThrow(RulesConfigurationError);
+        expect(() =>
+            func(state, { piecePosition: ['b', 2], getLegalMovesFunctions: {} })
+        ).toThrow(RulesConfigurationError);
     });
 
     test('returns true if no getLegalMovesFunctions are passed in', () => {
-        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>(
-            { white: [['a', 1]] },
-            {}
-        );
+        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+            white: [['a', 1]]
+        });
 
         const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
             {
@@ -50,7 +50,10 @@ describe('spacesNotThreatenedV2', () => {
             boardConfig
         );
 
-        const result = func(state, ['b', 1]);
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: {}
+        });
         expect(result).toEqual(true);
     });
 
@@ -76,12 +79,9 @@ describe('spacesNotThreatenedV2', () => {
             ]
         };
 
-        const func = generateSpacesNotThreatenedFunctionV2(
-            {
-                black: [['a', 1]]
-            },
-            getLegalMovesFunctions
-        );
+        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+            black: [['a', 1]]
+        });
 
         const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
             {
@@ -91,7 +91,10 @@ describe('spacesNotThreatenedV2', () => {
         ];
 
         const state = generateGameState(piecePlacements, 'black', boardConfig);
-        const result = func(state, ['g', 1]);
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: getLegalMovesFunctions
+        });
         expect(result).toEqual(true);
     });
 
@@ -117,12 +120,9 @@ describe('spacesNotThreatenedV2', () => {
             ]
         };
 
-        const func = generateSpacesNotThreatenedFunctionV2(
-            {
-                white: [['a', 1]]
-            },
-            getLegalMovesFunctions
-        );
+        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+            white: [['a', 1]]
+        });
 
         const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
             {
@@ -141,7 +141,10 @@ describe('spacesNotThreatenedV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const result = func(state, ['b', 2]);
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: getLegalMovesFunctions
+        });
         expect(result).toEqual(true);
     });
 
@@ -170,12 +173,9 @@ describe('spacesNotThreatenedV2', () => {
             ]
         };
 
-        const func = generateSpacesNotThreatenedFunctionV2(
-            {
-                black: [['a', 1]]
-            },
-            getLegalMovesFunctions
-        );
+        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+            black: [['a', 1]]
+        });
 
         const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
             {
@@ -194,7 +194,10 @@ describe('spacesNotThreatenedV2', () => {
 
         const state = generateGameState(piecePlacements, 'black', boardConfig);
 
-        const result = func(state, ['b', 2]);
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: getLegalMovesFunctions
+        });
         expect(result).toEqual(false);
     });
 });

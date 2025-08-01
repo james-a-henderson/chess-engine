@@ -11,10 +11,12 @@ import { GameState } from '../../../gameState';
 export function generateSpacesNotThreatenedFunctionV2<
     PieceNames extends string[]
 >(
-    spacesForColor: Partial<Record<PlayerColor, BoardPosition[]>>,
-    getLegalMovesFunctions: LegalMovesForPiece<PieceNames>
+    spacesForColor: Partial<Record<PlayerColor, BoardPosition[]>>
 ): MoveConditionFunctionV2<PieceNames> {
-    return (state: GameState<PieceNames>) => {
+    return (
+        state: GameState<PieceNames>,
+        props: { getLegalMovesFunctions: LegalMovesForPiece<PieceNames> }
+    ) => {
         const spaces = spacesForColor[state.currentPlayer];
 
         if (!spaces) {
@@ -23,7 +25,11 @@ export function generateSpacesNotThreatenedFunctionV2<
             );
         }
 
-        return !areSpacesThreatened(state, spaces, getLegalMovesFunctions);
+        return !areSpacesThreatened(
+            state,
+            spaces,
+            props.getLegalMovesFunctions
+        );
     };
 }
 
@@ -73,7 +79,11 @@ function getAllThreatenedSpaces<PieceNames extends string[]>(
         }
 
         for (const func of moveFunctions) {
-            const moves = func(state, pieceSpace.position);
+            const moves = func(
+                state,
+                pieceSpace.position,
+                getLegalMovesFunctions
+            );
 
             threatenedSpaces.push(...moves.spacesThreatened);
         }

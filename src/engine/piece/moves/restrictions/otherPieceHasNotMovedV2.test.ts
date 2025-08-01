@@ -30,7 +30,10 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(state, ['a', 1]);
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(true);
     });
@@ -48,7 +51,10 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(state, ['a', 1]);
+        const result = func(state, {
+            piecePosition: ['c', 3],
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(false);
     });
@@ -70,7 +76,10 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(state, ['a', 1]);
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(false);
     });
@@ -92,7 +101,10 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(state, ['a', 1]);
+        const result = func(state, {
+            piecePosition: ['a', 1],
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(false);
     });
@@ -114,7 +126,10 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
-        const result = func(state, ['c', 1]);
+        const result = func(state, {
+            piecePosition: ['c', 1],
+            getLegalMovesFunctions: {}
+        });
 
         expect(result).toEqual(false);
     });
@@ -138,7 +153,10 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         );
 
         expect(() => {
-            func(state, ['c', 1]);
+            func(state, {
+                piecePosition: ['c', 1],
+                getLegalMovesFunctions: {}
+            });
         }).toThrow(RulesConfigurationError);
     });
 });
