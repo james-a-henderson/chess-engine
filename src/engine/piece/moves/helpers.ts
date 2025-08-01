@@ -17,6 +17,7 @@ import {
     generateOtherPieceHasNotMovedFunction,
     generateOtherPieceHasNotMovedFunctionV2,
     generateSpacesNotThreatenedFunction,
+    generateSpacesNotThreatenedFunctionV2,
     generateSpecificPreviousMoveFunctionV2
 } from './restrictions';
 import { generateSpecificPreviousMoveFunction } from './restrictions/specificPreviousMove';
@@ -170,7 +171,11 @@ export function getMoveConditionFunctionsV2<PieceNames extends string[]>(
                 );
                 break;
             case 'spacesNotThreatened':
-                //todo: still need to implement V2
+                conditionFunctions.push(
+                    generateSpacesNotThreatenedFunctionV2(
+                        condition.spacesForColor
+                    )
+                );
                 break;
             case 'specificPreviousMove':
                 conditionFunctions.push(

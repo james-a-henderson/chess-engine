@@ -571,14 +571,13 @@ describe('helpers', () => {
             expect(result[0]).toEqual(testFunction);
         });
 
-        //spaces not threatened not implemented yet
-        test.skip('returns spacesNotThreatened function with spacesNotThreatened input', () => {
+        test('returns spacesNotThreatened function with spacesNotThreatened input', () => {
             const testFunction = () => {
                 return true;
             };
             jest.spyOn(
                 MoveRestrictions,
-                'generateSpacesNotThreatenedFunction'
+                'generateSpacesNotThreatenedFunctionV2'
             ).mockImplementation(() => {
                 return testFunction;
             });
