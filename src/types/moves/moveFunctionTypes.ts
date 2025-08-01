@@ -89,3 +89,8 @@ export function emptyGetMovesFunction(): AvailableMoves {
 export function emptyVerifyMovesFunction(): false {
     return false;
 }
+
+export type LegalMovesForPiece<PieceNames extends string[]> = Record<
+    string,
+    GetLegalMovesFunctionV2<PieceNames>[]
+>;
