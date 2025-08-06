@@ -20,7 +20,10 @@ describe('spacesNotThreatenedV2', () => {
         const state = generateGameState<pieceNames>([], 'white', boardConfig);
 
         expect(() =>
-            func(state, { piecePosition: ['b', 2], getLegalMovesFunctions: {} })
+            func(state, {
+                piecePosition: ['b', 2],
+                getLegalMovesFunctions: new Map()
+            })
         ).toThrow(RulesConfigurationError);
     });
 
@@ -52,32 +55,38 @@ describe('spacesNotThreatenedV2', () => {
 
         const result = func(state, {
             piecePosition: ['b', 2],
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
         expect(result).toEqual(true);
     });
 
     test('returns true if there are no opponent pieces', () => {
-        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = {
-            foo: [
-                () => {
-                    return {
-                        moves: [['h', 2]],
-                        captureMoves: [],
-                        spacesThreatened: [['h', 2]]
-                    };
-                }
+        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = new Map([
+            [
+                'foo',
+                [
+                    () => {
+                        return {
+                            moves: [['h', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['h', 2]]
+                        };
+                    }
+                ]
             ],
-            bar: [
-                () => {
-                    return {
-                        moves: [['g', 2]],
-                        captureMoves: [],
-                        spacesThreatened: [['g', 2]]
-                    };
-                }
+            [
+                'bar',
+                [
+                    () => {
+                        return {
+                            moves: [['g', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['g', 2]]
+                        };
+                    }
+                ]
             ]
-        };
+        ]);
 
         const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
             black: [['a', 1]]
@@ -99,26 +108,32 @@ describe('spacesNotThreatenedV2', () => {
     });
 
     test('returns true if getLegalMovesFunctions do not threaten space', () => {
-        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = {
-            foo: [
-                () => {
-                    return {
-                        moves: [['h', 2]],
-                        captureMoves: [],
-                        spacesThreatened: [['h', 2]]
-                    };
-                }
+        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = new Map([
+            [
+                'foo',
+                [
+                    () => {
+                        return {
+                            moves: [['h', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['h', 2]]
+                        };
+                    }
+                ]
             ],
-            bar: [
-                () => {
-                    return {
-                        moves: [['g', 2]],
-                        captureMoves: [],
-                        spacesThreatened: [['g', 2]]
-                    };
-                }
+            [
+                'bar',
+                [
+                    () => {
+                        return {
+                            moves: [['g', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['g', 2]]
+                        };
+                    }
+                ]
             ]
-        };
+        ]);
 
         const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
             white: [['a', 1]]
@@ -149,29 +164,35 @@ describe('spacesNotThreatenedV2', () => {
     });
 
     test('Returns false if one getLegalMovesFunctions threatens space', () => {
-        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = {
-            foo: [
-                () => {
-                    return {
-                        moves: [['h', 2]],
-                        captureMoves: [],
-                        spacesThreatened: [['h', 2]]
-                    };
-                }
+        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = new Map([
+            [
+                'foo',
+                [
+                    () => {
+                        return {
+                            moves: [['h', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['h', 2]]
+                        };
+                    }
+                ]
             ],
-            bar: [
-                () => {
-                    return {
-                        moves: [['g', 2]],
-                        captureMoves: [],
-                        spacesThreatened: [
-                            ['g', 2],
-                            ['a', 1]
-                        ]
-                    };
-                }
+            [
+                'bar',
+                [
+                    () => {
+                        return {
+                            moves: [['g', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [
+                                ['g', 2],
+                                ['a', 1]
+                            ]
+                        };
+                    }
+                ]
             ]
-        };
+        ]);
 
         const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
             black: [['a', 1]]

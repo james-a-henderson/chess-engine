@@ -71,8 +71,7 @@ function getAllThreatenedSpaces<PieceNames extends string[]>(
             continue;
         }
 
-        const moveFunctions =
-            getLegalMovesFunctions[String(pieceSpace.piece.name)];
+        const moveFunctions = getLegalMovesFunctions.get(pieceSpace.piece.name);
 
         if (!moveFunctions) {
             continue;
