@@ -95,6 +95,10 @@ export function emptyVerifyMovesFunction(): false {
     return false;
 }
 
+export type VerifyMovesForPiece<PieceNames extends string[]> = Map<
+    PieceNames[keyof PieceNames],
+    verifyLegalMoveFunctionV2<PieceNames>[]
+>;
 export type LegalMovesForPiece<PieceNames extends string[]> = Map<
     PieceNames[keyof PieceNames],
     GetLegalMovesFunctionV2<PieceNames>[]
