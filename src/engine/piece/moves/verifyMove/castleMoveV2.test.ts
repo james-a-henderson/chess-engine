@@ -470,7 +470,7 @@ function generateMoveTest(
         state,
         startingPosition,
         destinationPosition,
-        {},
+        new Map(),
         undefined,
         { type: 'castle' }
     );

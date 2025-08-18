@@ -43,7 +43,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
                 ...moveRecord,
                 moveName: 'notTest'
             },
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(false);
@@ -71,7 +71,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
         const result = func(state, {
             piecePosition: ['a', 1],
             previousMove: moveRecord,
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(true);
@@ -102,7 +102,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
                 ...moveRecord,
                 destinationSpace: ['b', 3]
             },
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(false);
@@ -130,7 +130,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
         const result = func(state, {
             piecePosition: ['a', 1],
             previousMove: moveRecord,
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(true);
@@ -158,7 +158,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
         const result = func(state, {
             piecePosition: ['a', 1],
             previousMove: moveRecord,
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(false);
@@ -190,7 +190,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
         const result = func(state, {
             piecePosition: ['a', 1],
             previousMove: moveRecord,
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(true);
@@ -217,7 +217,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const result = func(state, {
             piecePosition: ['c', 1],
-            getLegalMovesFunctions: {},
+            getLegalMovesFunctions: new Map(),
             previousMove: {
                 ...moveRecord,
                 destinationSpace: ['a', 1],

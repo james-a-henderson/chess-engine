@@ -132,5 +132,5 @@ function getTestResult(
         moveConfig
     );
 
-    return getMoveFunction(state, startingPosition, {});
+    return getMoveFunction(state, startingPosition, new Map());
 }

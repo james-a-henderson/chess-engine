@@ -32,7 +32,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         );
         const result = func(state, {
             piecePosition: ['a', 1],
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(true);
@@ -53,7 +53,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         );
         const result = func(state, {
             piecePosition: ['c', 3],
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(false);
@@ -78,7 +78,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         );
         const result = func(state, {
             piecePosition: ['a', 1],
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(false);
@@ -103,7 +103,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         );
         const result = func(state, {
             piecePosition: ['a', 1],
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(false);
@@ -128,7 +128,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         );
         const result = func(state, {
             piecePosition: ['c', 1],
-            getLegalMovesFunctions: {}
+            getLegalMovesFunctions: new Map()
         });
 
         expect(result).toEqual(false);
@@ -155,7 +155,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         expect(() => {
             func(state, {
                 piecePosition: ['c', 1],
-                getLegalMovesFunctions: {}
+                getLegalMovesFunctions: new Map()
             });
         }).toThrow(RulesConfigurationError);
     });
