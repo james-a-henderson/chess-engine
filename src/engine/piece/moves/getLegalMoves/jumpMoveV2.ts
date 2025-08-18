@@ -1,7 +1,6 @@
 import {
     AvailableMoves,
     BoardPosition,
-    GameError,
     GetLegalMovesFunctionV2,
     InvalidSpaceError,
     JumpMove,
@@ -30,12 +29,6 @@ export function generateGetLegalJumpMovesFunctionV2<
             captureMoves: [],
             spacesThreatened: []
         };
-
-        const originSpace = rectangularBoardHelper.getSpace(state, origin);
-
-        if (originSpace.piece?.color !== state.currentPlayer) {
-            throw new GameError('Invalid origin space');
-        }
 
         for (const conditionFunction of conditionFunctions) {
             if (

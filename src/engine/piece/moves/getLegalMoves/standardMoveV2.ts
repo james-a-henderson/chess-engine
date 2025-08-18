@@ -3,7 +3,6 @@ import {
     BoardPosition,
     Direction,
     emptyGetMovesFunction,
-    GameError,
     GetLegalMovesFunctionV2,
     InvalidSpaceError,
     LegalMovesForPiece,
@@ -65,12 +64,6 @@ export function generateGetLegalStandardMovesFunctionV2<
             ) {
                 return availableMoves;
             }
-        }
-
-        const space = rectangularBoardHelper.getSpace(state, origin);
-
-        if (space.piece?.color !== state.currentPlayer) {
-            throw new GameError('Invalid origin space');
         }
 
         for (const direction of directions) {
