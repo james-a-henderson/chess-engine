@@ -1,52 +1,82 @@
-import { RectangularBoard } from '../engine/board/rectangularBoard';
+import { BoardSpace } from '../engine/gameState';
+import { PieceConfig, PlayerColor } from '../types';
 
-//takes in an array of board display characters. A space or empty string represents a space with nothing on it
-export function assertBoardPosition<T extends string[]>(
-    board: RectangularBoard<T>,
-    expectedBoard: (string | undefined)[][]
+export function assertBoardPosition<PieceNames extends string[]>(
+    board: BoardSpace<PieceNames>[][],
+    expectedBoard: (string | undefined)[][],
+    pieceConfig: PieceConfig<PieceNames>[]
 ) {
     expectedBoard.reverse(); //reversing the board here allows the input to match what a chess board looks like
-    const boardSpaces = board.spaces;
 
-    //note that the indexes for rank and file are reversed on the expectedBoard
-    for (let i = 0; i < boardSpaces.length; i++) {
-        const file = boardSpaces[i];
+    //note that file and rank are swapped on the expectedBoard
+    for (let i = 0; i < board.length; i++) {
+        const file = board[i];
 
         if (expectedBoard.length !== file.length) {
             throw new Error('Board heights do not match');
         }
 
         for (let j = 0; j < file.length; j++) {
-            if (expectedBoard[j].length !== boardSpaces.length) {
+            if (expectedBoard[j].length !== board.length) {
                 throw new Error('Board widths do not match');
             }
 
-            const testSqare = expectedBoard[j][i];
+            const testSquare = expectedBoard[j][i];
             const square = file[j];
 
-            switch (testSqare) {
+            switch (testSquare) {
                 case '':
                 case ' ':
                 case undefined:
                 case null:
                     if (square.piece !== undefined) {
                         throw new Error(
-                            `Square at index ${j}, ${i} should be undefined, but contains ${square.piece.getDisplayCharacter()}`
+                            `Square at index ${j}, ${i} should be undefined, but contains ${String(square.piece.name)}`
                         );
                     }
                     break;
-                default:
+                default: {
                     if (!square.piece) {
                         throw new Error(
-                            `Square at index ${j}, ${i} should have piece ${testSqare}, but is empty`
+                            `Square at index ${j}, ${i} should have piece ${testSquare}, but is empty`
                         );
                     }
-                    if (testSqare !== square.piece.getDisplayCharacter()) {
+                    const displayChar = findDisplayCharacter(
+                        pieceConfig,
+                        square.piece.name,
+                        square.piece.color
+                    );
+                    if (testSquare !== displayChar) {
                         throw new Error(
-                            `Square at index ${j}, ${i} should have piece ${testSqare}, but has piece ${square.piece.getDisplayCharacter()} instead`
+                            `Square at index ${j}, ${i} should have piece ${testSquare}, but has piece ${displayChar} instead`
                         );
                     }
+                }
             }
         }
     }
+}
+
+function findDisplayCharacter<PieceNames extends string[]>(
+    configs: PieceConfig<PieceNames>[],
+    pieceName: PieceNames[keyof PieceNames],
+    color: PlayerColor
+): string {
+    for (const config of configs) {
+        if (config.name !== pieceName) {
+            continue;
+        }
+
+        const char = config.displayCharacters[color];
+
+        if (!char) {
+            throw new Error(
+                `No display character configured for piece ${String(pieceName)}`
+            );
+        }
+
+        return char;
+    }
+
+    throw new Error(`No configuration found for piece ${String(pieceName)}`);
 }

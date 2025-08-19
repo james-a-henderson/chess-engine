@@ -1,48 +1,39 @@
-import { PieceConfig } from '../../../../types';
-import { Piece } from '../../piece';
+import { GameState, PiecePlacement } from '../../../gameState';
+import { generateGameState } from '../../../gameState/generateGameState';
 import { firstPieceMove } from './firstPieceMove';
 
 type testPieceNames = ['foo'];
 
 describe('firstPieceMove', () => {
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'foo',
-        notation: 'F',
-        displayCharacters: {
-            white: 'F',
-            black: 'f'
-        },
-        moves: [],
-        startingPositions: {
-            white: [['a', 1]],
-            black: [['a', 8]]
-        }
-    };
-
     test('returns true if piece has not moved', () => {
-        const piece = new Piece(pieceConfig, 'white');
+        const state = generateTestState(0);
 
-        const result = firstPieceMove(piece);
+        const result = firstPieceMove(state, { piecePosition: ['a', 1] });
         expect(result).toEqual(true);
     });
 
     test('returns false if piece has moved once', () => {
-        const piece = new Piece(pieceConfig, 'white');
+        const state = generateTestState(1);
 
-        piece.increaseMoveCount();
-
-        const result = firstPieceMove(piece);
+        const result = firstPieceMove(state, { piecePosition: ['a', 1] });
         expect(result).toEqual(false);
     });
 
     test('returns false if piece has moved three times', () => {
-        const piece = new Piece(pieceConfig, 'white');
+        const state = generateTestState(3);
 
-        piece.increaseMoveCount();
-        piece.increaseMoveCount();
-        piece.increaseMoveCount();
-
-        const result = firstPieceMove(piece);
+        const result = firstPieceMove(state, { piecePosition: ['a', 1] });
         expect(result).toEqual(false);
     });
 });
+
+function generateTestState(moveCount: number): GameState<testPieceNames> {
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        {
+            piece: { name: 'foo', color: 'white', moveCount: moveCount },
+            position: ['a', 1]
+        }
+    ];
+
+    return generateGameState(piecePlacements, 'white', { width: 8, height: 8 });
+}

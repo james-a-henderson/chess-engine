@@ -1,18 +1,17 @@
-import { BoardPosition } from '../../../../types';
 import {
+    BoardPosition,
     Direction,
-    StandardMove,
-    StandardMoveAlternateCaptureLocation
-} from '../../../../types/configuration';
-import {
     emptyVerifyMovesFunction,
+    LegalMovesForPiece,
     MoveConditionFunction,
     MoveOptions,
     MoveRecord,
+    StandardMove,
+    StandardMoveAlternateCaptureLocation,
     verifyLegalMoveFunction
-} from '../../../../types/moves';
-import { RectangularBoard } from '../../../board';
-import { Piece } from '../../piece';
+} from '../../../../types';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
 import {
     calculateMoveLength,
     determineMoveDirection,
@@ -20,12 +19,13 @@ import {
     makeNextSpaceIterator,
     positionsAreEqual,
     reverseDirection,
-    validateCaptureRules
+    validateCaputureRules
 } from '../helpers';
 
-export function generateVerifyStandardMoveFunctions<
-    PieceNames extends string[]
->(move: StandardMove<PieceNames>): verifyLegalMoveFunction<PieceNames> {
+export function generateVerifyStandardMoveFunction<PieceNames extends string[]>(
+    pieceName: PieceNames[keyof PieceNames],
+    move: StandardMove<PieceNames>
+): verifyLegalMoveFunction<PieceNames> {
     const directions: Direction[] =
         move.directions !== 'all'
             ? move.directions
@@ -47,44 +47,57 @@ export function generateVerifyStandardMoveFunctions<
         move.moveConditions ?? []
     );
 
-    return generateFunction(move, conditionFunctions);
+    return generateFunction(pieceName, move, conditionFunctions);
 }
 
-//todo: rename
 function generateFunction<PieceNames extends string[]>(
+    pieceName: PieceNames[keyof PieceNames],
     move: StandardMove<PieceNames>,
     conditionFunctions: MoveConditionFunction<PieceNames>[]
 ): verifyLegalMoveFunction<PieceNames> {
     return (
-        board: RectangularBoard<PieceNames>,
-        piece: Piece<PieceNames>,
-        currentSpace: BoardPosition,
+        state: GameState<PieceNames>,
+        origin: BoardPosition,
         destination: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
         previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
         let altCaptureLocation = undefined;
-        if (positionsAreEqual(currentSpace, destination)) {
+
+        if (positionsAreEqual(origin, destination)) {
             //destination cannot be the space the piece currently occupies
+            return false;
+        }
+
+        const originSpace = rectangularBoardHelper.getSpace(state, origin);
+
+        if (
+            !originSpace.piece ||
+            originSpace.piece.name !== pieceName ||
+            originSpace.piece.color !== state.currentPlayer
+        ) {
+            //incorrect piece
+            //throwing an error here might be more appropriate
             return false;
         }
 
         if ('alternateCaptureLocation' in move) {
             const altCaptureResult = validateAlternateCaptureLocation(
-                board,
-                piece,
+                state,
                 move,
                 destination
             );
+
             if (altCaptureResult) {
                 altCaptureLocation = altCaptureResult;
             } else {
                 return false;
             }
         } else if (
-            !validateCaptureRules(
-                piece,
-                board,
+            !validateCaputureRules(
+                state,
+                origin,
                 destination,
                 move.captureAvailability
             )
@@ -93,23 +106,34 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, board, currentSpace, previousMove)) {
+            if (
+                !conditionFunction(state, {
+                    piecePosition: origin,
+                    getLegalMovesFunctions: getLegalMovesFunctions,
+                    previousMove: previousMove
+                })
+            ) {
                 return false;
             }
         }
 
-        //the engine functions automatically throw if the destination space is invalid, so we don't need to check that here
-        const [currentFileIndex, currentRankIndex] =
-            board.coordinatesToIndicies(currentSpace);
+        const [originFileIndex, originRankIndex] =
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                origin
+            );
         const [destinationFileIndex, destinationRankIndex] =
-            board.coordinatesToIndicies(destination);
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                destination
+            );
 
         const direction = determineMoveDirection(
-            currentFileIndex,
-            currentRankIndex,
+            originFileIndex,
+            originRankIndex,
             destinationFileIndex,
             destinationRankIndex,
-            piece.playerColor
+            state.currentPlayer
         );
 
         if (direction === 'invalid') {
@@ -122,15 +146,15 @@ function generateFunction<PieceNames extends string[]>(
 
         const moveLength = calculateMoveLength(
             direction,
-            currentFileIndex,
-            currentRankIndex,
+            originFileIndex,
+            originRankIndex,
             destinationFileIndex,
             destinationRankIndex
         );
 
         const maxSpaces =
             move.maxSpaces === 'unlimited'
-                ? Math.max(board.height, board.width)
+                ? Math.max(state.boardConfig.height, state.boardConfig.width)
                 : move.maxSpaces;
         const minSpaces = move.minSpaces ? move.minSpaces : 1;
 
@@ -142,26 +166,24 @@ function generateFunction<PieceNames extends string[]>(
         //determine if there are any pieces in between current position and destination
         for (const space of makeNextSpaceIterator(
             direction,
-            currentFileIndex,
-            currentRankIndex,
+            originFileIndex,
+            originRankIndex,
             moveLength - 1, //no need to calculate final destination space
-            piece.playerColor
+            state.currentPlayer
         )) {
-            if (board.getSpace(space).piece !== undefined) {
+            if (
+                rectangularBoardHelper.getSpace(state, space).piece !==
+                undefined
+            ) {
                 return false;
             }
         }
 
-        //validate that the resulting board state is valid
-        if (!board.verifyMovePositionValid(currentSpace, destination)) {
-            return false;
-        }
-
         return {
-            originSpace: currentSpace,
+            originSpace: origin,
             destinationSpace: destination,
-            pieceName: piece.pieceName,
-            pieceColor: piece.playerColor,
+            pieceName: pieceName,
+            pieceColor: state.currentPlayer,
             moveName: move.name,
             type: 'standard',
             promotedTo:
@@ -174,19 +196,22 @@ function generateFunction<PieceNames extends string[]>(
 }
 
 function validateAlternateCaptureLocation<PieceNames extends string[]>(
-    board: RectangularBoard<PieceNames>,
-    piece: Piece<PieceNames>,
+    state: GameState<PieceNames>,
     move: StandardMoveAlternateCaptureLocation<PieceNames>,
     destination: BoardPosition
 ): BoardPosition | false {
     const direction =
-        piece.playerColor === 'white'
+        state.currentPlayer === 'white'
             ? move.alternateCaptureLocation.direction
             : reverseDirection(move.alternateCaptureLocation.direction);
 
     try {
-        const destinationSpace = board.getSpace(destination);
-        const captureSpace = board.getSpaceRelativePosition(
+        const destinationSpace = rectangularBoardHelper.getSpace(
+            state,
+            destination
+        );
+        const captureSpace = rectangularBoardHelper.getSpaceRelativePosition(
+            state,
             destination,
             direction,
             move.alternateCaptureLocation.numSpaces
@@ -198,7 +223,7 @@ function validateAlternateCaptureLocation<PieceNames extends string[]>(
 
         if (
             !captureSpace.piece ||
-            captureSpace.piece.playerColor === piece.playerColor
+            captureSpace.piece.color === state.currentPlayer
         ) {
             return false;
         }

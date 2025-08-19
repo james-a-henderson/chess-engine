@@ -3,22 +3,30 @@ import {
     BoardPosition,
     CastleMove,
     GetLegalMovesFunction,
+    LegalMovesForPiece,
+    MoveRecord,
     RulesConfigurationError
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { Piece } from '../../piece';
+import { GameState } from '../../../gameState';
 import { generateVerifyLegalMoveFunction } from '../verifyMove';
 
 export function generateGetLegalCastleMovesFunction<
     PieceNames extends string[]
->(move: CastleMove<PieceNames>): GetLegalMovesFunction<PieceNames> {
+>(
+    pieceName: PieceNames[keyof PieceNames],
+    move: CastleMove<PieceNames>
+): GetLegalMovesFunction<PieceNames> {
     //since there's only one possible move for each castle move, we can lean on the verify move code
-    const verifyCastleMoveFunction = generateVerifyLegalMoveFunction(move);
+    const verifyCastleMoveFunction = generateVerifyLegalMoveFunction(
+        pieceName,
+        move
+    );
 
     return (
-        board: RectangularBoard<PieceNames>,
-        piece: Piece<PieceNames>,
-        currentSpace: BoardPosition
+        state: GameState<PieceNames>,
+        origin: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
+        previousMove?: MoveRecord<PieceNames>
     ) => {
         const availableMoves: AvailableMoves = {
             moves: [],
@@ -27,7 +35,7 @@ export function generateGetLegalCastleMovesFunction<
             specialMoves: []
         };
         const castleDestination =
-            move.configForColor[piece.playerColor]?.destination;
+            move.configForColor[state.currentPlayer]?.destination;
 
         if (!castleDestination) {
             //todo: catch this during board setup
@@ -37,29 +45,18 @@ export function generateGetLegalCastleMovesFunction<
         }
 
         const verifyResult = verifyCastleMoveFunction(
-            board,
-            piece,
-            currentSpace,
-            castleDestination
+            state,
+            origin,
+            castleDestination,
+            getLegalMovesFunctions,
+            previousMove
         );
 
-        if (!verifyResult) {
-            return availableMoves;
-        }
-
-        availableMoves.specialMoves?.push({
-            type: 'castle',
-            destination: castleDestination
-        });
-
-        if (move.captureAvailability !== 'forbidden') {
-            availableMoves.spacesThreatened.push(castleDestination);
-
-            const destinationSpace = board.getSpace(castleDestination);
-            if (destinationSpace.piece) {
-                //todo: not sure how we want to differentiate this from normal capture move to that space
-                availableMoves.captureMoves.push(castleDestination);
-            }
+        if (verifyResult) {
+            availableMoves.specialMoves?.push({
+                type: 'castle',
+                destination: castleDestination
+            });
         }
 
         return availableMoves;

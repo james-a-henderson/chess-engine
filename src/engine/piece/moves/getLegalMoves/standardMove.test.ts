@@ -3,16 +3,15 @@ import {
     BoardPosition,
     CaptureAvailability,
     Direction,
-    GameRules,
-    PieceConfig,
     PlayerColor,
     RectangularBoardConfig,
     StandardMove
 } from '../../../../types';
-import { GameEngine } from '../../../GameEngine';
 import { generateGetLegalStandardMovesFunction } from './standardMove';
 
 import * as helperFunctions from '../helpers';
+import { PiecePlacement } from '../../../gameState';
+import { generateGameState } from '../../../gameState/generateGameState';
 
 type testPieceNames = ['foo'];
 
@@ -21,45 +20,12 @@ const boardConfig: RectangularBoardConfig = {
     width: 8
 };
 
-const baseRulesConfig: GameRules<testPieceNames> = {
-    name: 'test',
-    board: boardConfig,
-    players: [
-        {
-            color: 'white',
-            order: 0
-        },
-        {
-            color: 'black',
-            order: 1
-        }
-    ],
-    winConditions: [
-        {
-            condition: 'resign'
-        }
-    ],
-    drawConditions: [],
-    pieces: [] //override on tests
-};
-
 const baseMoveConfig: StandardMove<testPieceNames> = {
     type: 'standard',
     name: 'test',
     captureAvailability: 'optional',
     directions: [],
     maxSpaces: 'unlimited'
-};
-
-const basePieceConfig: PieceConfig<testPieceNames> = {
-    name: 'foo',
-    displayCharacters: {
-        white: 'F',
-        black: 'f'
-    },
-    notation: 'F',
-    moves: [],
-    startingPositions: {}
 };
 
 describe('generateGetLegalStandardMovesFunction', () => {
@@ -517,29 +483,30 @@ function getTestResult(
         : 'white';
     const otherColor: PlayerColor = color === 'white' ? 'black' : 'white';
 
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        ...basePieceConfig,
-        moves: [move],
-        startingPositions: {
-            [color]: testOptions?.sameColorStartingPositions
-                ? [startingPosition, ...testOptions.sameColorStartingPositions]
-                : [startingPosition],
-            [otherColor]: testOptions?.otherColorStartingPositions
-                ? testOptions.otherColorStartingPositions
-                : []
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        {
+            piece: { name: 'foo', color: color, moveCount: 0 },
+            position: startingPosition
         }
-    };
+    ];
 
-    const rulesConfig: GameRules<testPieceNames> = {
-        ...baseRulesConfig,
-        pieces: [pieceConfig]
-    };
+    for (const position of testOptions?.sameColorStartingPositions ?? []) {
+        piecePlacements.push({
+            piece: { name: 'foo', color: color, moveCount: 0 },
+            position: position
+        });
+    }
 
-    const engine = new GameEngine(rulesConfig);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
+    for (const position of testOptions?.otherColorStartingPositions ?? []) {
+        piecePlacements.push({
+            piece: { name: 'foo', color: otherColor, moveCount: 0 },
+            position: position
+        });
+    }
+
+    const state = generateGameState(piecePlacements, color, boardConfig);
 
     const getMovesFunction = generateGetLegalStandardMovesFunction(move);
 
-    return getMovesFunction(board, piece, startingPosition);
+    return getMovesFunction(state, startingPosition, new Map());
 }

@@ -1,17 +1,11 @@
-import {
-    BoardPosition,
-    CastleMove,
-    GameRules,
-    PieceConfig,
-    PlayerColor
-} from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { GameEngine } from '../../../GameEngine';
-import { generateVerifyCastleMoveFunctions } from './castleMove';
+import { BoardPosition, CastleMove, PlayerColor } from '../../../../types';
+import { PiecePlacement } from '../../../gameState';
+import { generateGameState } from '../../../gameState/generateGameState';
+import { generateVerifyCastleMoveFunction } from './castleMove';
 
 type testPieceNames = ['king', 'rook', 'foo'];
 
-describe('generateVerifyCastleMoveFunctions', () => {
+describe('generateVerifyCastleMoveFunction', () => {
     afterEach(() => {
         jest.restoreAllMocks();
     });
@@ -153,60 +147,6 @@ describe('generateVerifyCastleMoveFunctions', () => {
         generateMoveTest(moveConfig, 'black', ['e', 8], ['f', 8], false, {
             targetPiecePosition: ['f', 8],
             sameColorStartingPositions: [['d', 8]]
-        });
-    });
-
-    test("generated function returns false if board's verifyMultipleMovePosition method returns false", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMultipleMovePosition'
-        ).mockImplementation(() => {
-            return false;
-        });
-        const moveConfig: CastleMove<testPieceNames> = {
-            name: 'castleMove',
-            captureAvailability: 'forbidden',
-            type: 'castle',
-            configForColor: {
-                white: {
-                    origin: ['e', 1],
-                    destination: ['g', 1],
-                    targetPieceName: 'rook',
-                    targetPieceOrigin: ['h', 1],
-                    targetPieceDestination: ['f', 1]
-                }
-            }
-        };
-
-        generateMoveTest(moveConfig, 'white', ['e', 1], ['g', 1], false, {
-            targetPiecePosition: ['h', 1]
-        });
-    });
-
-    test("generated function returns true if board's verifyMultipleMovePosition method returns true", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMultipleMovePosition'
-        ).mockImplementation(() => {
-            return true;
-        });
-        const moveConfig: CastleMove<testPieceNames> = {
-            name: 'castleMove',
-            captureAvailability: 'forbidden',
-            type: 'castle',
-            configForColor: {
-                white: {
-                    origin: ['e', 1],
-                    destination: ['g', 1],
-                    targetPieceName: 'rook',
-                    targetPieceOrigin: ['h', 1],
-                    targetPieceDestination: ['f', 1]
-                }
-            }
-        };
-
-        generateMoveTest(moveConfig, 'white', ['e', 1], ['g', 1], true, {
-            targetPiecePosition: ['h', 1]
         });
     });
 
@@ -430,105 +370,54 @@ function generateMoveTest(
         pieceMoves?: number;
     }
 ) {
-    const pieces: PieceConfig<testPieceNames>[] = [];
+    const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
 
-    pieces.push({
-        name: 'king',
-        notation: 'K',
-        displayCharacters: {
-            white: '♔',
-            black: '♚'
-        },
-        moves: [moveConfig],
-        startingPositions: {
-            [playerColor]: [startingPosition]
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        {
+            piece: {
+                name: 'king',
+                color: playerColor,
+                moveCount: testOptions?.pieceMoves ?? 0
+            },
+            position: startingPosition
         }
-    });
+    ];
 
     if (testOptions?.targetPiecePosition) {
-        pieces.push({
-            name: 'rook',
-            notation: 'R',
-            displayCharacters: {
-                white: '♖',
-                black: '♜'
-            },
-            moves: [],
-            startingPositions: {
-                [playerColor]: [testOptions.targetPiecePosition]
-            }
+        piecePlacements.push({
+            piece: { name: 'rook', color: playerColor, moveCount: 0 },
+            position: testOptions.targetPiecePosition
         });
     }
 
-    if (
-        testOptions?.sameColorStartingPositions ||
-        testOptions?.otherColorStartingPositions
-    ) {
-        const otherColor: PlayerColor =
-            playerColor === 'white' ? 'black' : 'white';
-
-        pieces.push({
-            name: 'foo',
-            notation: 'F',
-            displayCharacters: {
-                white: 'F',
-                black: 'f'
-            },
-            moves: [],
-            startingPositions: {
-                [playerColor]: testOptions?.sameColorStartingPositions
-                    ? [...testOptions.sameColorStartingPositions]
-                    : [],
-                [otherColor]: testOptions?.otherColorStartingPositions
-                    ? [...testOptions.otherColorStartingPositions]
-                    : []
-            }
+    for (const position of testOptions?.sameColorStartingPositions ?? []) {
+        piecePlacements.push({
+            piece: { name: 'foo', color: playerColor, moveCount: 0 },
+            position: position
         });
     }
 
-    const rulesConfig: GameRules<testPieceNames> = {
-        name: 'test',
-        board: { width: 8, height: 8 },
-        players: [
-            {
-                color: 'white',
-                order: 0
-            },
-            {
-                color: 'black',
-                order: 1
-            }
-        ],
-        winConditions: [
-            {
-                condition: 'resign'
-            }
-        ],
-        drawConditions: [],
-        pieces: pieces
-    };
-
-    const engine = new GameEngine(rulesConfig);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
-
-    if (testOptions?.pieceMoves) {
-        for (let i = 0; i < testOptions.pieceMoves; i++) {
-            piece.increaseMoveCount();
-        }
+    for (const position of testOptions?.otherColorStartingPositions ?? []) {
+        piecePlacements.push({
+            piece: { name: 'foo', color: otherColor, moveCount: 0 },
+            position: position
+        });
     }
 
-    const moveFunction = generateVerifyCastleMoveFunctions(moveConfig);
+    const state = generateGameState(piecePlacements, playerColor, {
+        width: 8,
+        height: 8
+    });
+
+    const moveFunction = generateVerifyCastleMoveFunction('king', moveConfig);
 
     const result = moveFunction(
-        board,
-        piece,
+        state,
         startingPosition,
         destinationPosition,
+        new Map(),
         undefined,
-        {
-            type: 'castle'
-        }
+        { type: 'castle' }
     );
 
     if (expected) {

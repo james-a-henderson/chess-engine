@@ -1,15 +1,13 @@
 import {
     BoardPosition,
-    GameRules,
     JumpMove,
     MoveOptions,
-    PieceConfig,
     PlayerColor,
     RectangularBoardConfig
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { GameEngine } from '../../../GameEngine';
-import { generateVerifyJumpMoveFunctions } from './jumpMove';
+import { PiecePlacement } from '../../../gameState';
+import { generateGameState } from '../../../gameState/generateGameState';
+import { generateVerifyJumpMoveFunction } from './jumpMove';
 
 type testPieceNames = ['foo', 'bar'];
 
@@ -20,33 +18,12 @@ const boardConfig: RectangularBoardConfig = {
     width: 8
 };
 
-const rulesConfig: GameRules<testPieceNames> = {
-    name: 'test',
-    board: boardConfig,
-    players: [
-        {
-            color: 'white',
-            order: 0
-        },
-        {
-            color: 'black',
-            order: 1
-        }
-    ],
-    winConditions: [
-        {
-            condition: 'resign'
-        }
-    ],
-    drawConditions: [],
-    pieces: [] //override on tests
-};
-
-describe('generateVerifyJumpMoveFunctions', () => {
+describe('generateVerifyJumpMoveFunction', () => {
     afterEach(() => {
         jest.restoreAllMocks();
     });
 
+    //don't have move conditions implemented yet
     test('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
         const move: JumpMove<testPieceNames> = {
             name: 'condition',
@@ -65,77 +42,20 @@ describe('generateVerifyJumpMoveFunctions', () => {
             ]
         };
 
-        const pieceConfig: PieceConfig<testPieceNames> = {
-            name: 'foo',
-            notation: 'P',
-            displayCharacters: {
-                white: 'P',
-                black: 'p'
-            },
-            moves: [move],
-            startingPositions: {
-                white: [['a', 1]]
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
+            {
+                piece: { name: 'foo', color: 'white', moveCount: 1 },
+                position: ['c', 3]
             }
-        };
+        ];
 
-        const config: GameRules<testPieceNames> = {
-            ...rulesConfig,
-            pieces: [pieceConfig]
-        };
-        const engine = new GameEngine(config);
-        const board = engine.board;
-        const piece = board.getSpace(['a', 1]).piece!;
+        const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const moveFunction = generateVerifyJumpMoveFunctions(move);
+        const moveFunction = generateVerifyJumpMoveFunction('foo', move);
 
-        //simulate piece move
-        piece.increaseMoveCount();
-        const result = moveFunction(board, piece, ['c', 3], ['e', 5]);
+        const result = moveFunction(state, ['c', 3], ['e', 5], new Map());
+
         expect(result).toEqual(false);
-    });
-
-    test("generated function returns false if board's verifyMovePositionValid method returns false", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return false;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
-                type: 'jump'
-            },
-            'white',
-            ['c', 3],
-            ['e', 5],
-            false
-        );
-    });
-
-    test("generated function returns true if board's verifyMovePositionValid method returns true", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return true;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
-                type: 'jump'
-            },
-            'white',
-            ['c', 3],
-            ['e', 5],
-            true
-        );
     });
 
     test('generated function returns false if capture is forbidden and destination has opposite color piece', () => {
@@ -282,32 +202,23 @@ function generateMoveTest(
 ) {
     const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
 
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'foo',
-        notation: 'F',
-        displayCharacters: {
-            white: 'F',
-            black: 'f'
-        },
-        moves: [moveConfig],
-        startingPositions: {
-            [playerColor]: [startingPosition],
-            [otherColor]: testOptions?.otherColorPositions
-                ? testOptions.otherColorPositions
-                : []
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        {
+            piece: { name: 'foo', color: playerColor, moveCount: 0 },
+            position: startingPosition
         }
-    };
+    ];
 
-    const config: GameRules<testPieceNames> = {
-        ...rulesConfig,
-        pieces: [pieceConfig]
-    };
+    for (const position of testOptions?.otherColorPositions ?? []) {
+        piecePlacements.push({
+            piece: { name: 'foo', color: otherColor, moveCount: 0 },
+            position: position
+        });
+    }
 
-    const engine = new GameEngine(config);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
+    const state = generateGameState(piecePlacements, playerColor, boardConfig);
 
-    const moveFunction = generateVerifyJumpMoveFunctions(moveConfig);
+    const moveFunction = generateVerifyJumpMoveFunction('foo', moveConfig);
 
     const moveOptions: MoveOptions<testPieceNames> | undefined =
         testOptions?.promotionTarget
@@ -318,10 +229,10 @@ function generateMoveTest(
             : undefined;
 
     const result = moveFunction(
-        board,
-        piece,
+        state,
         startingPosition,
         destinationPosition,
+        new Map(),
         undefined,
         moveOptions
     );
@@ -332,7 +243,7 @@ function generateMoveTest(
             originSpace: startingPosition,
             moveName: moveConfig.name,
             pieceColor: playerColor,
-            pieceName: pieceConfig.name,
+            pieceName: 'foo',
             type: 'jump',
             promotedTo: testOptions?.promotionTarget
         });

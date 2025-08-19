@@ -1,164 +1,224 @@
 import {
-    PieceConfig,
-    PiecePlacement,
+    LegalMovesForPiece,
     RectangularBoardConfig,
     RulesConfigurationError
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { Piece } from '../../piece';
+import { PiecePlacement } from '../../../gameState';
+import { generateGameState } from '../../../gameState/generateGameState';
 import { generateSpacesNotThreatenedFunction } from './spacesNotThreatened';
 
-type testPieceNames = ['foo'];
+type pieceNames = ['foo', 'bar'];
 
-describe('genearteSpacesNotThreatenedFunction', () => {
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'foo',
-        notation: 'F',
-        displayCharacters: {
-            white: 'F',
-            black: 'f'
-        },
-        moves: [],
-        startingPositions: {}
-    };
+describe('spacesNotThreatened', () => {
+    const boardConfig: RectangularBoardConfig = { width: 8, height: 8 };
 
-    const boardConfig: RectangularBoardConfig = {
-        height: 3,
-        width: 3
-    };
+    test('throws error if configuration not set for color', () => {
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
+            black: [['h', 8]]
+        });
 
-    test('returns true if attacking player has no pieces', () => {
-        const piece = new Piece(pieceConfig, 'white');
+        const state = generateGameState<pieceNames>([], 'white', boardConfig);
 
-        const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        expect(() =>
+            func(state, {
+                piecePosition: ['b', 2],
+                getLegalMovesFunctions: new Map()
+            })
+        ).toThrow(RulesConfigurationError);
+    });
+
+    test('returns true if no getLegalMovesFunctions are passed in', () => {
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
+            white: [['a', 1]]
+        });
+
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
-                piece: piece,
-                position: ['a', 1]
+                piece: { name: 'foo', color: 'white', moveCount: 0 },
+                position: ['b', 2]
+            },
+            {
+                piece: { name: 'foo', color: 'black', moveCount: 0 },
+                position: ['h', 1]
+            },
+            {
+                piece: { name: 'bar', color: 'black', moveCount: 0 },
+                position: ['g', 1]
             }
         ];
 
-        const board = new RectangularBoard(boardConfig, piecePlacements);
-        const func = generateSpacesNotThreatenedFunction<testPieceNames>({
-            white: [
-                ['a', 2],
-                ['a', 3]
-            ],
-            black: [
-                ['c', 2],
-                ['c', 3]
-            ]
-        });
-        const result = func(piece, board, ['a', 1]);
+        const state = generateGameState<pieceNames>(
+            piecePlacements,
+            'white',
+            boardConfig
+        );
 
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: new Map()
+        });
         expect(result).toEqual(true);
     });
 
-    test('returns true of attacking player has pieces that are not attacking threatened spaces', () => {
-        const piece = new Piece(pieceConfig, 'black');
-
-        const piecePlacements: PiecePlacement<testPieceNames>[] = [
-            {
-                piece: piece,
-                position: ['c', 1]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'foo',
-                    getLegalMoves: () => {
+    test('returns true if there are no opponent pieces', () => {
+        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = new Map([
+            [
+                'foo',
+                [
+                    () => {
                         return {
+                            moves: [['h', 2]],
                             captureMoves: [],
-                            moves: [],
-                            spacesThreatened: [
-                                ['a', 2],
-                                ['b', 1]
-                            ]
+                            spacesThreatened: [['h', 2]]
                         };
                     }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 1]
+                ]
+            ],
+            [
+                'bar',
+                [
+                    () => {
+                        return {
+                            moves: [['g', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['g', 2]]
+                        };
+                    }
+                ]
+            ]
+        ]);
+
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
+            black: [['a', 1]]
+        });
+
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
+            {
+                piece: { name: 'bar', color: 'black', moveCount: 0 },
+                position: ['g', 1]
             }
         ];
 
-        const board = new RectangularBoard(boardConfig, piecePlacements);
-        const func = generateSpacesNotThreatenedFunction<testPieceNames>({
-            white: [
-                ['a', 2],
-                ['a', 3]
-            ],
-            black: [
-                ['c', 2],
-                ['c', 3]
-            ]
+        const state = generateGameState(piecePlacements, 'black', boardConfig);
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: getLegalMovesFunctions
         });
-        const result = func(piece, board, ['c', 1]);
-
         expect(result).toEqual(true);
     });
 
-    test('returns false if attacking player is threataning one space', () => {
-        const piece = new Piece(pieceConfig, 'white');
-
-        const piecePlacements: PiecePlacement<testPieceNames>[] = [
-            {
-                piece: piece,
-                position: ['a', 1]
-            },
-            {
-                piece: {
-                    playerColor: 'black',
-                    pieceName: 'foo',
-                    getLegalMoves: () => {
+    test('returns true if getLegalMovesFunctions do not threaten space', () => {
+        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = new Map([
+            [
+                'foo',
+                [
+                    () => {
                         return {
+                            moves: [['h', 2]],
                             captureMoves: [],
-                            moves: [],
-                            spacesThreatened: [
-                                ['a', 2],
-                                ['b', 1]
-                            ]
+                            spacesThreatened: [['h', 2]]
                         };
                     }
-                } as unknown as Piece<testPieceNames>,
-                position: ['c', 1]
+                ]
+            ],
+            [
+                'bar',
+                [
+                    () => {
+                        return {
+                            moves: [['g', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['g', 2]]
+                        };
+                    }
+                ]
+            ]
+        ]);
+
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
+            white: [['a', 1]]
+        });
+
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
+            {
+                piece: { name: 'foo', color: 'white', moveCount: 0 },
+                position: ['b', 2]
+            },
+            {
+                piece: { name: 'foo', color: 'black', moveCount: 0 },
+                position: ['h', 1]
+            },
+            {
+                piece: { name: 'bar', color: 'black', moveCount: 0 },
+                position: ['g', 1]
             }
         ];
 
-        const board = new RectangularBoard(boardConfig, piecePlacements);
-        const func = generateSpacesNotThreatenedFunction<testPieceNames>({
-            white: [
-                ['a', 2],
-                ['a', 3]
-            ],
-            black: [
-                ['c', 2],
-                ['c', 3]
-            ]
-        });
-        const result = func(piece, board, ['a', 1]);
+        const state = generateGameState(piecePlacements, 'white', boardConfig);
 
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: getLegalMovesFunctions
+        });
+        expect(result).toEqual(true);
+    });
+
+    test('Returns false if one getLegalMovesFunctions threatens space', () => {
+        const getLegalMovesFunctions: LegalMovesForPiece<pieceNames> = new Map([
+            [
+                'foo',
+                [
+                    () => {
+                        return {
+                            moves: [['h', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [['h', 2]]
+                        };
+                    }
+                ]
+            ],
+            [
+                'bar',
+                [
+                    () => {
+                        return {
+                            moves: [['g', 2]],
+                            captureMoves: [],
+                            spacesThreatened: [
+                                ['g', 2],
+                                ['a', 1]
+                            ]
+                        };
+                    }
+                ]
+            ]
+        ]);
+
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
+            black: [['a', 1]]
+        });
+
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
+            {
+                piece: { name: 'foo', color: 'black', moveCount: 0 },
+                position: ['b', 2]
+            },
+            {
+                piece: { name: 'foo', color: 'white', moveCount: 0 },
+                position: ['h', 1]
+            },
+            {
+                piece: { name: 'bar', color: 'white', moveCount: 0 },
+                position: ['g', 1]
+            }
+        ];
+
+        const state = generateGameState(piecePlacements, 'black', boardConfig);
+
+        const result = func(state, {
+            piecePosition: ['b', 2],
+            getLegalMovesFunctions: getLegalMovesFunctions
+        });
         expect(result).toEqual(false);
-    });
-
-    test('throws error if threatened spaces are not specified for player color', () => {
-        const piece = new Piece(pieceConfig, 'black');
-
-        const piecePlacements: PiecePlacement<testPieceNames>[] = [
-            {
-                piece: piece,
-                position: ['c', 1]
-            }
-        ];
-
-        const board = new RectangularBoard(boardConfig, piecePlacements);
-        const func = generateSpacesNotThreatenedFunction<testPieceNames>({
-            white: [
-                ['a', 2],
-                ['a', 3]
-            ]
-        });
-
-        expect(() => {
-            func(piece, board, ['c', 1]);
-        }).toThrow(RulesConfigurationError);
     });
 });

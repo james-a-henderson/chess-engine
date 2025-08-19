@@ -4,8 +4,8 @@ import {
     PlayerColor,
     RulesConfigurationError
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { Piece } from '../../piece';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
 
 export function generateOtherPieceHasNotMovedFunction<
     PieceNames extends string[]
@@ -13,22 +13,21 @@ export function generateOtherPieceHasNotMovedFunction<
     pieceName: PieceNames[keyof PieceNames],
     piecePositionForColor: Partial<Record<PlayerColor, BoardPosition>>
 ): MoveConditionFunction<PieceNames> {
-    return (piece: Piece<PieceNames>, board: RectangularBoard<PieceNames>) => {
-        const color = piece.playerColor;
-        const position = piecePositionForColor[color];
+    return (state: GameState<PieceNames>) => {
+        const position = piecePositionForColor[state.currentPlayer];
 
         if (!position) {
             throw new RulesConfigurationError(
-                `OtherPieceHasNotMoved improperly configured for player color ${color}`
+                `OtherPieceHasNotMoved improperly configured for player color ${state.currentPlayer}`
             );
         }
 
-        const space = board.getSpace(position);
+        const space = rectangularBoardHelper.getSpace(state, position);
 
         if (
             !space.piece ||
-            space.piece.playerColor !== color ||
-            space.piece.pieceName !== pieceName ||
+            space.piece.color !== state.currentPlayer ||
+            space.piece.name !== pieceName ||
             space.piece.moveCount > 0
         ) {
             return false;

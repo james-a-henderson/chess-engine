@@ -1,6 +1,4 @@
 import {
-    GameRules,
-    PieceConfig,
     RectangularBoardConfig,
     StandardMove,
     PlayerColor,
@@ -10,37 +8,15 @@ import {
     Direction,
     emptyVerifyMovesFunction
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { GameEngine } from '../../../GameEngine';
-import { generateVerifyStandardMoveFunctions } from './standardMove';
+import { PiecePlacement } from '../../../gameState';
+import { generateGameState } from '../../../gameState/generateGameState';
+import { generateVerifyStandardMoveFunction } from './standardMove';
 
 type testPieceNames = ['generic', 'forward', 'dummy'];
 
 const boardConfig: RectangularBoardConfig = {
     height: 8,
     width: 8
-};
-
-const rulesConfig: GameRules<testPieceNames> = {
-    name: 'test',
-    board: boardConfig,
-    players: [
-        {
-            color: 'white',
-            order: 0
-        },
-        {
-            color: 'black',
-            order: 1
-        }
-    ],
-    winConditions: [
-        {
-            condition: 'resign'
-        }
-    ],
-    drawConditions: [],
-    pieces: [] //override on tests
 };
 
 const testMoveBase = {
@@ -110,10 +86,11 @@ describe('generateVerifyStandardMoveFunctions', () => {
             type: 'standard'
         };
 
-        const result = generateVerifyStandardMoveFunctions(move);
+        const result = generateVerifyStandardMoveFunction('generic', move);
         expect(result).toEqual(emptyVerifyMovesFunction);
     });
 
+    //don't have move condition functions implemented yet
     test('generated Function returns false if move has firstPieceMove condition and piece has moved', () => {
         const move: StandardMove<testPieceNames> = {
             name: 'condition',
@@ -128,79 +105,22 @@ describe('generateVerifyStandardMoveFunctions', () => {
             ]
         };
 
-        const pieceConfig: PieceConfig<testPieceNames> = {
-            name: 'generic',
-            notation: 'P',
-            displayCharacters: {
-                white: 'P',
-                black: 'p'
-            },
-            moves: [move],
-            startingPositions: {
-                white: [['a', 1]]
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
+            {
+                piece: { name: 'generic', color: 'white', moveCount: 1 },
+                position: ['a', 2]
             }
-        };
+        ];
 
-        const config: GameRules<testPieceNames> = {
-            ...rulesConfig,
-            pieces: [pieceConfig]
-        };
-        const engine = new GameEngine(config);
-        const board = engine.board;
-        const piece = board.getSpace(['a', 1]).piece!;
+        const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const moveFunction = generateVerifyStandardMoveFunctions(move);
+        const moveFunction = generateVerifyStandardMoveFunction(
+            'generic',
+            move
+        );
 
-        //simulate piece move
-        piece.increaseMoveCount();
-        const result = moveFunction(board, piece, ['a', 2], ['a', 3]);
+        const result = moveFunction(state, ['a', 2], ['a', 3], new Map());
         expect(result).toEqual(false);
-    });
-
-    test("generated function returns false if board's verifyMovePositionValid method returns false", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return false;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                type: 'standard',
-                directions: ['forward'],
-                maxSpaces: 'unlimited'
-            },
-            'white',
-            ['c', 3],
-            ['c', 5],
-            false
-        );
-    });
-
-    test("generated function returns true if board's verifyMovePositionValid method returns true", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return true;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                type: 'standard',
-                directions: ['forward'],
-                maxSpaces: 'unlimited'
-            },
-            'white',
-            ['c', 3],
-            ['c', 5],
-            true
-        );
     });
 
     test('generated function returns promotedTo if promotion is specified in moveOptions', () => {
@@ -212,34 +132,25 @@ describe('generateVerifyStandardMoveFunctions', () => {
             type: 'standard'
         };
 
-        const pieceConfig: PieceConfig<testPieceNames> = {
-            name: 'generic',
-            notation: 'P',
-            displayCharacters: {
-                white: 'P',
-                black: 'p'
-            },
-            moves: [move],
-            startingPositions: {
-                white: [['a', 1]]
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
+            {
+                piece: { name: 'generic', color: 'white', moveCount: 1 },
+                position: ['a', 1]
             }
-        };
+        ];
 
-        const config: GameRules<testPieceNames> = {
-            ...rulesConfig,
-            pieces: [pieceConfig]
-        };
-        const engine = new GameEngine(config);
-        const board = engine.board;
-        const piece = board.getSpace(['a', 1]).piece!;
+        const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const moveFunction = generateVerifyStandardMoveFunctions(move);
+        const moveFunction = generateVerifyStandardMoveFunction(
+            'generic',
+            move
+        );
 
         const result = moveFunction(
-            board,
-            piece,
+            state,
             ['a', 1],
             ['a', 2],
+            new Map(),
             undefined,
             {
                 type: 'promotion',
@@ -2317,40 +2228,39 @@ function generateMoveTest(
 ) {
     const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
 
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'generic',
-        notation: 'P',
-        displayCharacters: {
-            white: 'P',
-            black: 'p'
-        },
-        moves: [moveConfig],
-        startingPositions: {
-            [playerColor]: testOptions?.sameColorStartingPositions
-                ? [startingPosition, ...testOptions.sameColorStartingPositions]
-                : [startingPosition],
-            [otherColor]: testOptions?.otherColorStartingPositions
-                ? testOptions.otherColorStartingPositions
-                : []
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        {
+            piece: { name: 'generic', color: playerColor, moveCount: 0 },
+            position: startingPosition
         }
-    };
+    ];
 
-    const config: GameRules<testPieceNames> = {
-        ...rulesConfig,
-        pieces: [pieceConfig]
-    };
+    for (const position of testOptions?.sameColorStartingPositions ?? []) {
+        piecePlacements.push({
+            piece: { name: 'generic', color: playerColor, moveCount: 0 },
+            position: position
+        });
+    }
 
-    const engine = new GameEngine(config);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
+    for (const position of testOptions?.otherColorStartingPositions ?? []) {
+        piecePlacements.push({
+            piece: { name: 'generic', color: otherColor, moveCount: 0 },
+            position: position
+        });
+    }
 
-    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
+    const state = generateGameState(piecePlacements, playerColor, boardConfig);
+
+    const moveFunction = generateVerifyStandardMoveFunction(
+        'generic',
+        moveConfig
+    );
 
     const result = moveFunction(
-        board,
-        piece,
+        state,
         startingPosition,
-        destinationPosition
+        destinationPosition,
+        new Map()
     );
 
     if (expected) {
@@ -2359,7 +2269,7 @@ function generateMoveTest(
             originSpace: startingPosition,
             moveName: moveConfig.name,
             pieceColor: playerColor,
-            pieceName: pieceConfig.name,
+            pieceName: 'generic',
             type: 'standard',
             altCaptureLocation: testOptions?.altCaptureLocation
         });
@@ -2374,30 +2284,21 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
     startingPosition: BoardPosition,
     destinationPosition: BoardPosition
 ) {
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'generic',
-        notation: 'P',
-        displayCharacters: {
-            white: 'P',
-            black: 'p'
-        },
-        moves: [moveConfig],
-        startingPositions: {
-            [playerColor]: [startingPosition]
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        {
+            piece: { name: 'generic', color: playerColor, moveCount: 0 },
+            position: startingPosition
         }
-    };
+    ];
 
-    const config: GameRules<testPieceNames> = {
-        ...rulesConfig,
-        pieces: [pieceConfig]
-    };
-    const engine = new GameEngine(config);
-    const board = engine.board;
-    const piece = engine.getSpace(startingPosition).piece!;
+    const state = generateGameState(piecePlacements, playerColor, boardConfig);
 
-    const moveFunction = generateVerifyStandardMoveFunctions(moveConfig);
+    const moveFunction = generateVerifyStandardMoveFunction(
+        'generic',
+        moveConfig
+    );
 
     expect(() =>
-        moveFunction(board, piece, startingPosition, destinationPosition)
+        moveFunction(state, startingPosition, destinationPosition, new Map())
     ).toThrow(InvalidSpaceError);
 }

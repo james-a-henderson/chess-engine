@@ -1,296 +1,224 @@
 import {
-    GameRules,
-    PieceConfig,
-    Player,
-    PlayerColor
-} from '../types/configuration';
-import {
     BoardPosition,
+    GameError,
+    GameRules,
+    GetLegalMovesFunction,
+    IllegalMoveError,
+    LegalMovesForPiece,
     MoveOptions,
     MoveRecord,
-    MoveRecordCastle,
-    MoveRecordJump,
-    MoveRecordStandard
-} from '../types';
-import { Piece } from './piece';
-import {
+    PieceConfig,
     PieceConfigurationError,
+    Player,
+    PlayerColor,
     PlayerConfigurationError,
-    IllegalMoveError,
-    GameError
-} from '../types/errors';
+    VerifyBoardStateFunction,
+    verifyLegalMoveFunction,
+    VerifyMovesForPiece
+} from '../types';
+import { generateCheckFunction, rectangularBoardHelper } from './board';
 import {
     BoardSpace,
+    GameState,
     PiecePlacement,
-    VerifyBoardStateFunction
-} from '../types/engine';
-import { styleText } from 'node:util';
-import { RectangularBoard } from './board/rectangularBoard';
-import { generateCheckFunction } from './board';
+    updateGameState
+} from './gameState';
+import { generateGameState } from './gameState/generateGameState';
+import {
+    generateGetLegalMovesFunction,
+    generateVerifyLegalMoveFunction
+} from './piece/moves';
 
 export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
-    private _board: RectangularBoard<PieceNames>;
+    private _gameStates: GameState<PieceNames>[];
     private _config: GameRules<PieceNames>;
-    private _capturedPieces: Partial<
-        Record<PlayerColor, PieceNames[keyof PieceNames][]>
-    > = {};
-    private _currentPlayer: PlayerColor;
-    private _moves: MoveRecord<PieceNames>[] = [];
+
+    private _verifyFunctions: VerifyMovesForPiece<PieceNames> = new Map();
+    private _getMovesFunctions: LegalMovesForPiece<PieceNames> = new Map();
+
+    private _verifyBoardFunctions: VerifyBoardStateFunction<PieceNames>[];
 
     constructor(rules: GameRules<PieceNames>) {
         this._config = rules;
 
         this._players = this.validatePlayerConfiguration();
-
-        this._currentPlayer = this._players[0].color;
-
-        this._players.forEach((player: Player) => {
-            this._capturedPieces[player.color] = [];
-        });
-
         this.validatePieceConfig();
-        const piecePlacements = this.initializePieces();
 
-        const boardStateFunctions = this.generateVerifyBoardStateFunctions();
+        this._gameStates = [this.generateInitialGameState()];
 
-        this._board = new RectangularBoard(
-            this._config.board,
-            piecePlacements,
-            boardStateFunctions
-        );
+        this.generateMoveFunctions();
+
+        this._verifyBoardFunctions = this.generateVerifyBoardStateFunctions();
     }
 
-    get board() {
-        return this._board;
-    }
+    get currentGameState(): GameState<PieceNames> {
+        const state = this._gameStates.at(-1);
 
-    get currentPlayer() {
-        return this._currentPlayer;
-    }
-
-    get capturedPieces() {
-        return this._capturedPieces;
-    }
-
-    get moves() {
-        return this._moves;
-    }
-
-    get lastMove() {
-        return this._moves.at(-1);
-    }
-
-    //outputs the board to the console in a human-readable format
-    //note that the output quality may vary based on console settings
-    public printBoard() {
-        let outputString = '';
-        for (let i = this.board.height - 1; i >= 0; i--) {
-            let rowString = '';
-            for (let j = 0; j < this.board.width; j++) {
-                const space = this._board.spaces[j][i];
-
-                const backGroundColor =
-                    (i + j) % 2 === 0 ? 'bgGray' : 'bgWhite';
-
-                if (!space.piece) {
-                    rowString += styleText(backGroundColor, '   ');
-                } else {
-                    rowString += styleText(
-                        [backGroundColor, 'black'],
-                        ' ' + space.piece.getDisplayCharacter() + ' '
-                    );
-                }
-            }
-            outputString += rowString + '\n';
+        if (!state) {
+            //this shouldn't happen, as we initialize the game state in the constructor
+            //this check is mostly for the TS compiler
+            throw new GameError('Game state not initialized');
         }
-        console.log(outputString);
+
+        return state;
+    }
+
+    get currentBoard(): BoardSpace<PieceNames>[][] {
+        return this.currentGameState.board;
+    }
+
+    get currentPlayer(): PlayerColor {
+        return this.currentGameState.currentPlayer;
     }
 
     public getSpace(
         position: BoardPosition | [number, number]
     ): BoardSpace<PieceNames> {
-        return this._board.getSpace(position);
-    }
-
-    public verifyMove(
-        targetPosition: BoardPosition,
-        destinationPosition: BoardPosition,
-        moveOptions?: MoveOptions<PieceNames>
-    ): MoveRecord<PieceNames> | false {
-        const targetSpace = this.getSpace(targetPosition);
-
-        if (!targetSpace.piece) {
-            return false;
-        }
-
-        if (targetSpace.piece.playerColor !== this._currentPlayer) {
-            return false;
-        }
-
-        return targetSpace.piece.verifyMove(
-            this.board,
-            targetPosition,
-            destinationPosition,
-            this.lastMove,
-            moveOptions
-        );
-    }
-
-    public makeMove(
-        targetPosition: BoardPosition,
-        destinationPosition: BoardPosition,
-        moveOptions?: MoveOptions<PieceNames>
-    ) {
-        const move = this.verifyMove(
-            targetPosition,
-            destinationPosition,
-            moveOptions
-        );
-
-        if (!move) {
-            throw new IllegalMoveError('Move is not legal');
-        }
-
-        switch (move.type) {
-            case 'standard':
-            case 'jump':
-                this.makeStandardMove(move);
-                break;
-            case 'castle':
-                this.makeCastleMove(move);
-                break;
-        }
-
-        if (move.promotedTo) {
-            this.promotePiece(move.destinationSpace, move.promotedTo);
-        }
-
-        this.updateCurrentPlayer();
-        this._moves.push(move);
-    }
-
-    private makeStandardMove(
-        move: MoveRecordStandard<PieceNames> | MoveRecordJump<PieceNames>
-    ) {
-        const originSpace = this.getSpace(move.originSpace);
-        const destinationSpace = this.getSpace(move.destinationSpace);
-
-        if (move.altCaptureLocation) {
-            this.capturePiece(move.altCaptureLocation);
-        } else if (destinationSpace.piece) {
-            //we assume if we get to this point, the capture is valid
-            //todo: handle en passant capture
-            this.capturePiece(move.destinationSpace);
-        }
-
-        originSpace.piece!.increaseMoveCount();
-
-        destinationSpace.piece = originSpace.piece;
-        originSpace.piece = undefined;
-    }
-
-    private makeCastleMove(move: MoveRecordCastle<PieceNames>) {
-        const originSpace = this.getSpace(move.originSpace);
-        const destinationSpace = this.getSpace(move.destinationSpace);
-
-        const targetOriginSpace = this.getSpace(move.castleTarget.originSpace);
-        const targetDestinationSpace = this.getSpace(
-            move.castleTarget.destinationSpace
-        );
-
-        if (
-            destinationSpace.piece &&
-            destinationSpace.piece.playerColor !== move.pieceColor
-        ) {
-            //We assume if we get to this point, the capture is valid.
-            //Capturing in this situation would be rare, as it's not legal in most chess variants.
-            //We also assume that if the piece is the same color as the castling piece, then the piece
-            //is the castle target.
-
-            //As of right now, only the "main" castling piece can capture
-            this.capturePiece(move.destinationSpace);
-        }
-
-        const piece = originSpace.piece;
-        const targetPiece = targetOriginSpace.piece;
-
-        originSpace.piece = undefined;
-        targetOriginSpace.piece = undefined;
-
-        destinationSpace.piece = piece;
-        targetDestinationSpace.piece = targetPiece;
-
-        piece?.increaseMoveCount();
-        targetPiece?.increaseMoveCount();
-    }
-
-    private promotePiece(
-        position: BoardPosition,
-        promoteTo: PieceNames[keyof PieceNames]
-    ) {
-        const space = this.getSpace(position);
-        const piece = space.piece;
-        if (!piece) {
-            throw new GameError('Attempting to promote on space with no piece');
-        }
-
-        const pieceConfig = this.getPieceConfig(promoteTo);
-
-        const newPiece = new Piece(pieceConfig, piece.playerColor);
-        space.piece = newPiece;
+        return rectangularBoardHelper.getSpace(this.currentGameState, position);
     }
 
     private getPieceConfig(
         pieceName: PieceNames[keyof PieceNames]
     ): PieceConfig<PieceNames> {
-        const config = this._config.pieces.find((value) => {
-            return value.name === pieceName;
-        });
-
-        if (!config) {
-            throw new PieceConfigurationError(
-                pieceName,
-                'Cannot find configuration for piece'
-            );
+        for (const config of this._config.pieces) {
+            if (config.name === pieceName) {
+                return config;
+            }
         }
 
-        return config;
+        throw new PieceConfigurationError(
+            pieceName,
+            'Cannot find configuration for piece'
+        );
     }
 
-    private updateCurrentPlayer() {
-        let currentPlayerIndex = this._players.findIndex((player: Player) => {
-            return player.color === this._currentPlayer;
-        });
+    public verifyMove(
+        origin: BoardPosition,
+        destination: BoardPosition,
+        moveOptions?: MoveOptions<PieceNames>
+    ): MoveRecord<PieceNames> | false {
+        const originSpace = this.getSpace(origin);
 
-        if (currentPlayerIndex === -1) {
-            //can't find current player
-            throw new Error('Cannot find current player');
+        if (
+            !originSpace.piece ||
+            originSpace.piece.color !== this.currentPlayer
+        ) {
+            return false;
         }
 
-        currentPlayerIndex++;
-        if (currentPlayerIndex >= this._players.length) {
-            currentPlayerIndex = 0;
-        }
-
-        this._currentPlayer = this._players[currentPlayerIndex].color;
-    }
-
-    private capturePiece(position: BoardPosition) {
-        const space = this.getSpace(position);
-
-        if (!space.piece) {
-            throw new IllegalMoveError('Cannot capture an empty space');
-        }
-
-        this._capturedPieces[space.piece.playerColor]?.push(
-            space.piece.pieceName
+        const verifyMoveFuncs = this._verifyFunctions.get(
+            originSpace.piece.name
         );
 
-        space.piece = undefined;
+        if (!verifyMoveFuncs) {
+            return false;
+        }
+
+        for (const func of verifyMoveFuncs) {
+            const result = func(
+                this.currentGameState,
+                origin,
+                destination,
+                this._getMovesFunctions,
+                this.currentGameState.lastMove,
+                moveOptions
+            );
+
+            if (result) {
+                //move is legal if one move function returns true
+                //todo: ensure no move conflict
+                return this.verifyPromotionRules(result) ? result : false;
+            }
+        }
+
+        return false;
     }
 
-    private initializePieces(): PiecePlacement<PieceNames>[] {
+    private verifyPromotionRules(move: MoveRecord<PieceNames>): boolean {
+        if (this.isPromotionSpace(move)) {
+            if (!move.promotedTo) {
+                return false;
+            }
+
+            const pieceConfig = this.getPieceConfig(move.pieceName);
+
+            if (!pieceConfig.promotionConfig) {
+                return false;
+            }
+
+            if (
+                !pieceConfig.promotionConfig.promotionTargets.includes(
+                    move.promotedTo
+                )
+            ) {
+                return false;
+            }
+        } else if (move.promotedTo) {
+            //cannot have promotion target if specfied space is not promotion space
+            return false;
+        }
+
+        return true;
+    }
+
+    private isPromotionSpace(move: MoveRecord<PieceNames>): boolean {
+        const pieceConfig = this.getPieceConfig(move.pieceName);
+
+        if (!pieceConfig.promotionConfig) {
+            return false; //no promotion configuration for piece
+        }
+
+        const promotionPositions =
+            pieceConfig.promotionConfig.promotionSquares[move.pieceColor];
+
+        if (!promotionPositions) {
+            return false;
+        }
+
+        for (const promotionPosition of promotionPositions) {
+            if (
+                promotionPosition[0] === move.destinationSpace[0] &&
+                promotionPosition[1] === move.destinationSpace[1]
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public makeMove(
+        origin: BoardPosition,
+        destination: BoardPosition,
+        moveOptions?: MoveOptions<PieceNames>
+    ) {
+        const move = this.verifyMove(origin, destination, moveOptions);
+
+        if (!move) {
+            throw new IllegalMoveError('Move is not legal');
+        }
+
+        const newState = updateGameState(this.currentGameState, move);
+
+        //check if newState is valid
+        for (const func of this._verifyBoardFunctions) {
+            if (
+                !func(
+                    newState,
+                    this._verifyFunctions,
+                    this._getMovesFunctions,
+                    this.currentPlayer
+                )
+            ) {
+                throw new IllegalMoveError('Resulting board state is invalid');
+            }
+        }
+
+        this._gameStates.push(newState);
+    }
+
+    private generateInitialGameState(): GameState<PieceNames> {
         const placements: PiecePlacement<PieceNames>[] = [];
 
         for (const pieceConfig of this._config.pieces) {
@@ -299,17 +227,26 @@ export class GameEngine<PieceNames extends string[]> {
             )) {
                 const playerColor = color as PlayerColor; //we know this must be a PlayerColor because startingPosition entries must be PlayerColor
                 for (const position of startingPositions) {
-                    const piece = new Piece(pieceConfig, playerColor);
-
-                    placements.push({ piece: piece, position: position });
+                    placements.push({
+                        piece: {
+                            name: pieceConfig.name,
+                            color: playerColor,
+                            moveCount: 0
+                        },
+                        position: position
+                    });
                 }
             }
         }
 
-        return placements;
+        return generateGameState(
+            placements,
+            this._players[0].color,
+            this._config.board
+        );
     }
 
-    private validatePlayerConfiguration(): Player[] {
+    private validatePlayerConfiguration() {
         if (this._config.players.length < 2) {
             throw new PlayerConfigurationError('Must have at least 2 players');
         }
@@ -403,31 +340,39 @@ export class GameEngine<PieceNames extends string[]> {
         }
     }
 
+    private generateMoveFunctions() {
+        for (const pieceConfig of this._config.pieces) {
+            const verifyFuncs: verifyLegalMoveFunction<PieceNames>[] = [];
+            const getMovesFuncs: GetLegalMovesFunction<PieceNames>[] = [];
+
+            for (const moveConfig of pieceConfig.moves) {
+                verifyFuncs.push(
+                    generateVerifyLegalMoveFunction(
+                        pieceConfig.name,
+                        moveConfig
+                    )
+                );
+                getMovesFuncs.push(
+                    generateGetLegalMovesFunction(pieceConfig.name, moveConfig)
+                );
+            }
+
+            this._verifyFunctions.set(pieceConfig.name, verifyFuncs);
+            this._getMovesFunctions.set(pieceConfig.name, getMovesFuncs);
+        }
+    }
+
     private generateVerifyBoardStateFunctions(): VerifyBoardStateFunction<PieceNames>[] {
-        const verifyFunctions: VerifyBoardStateFunction<PieceNames>[] = [];
+        const verifyBoardFunctions: VerifyBoardStateFunction<PieceNames>[] = [];
 
         for (const condition of this._config.winConditions) {
             if (condition.condition === 'checkmate') {
-                verifyFunctions.push(
+                verifyBoardFunctions.push(
                     generateCheckFunction(condition.checkmatePiece)
                 );
             }
         }
 
-        return verifyFunctions;
-    }
-
-    /**
-     * Translates two dimensional array indicies to chess coordinates
-     *
-     * For example, [0][4] would translate to a5
-     * @param indicies
-     */
-    public indiciesToCoordinates(indicies: [number, number]): BoardPosition {
-        return this._board.indiciesToCoordinates(indicies);
-    }
-
-    public coordinatesToIndicies(coordinates: BoardPosition): [number, number] {
-        return this._board.coordinatesToIndicies(coordinates);
+        return verifyBoardFunctions;
     }
 }

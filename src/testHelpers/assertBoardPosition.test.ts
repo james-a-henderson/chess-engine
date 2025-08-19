@@ -1,10 +1,10 @@
-//Tests for the tests, what fun!
-
-import { GameEngine } from '../engine';
-import { GameRules, PieceConfig } from '../types/configuration';
+import { BoardSpace, PiecePlacement } from '../engine/gameState';
+import { generateGameState } from '../engine/gameState/generateGameState';
+import { PieceConfig, PlayerColor } from '../types';
 import { assertBoardPosition } from './assertBoardPosition';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];
+
 describe('assertBoardPosition', () => {
     const testPiece: PieceConfig<testPieceNames> = {
         name: 'testPiece',
@@ -51,26 +51,7 @@ describe('assertBoardPosition', () => {
         }
     };
 
-    const genericRulesConfig: GameRules<testPieceNames> = {
-        name: 'test',
-        board: {
-            height: 3,
-            width: 3
-        },
-        players: [
-            {
-                color: 'white',
-                order: 0
-            },
-            {
-                color: 'black',
-                order: 1
-            }
-        ],
-        winConditions: [],
-        drawConditions: [],
-        pieces: []
-    };
+    const pieceConfigs = [testPiece, fooPiece, barPiece];
 
     test.each([
         {
@@ -146,13 +127,9 @@ describe('assertBoardPosition', () => {
             expectedBoard: (string | undefined)[][];
             pieces: PieceConfig<testPieceNames>[];
         }) => {
-            const config = {
-                ...genericRulesConfig,
-                pieces: pieces
-            };
-            const engine = new GameEngine(config);
+            const board = generateTestBoard(pieces);
             expect(() =>
-                assertBoardPosition(engine.board, expectedBoard)
+                assertBoardPosition(board, expectedBoard, pieces)
             ).not.toThrow();
         }
     );
@@ -190,9 +167,9 @@ describe('assertBoardPosition', () => {
     ])(
         'test %# throws board height error',
         ({ expectedBoard }: { expectedBoard: (string | undefined)[][] }) => {
-            const engine = new GameEngine(genericRulesConfig);
+            const board = generateTestBoard([]);
             expect(() =>
-                assertBoardPosition(engine.board, expectedBoard)
+                assertBoardPosition(board, expectedBoard, pieceConfigs)
             ).toThrow('Board heights do not match');
         }
     );
@@ -228,9 +205,9 @@ describe('assertBoardPosition', () => {
     ])(
         'test %# throws board width error',
         ({ expectedBoard }: { expectedBoard: (string | undefined)[][] }) => {
-            const engine = new GameEngine(genericRulesConfig);
+            const board = generateTestBoard([]);
             expect(() =>
-                assertBoardPosition(engine.board, expectedBoard)
+                assertBoardPosition(board, expectedBoard, pieceConfigs)
             ).toThrow('Board widths do not match');
         }
     );
@@ -293,14 +270,41 @@ describe('assertBoardPosition', () => {
             expectedBoard: (string | undefined)[][];
             pieces: PieceConfig<testPieceNames>[];
         }) => {
-            const config = {
-                ...genericRulesConfig,
-                pieces: pieces
-            };
-            const engine = new GameEngine(config);
+            const board = generateTestBoard(pieces);
             expect(() =>
-                assertBoardPosition(engine.board, expectedBoard)
+                assertBoardPosition(board, expectedBoard, pieces)
             ).toThrow();
         }
     );
 });
+
+function generateTestBoard(
+    pieceConfigs: PieceConfig<testPieceNames>[]
+): BoardSpace<testPieceNames>[][] {
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [];
+
+    for (const config of pieceConfigs) {
+        for (const [color, startingPositions] of Object.entries(
+            config.startingPositions
+        )) {
+            const playerColor = color as PlayerColor; //we know this must be a PlayerColor because startingPosition entires must be PlayerColor
+            for (const position of startingPositions) {
+                piecePlacements.push({
+                    piece: {
+                        name: config.name,
+                        color: playerColor,
+                        moveCount: 0
+                    },
+                    position: position
+                });
+            }
+        }
+    }
+
+    const state = generateGameState(piecePlacements, 'white', {
+        width: 3,
+        height: 3
+    });
+
+    return state.board;
+}

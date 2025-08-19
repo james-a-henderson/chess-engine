@@ -1,10 +1,10 @@
 import {
     GameError,
-    PiecePlacement,
-    RectangularBoardConfig
+    RectangularBoardConfig,
+    VerifyMovesForPiece
 } from '../../../types';
-import { Piece } from '../../piece';
-import { RectangularBoard } from '../rectangularBoard';
+import { PiecePlacement } from '../../gameState';
+import { generateGameState } from '../../gameState/generateGameState';
 import { pieceIsInCheck } from './pieceIsInCheck';
 
 type testPieceNames = ['king', 'attacker'];
@@ -14,58 +14,123 @@ describe('pieceIsInCheck', () => {
         width: 3,
         height: 3
     };
+
+    test('returns false if verifyFunctions map is empty', () => {
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
+            {
+                piece: {
+                    color: 'black',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['c', 3]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['c', 2]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['c', 1]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['a', 3]
+            }
+        ];
+
+        const state = generateGameState(
+            piecePlacements,
+            'black',
+            testBoardConfig
+        );
+        const result = pieceIsInCheck(
+            state,
+            new Map(),
+            new Map(),
+            'king',
+            'white'
+        );
+        expect(result).toEqual(false);
+    });
     test('returns true if white piece is in check', () => {
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
-                    playerColor: 'black',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
+                    color: 'black',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['c', 3]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['c', 2]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['c', 1]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['a', 3]
+            }
+        ];
+
+        const verifyMoves: VerifyMovesForPiece<testPieceNames> = new Map([
+            [
+                'attacker',
+                [
+                    () => {
                         return {
                             moveName: 'test',
+                            type: 'standard',
                             destinationSpace: ['a', 3],
                             originSpace: ['c', 3],
                             pieceColor: 'black',
                             pieceName: 'attacker'
                         };
                     }
-                } as unknown as Piece<testPieceNames>,
-                position: ['c', 3]
-            },
-            {
-                piece: {
-                    playerColor: 'black',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['c', 2]
-            },
-            {
-                piece: {
-                    playerColor: 'black',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['c', 1]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 3]
-            }
-        ];
+                ]
+            ]
+        ]);
 
-        const board = new RectangularBoard(testBoardConfig, piecePlacements);
-        const result = pieceIsInCheck(board, 'king', 'white');
+        const state = generateGameState(
+            piecePlacements,
+            'black',
+            testBoardConfig
+        );
+        const result = pieceIsInCheck(
+            state,
+            verifyMoves,
+            new Map(),
+            'king',
+            'white'
+        );
         expect(result).toEqual(true);
     });
 
@@ -73,48 +138,61 @@ describe('pieceIsInCheck', () => {
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
-                    playerColor: 'black',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'black',
+                    name: 'attacker',
+                    moveCount: 0
+                },
                 position: ['c', 3]
             },
             {
                 piece: {
-                    playerColor: 'black',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'black',
+                    name: 'attacker',
+                    moveCount: 0
+                },
                 position: ['c', 2]
             },
             {
                 piece: {
-                    playerColor: 'black',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'black',
+                    name: 'king',
+                    moveCount: 0
+                },
                 position: ['c', 1]
             },
             {
                 piece: {
-                    playerColor: 'white',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
                 position: ['a', 3]
             }
         ];
 
-        const board = new RectangularBoard(testBoardConfig, piecePlacements);
-        const result = pieceIsInCheck(board, 'king', 'white');
+        const verifyMoves: VerifyMovesForPiece<testPieceNames> = new Map([
+            [
+                'attacker',
+                [
+                    () => {
+                        return false;
+                    }
+                ]
+            ]
+        ]);
+
+        const state = generateGameState(
+            piecePlacements,
+            'black',
+            testBoardConfig
+        );
+        const result = pieceIsInCheck(
+            state,
+            verifyMoves,
+            new Map(),
+            'king',
+            'white'
+        );
         expect(result).toEqual(false);
     });
 
@@ -122,54 +200,68 @@ describe('pieceIsInCheck', () => {
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
-                    playerColor: 'white',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return {
-                            moveName: 'test',
-                            destinationSpace: ['c', 3],
-                            originSpace: ['a', 3],
-                            pieceColor: 'black',
-                            pieceName: 'attacker'
-                        };
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 3]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 2]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 1]
-            },
-            {
-                piece: {
-                    playerColor: 'black',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'white',
+                    name: 'attacker',
+                    moveCount: 0
+                },
                 position: ['c', 3]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['c', 2]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['c', 1]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['a', 3]
             }
         ];
 
-        const board = new RectangularBoard(testBoardConfig, piecePlacements);
-        const result = pieceIsInCheck(board, 'king', 'black');
+        const verifyMoves: VerifyMovesForPiece<testPieceNames> = new Map([
+            [
+                'attacker',
+                [
+                    () => {
+                        return {
+                            moveName: 'test',
+                            type: 'standard',
+                            destinationSpace: ['a', 3],
+                            originSpace: ['c', 3],
+                            pieceColor: 'white',
+                            pieceName: 'attacker'
+                        };
+                    }
+                ]
+            ]
+        ]);
+
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            testBoardConfig
+        );
+        const result = pieceIsInCheck(
+            state,
+            verifyMoves,
+            new Map(),
+            'king',
+            'black'
+        );
         expect(result).toEqual(true);
     });
 
@@ -177,48 +269,61 @@ describe('pieceIsInCheck', () => {
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
-                    playerColor: 'white',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 3]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 2]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 1]
-            },
-            {
-                piece: {
-                    playerColor: 'black',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'white',
+                    name: 'attacker',
+                    moveCount: 0
+                },
                 position: ['c', 3]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['c', 2]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['c', 1]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['a', 3]
             }
         ];
 
-        const board = new RectangularBoard(testBoardConfig, piecePlacements);
-        const result = pieceIsInCheck(board, 'king', 'white');
+        const verifyMoves: VerifyMovesForPiece<testPieceNames> = new Map([
+            [
+                'attacker',
+                [
+                    () => {
+                        return false;
+                    }
+                ]
+            ]
+        ]);
+
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            testBoardConfig
+        );
+        const result = pieceIsInCheck(
+            state,
+            verifyMoves,
+            new Map(),
+            'king',
+            'white'
+        );
         expect(result).toEqual(false);
     });
 
@@ -226,107 +331,91 @@ describe('pieceIsInCheck', () => {
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
-                    playerColor: 'white',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return {
-                            moveName: 'test',
-                            destinationSpace: ['c', 3],
-                            originSpace: ['a', 3],
-                            pieceColor: 'black',
-                            pieceName: 'attacker'
-                        };
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 3]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 2]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 1]
-            },
-            {
-                piece: {
-                    playerColor: 'black',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'white',
+                    name: 'attacker',
+                    moveCount: 0
+                },
                 position: ['c', 3]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['c', 2]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['c', 1]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'attacker',
+                    moveCount: 0
+                },
+                position: ['a', 3]
             }
         ];
 
-        const board = new RectangularBoard(testBoardConfig, piecePlacements);
-        expect(() => pieceIsInCheck(board, 'king', 'black')).toThrow(GameError);
+        const state = generateGameState(
+            piecePlacements,
+            'white',
+            testBoardConfig
+        );
+        expect(() =>
+            pieceIsInCheck(state, new Map(), new Map(), 'king', 'black')
+        ).toThrow(GameError);
     });
 
     test('throws error if multiple check pieces are found', () => {
         const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
-                    playerColor: 'white',
-                    pieceName: 'attacker',
-                    verifyMove: () => {
-                        return {
-                            moveName: 'test',
-                            destinationSpace: ['c', 3],
-                            originSpace: ['a', 3],
-                            pieceColor: 'black',
-                            pieceName: 'attacker'
-                        };
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 3]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 2]
-            },
-            {
-                piece: {
-                    playerColor: 'white',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
-                position: ['a', 1]
-            },
-            {
-                piece: {
-                    playerColor: 'black',
-                    pieceName: 'king',
-                    verifyMove: () => {
-                        return false;
-                    }
-                } as unknown as Piece<testPieceNames>,
+                    color: 'white',
+                    name: 'attacker',
+                    moveCount: 0
+                },
                 position: ['c', 3]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['c', 2]
+            },
+            {
+                piece: {
+                    color: 'white',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['c', 1]
+            },
+            {
+                piece: {
+                    color: 'black',
+                    name: 'king',
+                    moveCount: 0
+                },
+                position: ['a', 3]
             }
         ];
 
-        const board = new RectangularBoard(testBoardConfig, piecePlacements);
-        expect(() => pieceIsInCheck(board, 'king', 'white')).toThrow(GameError);
+        const state = generateGameState(
+            piecePlacements,
+            'black',
+            testBoardConfig
+        );
+        expect(() =>
+            pieceIsInCheck(state, new Map(), new Map(), 'king', 'white')
+        ).toThrow(GameError);
     });
 });

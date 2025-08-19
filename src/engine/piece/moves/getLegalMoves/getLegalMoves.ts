@@ -7,7 +7,8 @@ import { generateGetLegalCastleMovesFunction } from './castleMove';
 import { generateGetLegalJumpMovesFunction } from './jumpMove';
 import { generateGetLegalStandardMovesFunction } from './standardMove';
 
-export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
+export function generateGetLegalMovesFunction<PieceNames extends string[]>(
+    pieceName: PieceNames[keyof PieceNames],
     move: Move<PieceNames>
 ): GetLegalMovesFunction<PieceNames> {
     switch (move.type) {
@@ -16,9 +17,8 @@ export function generateGetLegalMoveFunctions<PieceNames extends string[]>(
         case 'jump':
             return generateGetLegalJumpMovesFunction(move);
         case 'castle':
-            return generateGetLegalCastleMovesFunction(move);
+            return generateGetLegalCastleMovesFunction(pieceName, move);
         default:
-            //todo: implement other move types
             return emptyGetMovesFunction;
     }
 }

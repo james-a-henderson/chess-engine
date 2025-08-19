@@ -1,13 +1,15 @@
-import { GameEngine } from './GameEngine';
-import { standardChessConfig, testConfig } from '../rulesConfiguration';
-import { GameRules, PieceConfig, Player } from '../types/configuration';
+import { standardChessConfig } from '../rulesConfiguration';
+import { assertBoardPosition } from '../testHelpers';
 import {
     BoardConfigurationError,
+    GameRules,
+    InvalidSpaceError,
+    PieceConfig,
     PieceConfigurationError,
-    PlayerConfigurationError,
-    InvalidSpaceError
-} from '../types/errors';
-import { assertBoardPosition } from '../testHelpers';
+    Player,
+    PlayerConfigurationError
+} from '../types';
+import { GameEngine } from './GameEngine';
 
 import * as GenerateBoardVerificationFunctions from './board/generateVerifyBoardFunctions';
 
@@ -65,10 +67,6 @@ describe('initialize engine', () => {
         expect(() => new GameEngine(standardChessConfig)).not.toThrow();
     });
 
-    test('simplified chess rules validate with no errors', () => {
-        expect(() => new GameEngine(testConfig)).not.toThrow();
-    });
-
     describe('board configuration', () => {
         test.each([
             [8, 8],
@@ -87,7 +85,7 @@ describe('initialize engine', () => {
                     pieces: []
                 };
 
-                const board = new GameEngine(config).board.spaces;
+                const board = new GameEngine(config).currentGameState.board;
                 expect(board.length).toEqual(width);
                 board.forEach((file) => {
                     expect(file.length).toEqual(height);
@@ -260,7 +258,7 @@ describe('initialize engine', () => {
                 };
 
                 const engine = new GameEngine(config);
-                expect(engine.currentPlayer).toEqual(expected);
+                expect(engine.currentGameState.currentPlayer).toEqual(expected);
             }
         );
     });
@@ -384,7 +382,7 @@ describe('initialize engine', () => {
         });
     });
 
-    describe('piece starting positions', () => {
+    describe('piece starting position', () => {
         test('sets correct positions when configuration is valid', () => {
             const config: GameRules<testPieceNames> = {
                 ...genericRulesConfig,
@@ -426,7 +424,11 @@ describe('initialize engine', () => {
                 ['f', ' ', 'b']
             ];
 
-            assertBoardPosition(engine.board, expectedBoard);
+            assertBoardPosition(
+                engine.currentBoard,
+                expectedBoard,
+                config.pieces
+            );
         });
 
         test('throws if multiple pieces are placed on the same space', () => {

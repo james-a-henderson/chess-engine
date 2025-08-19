@@ -1,19 +1,10 @@
-import { RectangularBoard } from '../../engine/board';
-import { Piece } from '../../engine/piece';
-import { BoardPosition } from '../common';
+import { GameState } from '../../engine/gameState';
 import { PlayerColor } from '../configuration';
-
-export type BoardSpace<PieceNames extends string[]> = {
-    position: BoardPosition;
-    piece?: Piece<PieceNames>;
-};
-
-export type PiecePlacement<PieceNames extends string[]> = {
-    piece: Piece<PieceNames>;
-    position: BoardPosition;
-};
+import { LegalMovesForPiece, VerifyMovesForPiece } from '../moves';
 
 export type VerifyBoardStateFunction<PieceNames extends string[]> = (
-    board: RectangularBoard<PieceNames>,
+    state: GameState<PieceNames>,
+    verifyFunctions: VerifyMovesForPiece<PieceNames>,
+    getMovesfunctions: LegalMovesForPiece<PieceNames>,
     currentPlayer: PlayerColor
 ) => boolean;

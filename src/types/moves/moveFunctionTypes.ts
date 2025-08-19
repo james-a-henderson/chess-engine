@@ -1,5 +1,4 @@
-import { RectangularBoard } from '../../engine/board/rectangularBoard';
-import { Piece } from '../../engine/piece';
+import { GameState } from '../../engine/gameState';
 import { BoardPosition } from '../common';
 import { MoveRecord } from './moveRecord';
 
@@ -22,10 +21,10 @@ export type MoveOptions<PieceNames extends string[]> =
     | PromotionMoveOptions<PieceNames>; //will expand with promotion options later
 
 export type verifyLegalMoveFunction<PieceNames extends string[]> = (
-    board: RectangularBoard<PieceNames>,
-    piece: Piece<PieceNames>,
-    currentSpace: BoardPosition,
+    state: GameState<PieceNames>,
+    origin: BoardPosition,
     destination: BoardPosition,
+    getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
     previousMove?: MoveRecord<PieceNames>,
     moveOptions?: MoveOptions<PieceNames>
 ) => MoveRecord<PieceNames> | false;
@@ -49,16 +48,19 @@ export type AvailableMoves = {
 };
 
 export type GetLegalMovesFunction<PieceNames extends string[]> = (
-    board: RectangularBoard<PieceNames>,
-    piece: Piece<PieceNames>,
-    currentSpace: BoardPosition
+    state: GameState<PieceNames>,
+    origin: BoardPosition,
+    getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
+    previousMove?: MoveRecord<PieceNames>
 ) => AvailableMoves;
 
 export type MoveConditionFunction<PieceNames extends string[]> = (
-    piece: Piece<PieceNames>,
-    board: RectangularBoard<PieceNames>,
-    piecePosition: BoardPosition,
-    previousMove?: MoveRecord<PieceNames>
+    state: GameState<PieceNames>,
+    props: {
+        piecePosition: BoardPosition;
+        previousMove?: MoveRecord<PieceNames>;
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>;
+    }
 ) => boolean;
 
 export function emptyGetMovesFunction(): AvailableMoves {
@@ -68,3 +70,12 @@ export function emptyGetMovesFunction(): AvailableMoves {
 export function emptyVerifyMovesFunction(): false {
     return false;
 }
+
+export type VerifyMovesForPiece<PieceNames extends string[]> = Map<
+    PieceNames[keyof PieceNames],
+    verifyLegalMoveFunction<PieceNames>[]
+>;
+export type LegalMovesForPiece<PieceNames extends string[]> = Map<
+    PieceNames[keyof PieceNames],
+    GetLegalMovesFunction<PieceNames>[]
+>;

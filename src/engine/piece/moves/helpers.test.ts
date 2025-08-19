@@ -2,18 +2,18 @@ import {
     BoardPosition,
     CaptureAvailability,
     Direction,
-    GameRules,
+    GameError,
     MoveCondition,
-    PieceConfig,
     PlayerColor
 } from '../../../types';
-import { GameEngine } from '../../GameEngine';
+import { PiecePlacement } from '../../gameState';
+import { generateGameState } from '../../gameState/generateGameState';
 import {
     getMoveConditionFunctions,
     makeNextSpaceIterator,
     positionsAreEqual,
     reverseDirection,
-    validateCaptureRules
+    validateCaputureRules
 } from './helpers';
 
 import * as MoveRestrictions from './restrictions';
@@ -28,23 +28,23 @@ jest.mock('./restrictions', () => {
 
 type testPieceNames = ['foo', 'bar'];
 
-const rulesConfig: GameRules<testPieceNames> = {
-    name: 'test',
-    players: [
-        { color: 'white', order: 0 },
-        { color: 'black', order: 1 }
-    ],
-    board: {
-        height: 8,
-        width: 8
-    },
-    winConditions: [{ condition: 'resign' }],
-    drawConditions: [],
-    pieces: []
-};
-
 describe('helpers', () => {
     describe('validateCaptureRules', () => {
+        test('Throws error if no piece on origin space', () => {
+            const piecePlacements: PiecePlacement<testPieceNames>[] = [
+                {
+                    piece: { color: 'white', moveCount: 0, name: 'foo' },
+                    position: ['a', 1]
+                }
+            ];
+            const state = generateGameState(piecePlacements, 'white', {
+                width: 8,
+                height: 8
+            });
+            expect(() =>
+                validateCaputureRules(state, ['b', 2], ['c', 3], 'optional')
+            ).toThrow(GameError);
+        });
         describe('required', () => {
             test('returns true if piece is black and destination space contains white piece', () => {
                 generateCaptureTest(
@@ -614,44 +614,28 @@ function generateCaptureTest(
 ) {
     const captureColor: PlayerColor =
         playerColor === 'white' ? 'black' : 'white';
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'foo',
-        notation: 'P',
-        displayCharacters: {
-            white: 'P',
-            black: 'p'
-        },
-        moves: [],
-        startingPositions: {
-            [playerColor]: [startingPosition]
-        }
+
+    const movePiecePlacement: PiecePlacement<testPieceNames> = {
+        piece: { name: 'foo', moveCount: 0, color: playerColor },
+        position: startingPosition
+    };
+    const capturePiecePlacement: PiecePlacement<testPieceNames> = {
+        piece: { name: 'bar', moveCount: 0, color: captureColor },
+        position: destinationPosition
     };
 
-    const capturePieceConfig: PieceConfig<testPieceNames> = {
-        name: 'bar',
-        displayCharacters: {
-            white: 'B',
-            black: 'b'
-        },
-        notation: 'B',
-        moves: [],
-        startingPositions: {
-            [captureColor]: [destinationPosition]
-        }
-    };
-    const config: GameRules<testPieceNames> = {
-        ...rulesConfig,
-        pieces: pieceOnPosition
-            ? [pieceConfig, capturePieceConfig]
-            : [pieceConfig]
-    };
-    const engine = new GameEngine(config);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
+    const piecePlacements: PiecePlacement<testPieceNames>[] = pieceOnPosition
+        ? [movePiecePlacement, capturePiecePlacement]
+        : [movePiecePlacement];
 
-    const result = validateCaptureRules(
-        piece,
-        board,
+    const state = generateGameState(piecePlacements, playerColor, {
+        width: 8,
+        height: 8
+    });
+
+    const result = validateCaputureRules(
+        state,
+        startingPosition,
         destinationPosition,
         captureAvailability
     );

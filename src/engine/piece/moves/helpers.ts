@@ -2,30 +2,41 @@ import {
     BoardPosition,
     CaptureAvailability,
     Direction,
+    GameError,
     MoveCondition,
     MoveConditionFunction,
     PlayerColor
 } from '../../../types';
-import { RectangularBoard } from '../../board';
-import { Piece } from '../piece';
+import { rectangularBoardHelper } from '../../board';
+import { GameState } from '../../gameState';
 import {
     firstPieceMove,
     generateOtherPieceHasNotMovedFunction,
-    generateSpacesNotThreatenedFunction
+    generateSpacesNotThreatenedFunction,
+    generateSpecificPreviousMoveFunction
 } from './restrictions';
-import { generateSpecificPreviousMoveFunction } from './restrictions/specificPreviousMove';
 
-export function validateCaptureRules<PieceNames extends string[]>(
-    piece: Piece<PieceNames>,
-    board: RectangularBoard<PieceNames>,
+export function validateCaputureRules<PieceNames extends string[]>(
+    state: GameState<PieceNames>,
+    origin: BoardPosition,
     destination: BoardPosition,
     captureAvailability: CaptureAvailability
 ): boolean {
-    const destinationSpace = board.getSpace(destination);
+    const originSpace = rectangularBoardHelper.getSpace(state, origin);
+    const destinationSpace = rectangularBoardHelper.getSpace(
+        state,
+        destination
+    );
+
+    if (!originSpace.piece) {
+        throw new GameError('No piece on origin space');
+    }
 
     if (destinationSpace.piece) {
+        const originPiece = originSpace.piece;
         const destinationPiece = destinationSpace.piece;
-        if (destinationPiece.playerColor === piece.playerColor) {
+
+        if (originPiece.color === destinationPiece.color) {
             //cannot move a piece onto the same space as piece of same color
             return false;
         }

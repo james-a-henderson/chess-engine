@@ -1,107 +1,118 @@
 import {
     BoardPosition,
-    CaptureAvailability,
     JumpMove,
+    LegalMovesForPiece,
     MoveConditionFunction,
     MoveOptions,
     MoveRecord,
     PlayerColor,
     verifyLegalMoveFunction
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { Piece } from '../../piece';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
 import {
     getMoveConditionFunctions,
     positionsAreEqual,
-    validateCaptureRules
+    validateCaputureRules
 } from '../helpers';
 
-export function generateVerifyJumpMoveFunctions<PieceNames extends string[]>(
+export function generateVerifyJumpMoveFunction<PieceNames extends string[]>(
+    pieceName: PieceNames[keyof PieceNames],
     move: JumpMove<PieceNames>
 ): verifyLegalMoveFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 
-    return generateFunction(
-        move.captureAvailability,
-        move.jumpCoordinates,
-        conditionFunctions,
-        move.name
-    );
+    return generateFunction(pieceName, move, conditionFunctions);
 }
 
 function generateFunction<PieceNames extends string[]>(
-    captureAvailability: CaptureAvailability,
-    jumpCoordinates: {
-        horizontalSpaces: number;
-        verticalSpaces: number;
-    }[],
-    conditionFunctions: MoveConditionFunction<PieceNames>[],
-    moveName: string
+    pieceName: PieceNames[keyof PieceNames],
+    move: JumpMove<PieceNames>,
+    conditionFunctions: MoveConditionFunction<PieceNames>[]
 ): verifyLegalMoveFunction<PieceNames> {
     return (
-        board: RectangularBoard<PieceNames>,
-        piece: Piece<PieceNames>,
-        currentSpace: BoardPosition,
+        state: GameState<PieceNames>,
+        origin: BoardPosition,
         destination: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
         previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
-        if (positionsAreEqual(currentSpace, destination)) {
-            //destination space can't be the space the piece currently occupies
+        if (positionsAreEqual(origin, destination)) {
+            //destination space can't be the space piece currently occupies
+            return false;
+        }
+
+        const originSpace = rectangularBoardHelper.getSpace(state, origin);
+
+        if (
+            !originSpace.piece ||
+            originSpace.piece.name !== pieceName ||
+            originSpace.piece.color !== state.currentPlayer
+        ) {
+            //incorrect piece
+            //throwing here might be more appropriate
             return false;
         }
 
         if (
-            !validateCaptureRules(
-                piece,
-                board,
+            !validateCaputureRules(
+                state,
+                origin,
                 destination,
-                captureAvailability
+                move.captureAvailability
             )
         ) {
             return false;
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, board, currentSpace)) {
+            if (
+                !conditionFunction(state, {
+                    piecePosition: origin,
+                    getLegalMovesFunctions: getLegalMovesFunctions,
+                    previousMove: previousMove
+                })
+            ) {
                 return false;
             }
         }
 
-        //these engine functions throw if destination space is invalid, so we don't need to check that here
-        const [currentFileIndex, currentRankIndex] =
-            board.coordinatesToIndicies(currentSpace);
+        const [originFileIndex, originRankIndex] =
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                origin
+            );
         const [destinationFileIndex, destinationRankIndex] =
-            board.coordinatesToIndicies(destination);
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                destination
+            );
 
-        const fileIndexDifference = destinationFileIndex - currentFileIndex;
-        const rankIndexDifference = destinationRankIndex - currentRankIndex;
+        const fileIndexDifference = destinationFileIndex - originFileIndex;
+        const rankIndexDifference = destinationRankIndex - originRankIndex;
 
-        for (const coordinate of jumpCoordinates) {
+        for (const coordinate of move.jumpCoordinates) {
             if (
                 !validateCoordinate(
                     coordinate,
                     fileIndexDifference,
                     rankIndexDifference,
-                    piece.playerColor
+                    state.currentPlayer
                 )
             ) {
                 continue;
             }
 
-            if (!board.verifyMovePositionValid(currentSpace, destination)) {
-                return false;
-            }
-
             return {
-                originSpace: currentSpace,
-                destinationSpace: destination,
-                moveName: moveName,
-                pieceColor: piece.playerColor,
-                pieceName: piece.pieceName,
                 type: 'jump',
+                originSpace: origin,
+                destinationSpace: destination,
+                moveName: move.name,
+                pieceColor: state.currentPlayer,
+                pieceName: pieceName,
                 promotedTo:
                     moveOptions?.type === 'promotion'
                         ? moveOptions.promotionTarget

@@ -2,70 +2,74 @@ import {
     BoardPosition,
     CastleConfigForColor,
     CastleMove,
+    LegalMovesForPiece,
     MoveConditionFunction,
     MoveOptions,
     MoveRecord,
     verifyLegalMoveFunction
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { Piece } from '../../piece';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
 import {
     calculateMoveLength,
     determineMoveDirection,
     getMoveConditionFunctions,
     makeNextSpaceIterator,
     positionsAreEqual,
-    validateCaptureRules
+    validateCaputureRules
 } from '../helpers';
 
-export function generateVerifyCastleMoveFunctions<PieceNames extends string[]>(
+export function generateVerifyCastleMoveFunction<PieceNames extends string[]>(
+    pieceName: PieceNames[keyof PieceNames],
     move: CastleMove<PieceNames>
 ): verifyLegalMoveFunction<PieceNames> {
     const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 
-    return generateFunction(move, conditionFunctions);
+    return generateFunction(pieceName, move, conditionFunctions);
 }
 
 function generateFunction<PieceNames extends string[]>(
+    pieceName: PieceNames[keyof PieceNames],
     move: CastleMove<PieceNames>,
     conditionFunctions: MoveConditionFunction<PieceNames>[]
 ): verifyLegalMoveFunction<PieceNames> {
     return (
-        board: RectangularBoard<PieceNames>,
-        piece: Piece<PieceNames>,
-        currentSpace: BoardPosition,
+        state: GameState<PieceNames>,
+        origin: BoardPosition,
         destination: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
         previousMove?: MoveRecord<PieceNames>,
         moveOptions?: MoveOptions<PieceNames>
     ) => {
         if (moveOptions?.type !== 'castle') {
-            //we do this check becaue there are alternate chess rules (such as chess 960)
-            //where a normal move and caslte move can have the same destination space
+            //must pass in castle specific move options
+            //this is necessary becasue some alternate chess rules (such as chess 960) can
+            //have situations where a normal move and a castle move have the same destination
             return false;
         }
 
-        const castleConfig = move.configForColor[piece.playerColor];
+        const castleConfig = move.configForColor[state.currentPlayer];
 
         if (!castleConfig) {
             return false; //castling not configured for this player color
         }
 
-        if (!positionsAreEqual(castleConfig.origin, currentSpace)) {
+        if (!positionsAreEqual(castleConfig.origin, origin)) {
             //current space must be the configured origin location for this move
             return false;
         }
 
         if (!positionsAreEqual(castleConfig.destination, destination)) {
-            //destination space must be the configured result location for this move
+            //destination space must be configured result location for this move
             return false;
         }
 
         if (
-            !validateCaptureRules(
-                piece,
-                board,
+            !validateCaputureRules(
+                state,
+                origin,
                 destination,
                 move.captureAvailability
             )
@@ -74,131 +78,50 @@ function generateFunction<PieceNames extends string[]>(
             if (
                 !positionsAreEqual(castleConfig.targetPieceOrigin, destination)
             ) {
-                //this is unlikely to come up, as capturing off of a castle move requires the following conditions to be met:
-                // 1. capturing is allowed
-                // 2. neither the castling piece nor the target piece (king and rook in standard chess) move through the destination space
-                // That being said, since the goal of this is for generic configuration, capturing off of a castle has to be supported
-                // The exact rules may change as I flesh things out. This is something sort of in flux
                 return false;
             }
         }
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, board, currentSpace, previousMove)) {
+            if (
+                !conditionFunction(state, {
+                    piecePosition: origin,
+                    getLegalMovesFunctions: getLegalMovesFunctions,
+                    previousMove: previousMove
+                })
+            ) {
                 return false;
             }
         }
 
-        if (!targetPieceValid(piece, board, castleConfig)) {
+        if (!targetPieceValid(state, castleConfig)) {
             return false;
         }
 
-        const [currentFileIndex, currentRankIndex] =
-            board.coordinatesToIndicies(currentSpace);
-        const [destinationFileIndex, destinationRankIndex] =
-            board.coordinatesToIndicies(destination);
-
-        const [targetCurrentFileIndex, targetCurrentRankIndex] =
-            board.coordinatesToIndicies(castleConfig.targetPieceOrigin);
-        const [targetDestinationFileIndex, targetDestinationRankIndex] =
-            board.coordinatesToIndicies(castleConfig.targetPieceDestination);
-
-        const moveDirection = determineMoveDirection(
-            currentFileIndex,
-            currentRankIndex,
-            destinationFileIndex,
-            destinationRankIndex,
-            piece.playerColor
-        );
-        const targetMoveDirection = determineMoveDirection(
-            targetCurrentFileIndex,
-            targetCurrentRankIndex,
-            targetDestinationFileIndex,
-            targetDestinationRankIndex,
-            piece.playerColor
-        );
-
-        if (moveDirection === 'invalid' || targetMoveDirection === 'invalid') {
-            //both castling pieces must move in straight line
-            //todo: verify this upon rules initialization
-            return false;
-        }
-
-        const moveLength = calculateMoveLength(
-            moveDirection,
-            currentFileIndex,
-            currentRankIndex,
-            destinationFileIndex,
-            destinationRankIndex
-        );
-        const targetMoveLength = calculateMoveLength(
-            targetMoveDirection,
-            targetCurrentFileIndex,
-            targetCurrentRankIndex,
-            targetDestinationFileIndex,
-            targetDestinationRankIndex
-        );
-
-        for (const space of makeNextSpaceIterator(
-            moveDirection,
-            currentFileIndex,
-            currentRankIndex,
-            moveLength - 1, //no need to calculate final destination space, as the validateCaptureRules call handles that
-            piece.playerColor
-        )) {
-            if (board.getSpace(space).piece !== undefined) {
-                return false;
-            }
-        }
-
-        //the target piece's destination space must be empty before move *unless* it's occupied by the castling piece
         if (
-            !positionsAreEqual(
+            !checkSpacesClear(
+                state,
+                origin,
+                destination,
+                castleConfig.targetPieceOrigin
+            ) ||
+            !checkSpacesClear(
+                state,
+                castleConfig.targetPieceOrigin,
                 castleConfig.targetPieceDestination,
-                castleConfig.origin
+                origin
             )
         ) {
-            const targetDestinationSpace = board.getSpace(
-                castleConfig.targetPieceDestination
-            );
-            if (targetDestinationSpace.piece) {
-                return false;
-            }
-        }
-
-        for (const space of makeNextSpaceIterator(
-            targetMoveDirection,
-            targetCurrentFileIndex,
-            targetCurrentRankIndex,
-            targetMoveLength - 1, //no need to calculate final destination space, as we check that above
-            piece.playerColor
-        )) {
-            if (board.getSpace(space).piece !== undefined) {
-                return false;
-            }
-        }
-
-        if (
-            !board.verifyMultipleMovePosition([
-                {
-                    originPosition: currentSpace,
-                    destinationPosition: destination
-                },
-                {
-                    originPosition: castleConfig.targetPieceOrigin,
-                    destinationPosition: castleConfig.targetPieceDestination
-                }
-            ])
-        ) {
+            //there are invalid pieces in the way
             return false;
         }
 
         return {
-            moveName: move.name,
             type: 'castle',
-            pieceName: piece.pieceName,
-            pieceColor: piece.playerColor,
-            originSpace: currentSpace,
+            moveName: move.name,
+            pieceName: pieceName,
+            pieceColor: state.currentPlayer,
+            originSpace: origin,
             destinationSpace: destination,
             castleTarget: {
                 pieceName: castleConfig.targetPieceName,
@@ -210,17 +133,77 @@ function generateFunction<PieceNames extends string[]>(
 }
 
 function targetPieceValid<PieceNames extends string[]>(
-    piece: Piece<PieceNames>,
-    board: RectangularBoard<PieceNames>,
+    state: GameState<PieceNames>,
     castleConfig: CastleConfigForColor<PieceNames>
 ): boolean {
-    const targetPieceSpace = board.getSpace(castleConfig.targetPieceOrigin);
+    const targetPieceSpace = rectangularBoardHelper.getSpace(
+        state,
+        castleConfig.targetPieceOrigin
+    );
+
     if (
         !targetPieceSpace.piece ||
-        targetPieceSpace.piece.playerColor !== piece.playerColor ||
-        targetPieceSpace.piece.pieceName !== castleConfig.targetPieceName
+        targetPieceSpace.piece.color !== state.currentPlayer ||
+        targetPieceSpace.piece.name !== castleConfig.targetPieceName
     ) {
         return false;
+    }
+
+    return true;
+}
+
+function checkSpacesClear<PieceNames extends string[]>(
+    state: GameState<PieceNames>,
+    origin: BoardPosition,
+    destination: BoardPosition,
+    ignoreSpace: BoardPosition
+): boolean {
+    const [originFileIndex, originRankIndex] =
+        rectangularBoardHelper.coordinatesToIndicies(state.boardConfig, origin);
+    const [destinationFileIndex, destinationRankIndex] =
+        rectangularBoardHelper.coordinatesToIndicies(
+            state.boardConfig,
+            destination
+        );
+
+    const moveDirection = determineMoveDirection(
+        originFileIndex,
+        originRankIndex,
+        destinationFileIndex,
+        destinationRankIndex,
+        state.currentPlayer
+    );
+
+    if (moveDirection === 'invalid') {
+        //castling piece must move in straight line
+        return false;
+    }
+
+    const moveLength = calculateMoveLength(
+        moveDirection,
+        originFileIndex,
+        originRankIndex,
+        destinationFileIndex,
+        destinationRankIndex
+    );
+
+    for (const space of makeNextSpaceIterator(
+        moveDirection,
+        originFileIndex,
+        originRankIndex,
+        moveLength,
+        state.currentPlayer
+    )) {
+        const position = rectangularBoardHelper.indiciesToCoordinates(
+            state.boardConfig,
+            space
+        ); //todo: simplify funciton calls so we don't need to convert here
+        if (
+            rectangularBoardHelper.getSpace(state, space).piece !== undefined &&
+            !positionsAreEqual(position, ignoreSpace)
+        ) {
+            return false;
+        }
     }
 
     return true;

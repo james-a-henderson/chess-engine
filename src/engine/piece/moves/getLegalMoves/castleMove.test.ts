@@ -2,14 +2,13 @@ import {
     AvailableMoves,
     BoardPosition,
     CastleMove,
-    GameRules,
     MoveRecord,
     MoveRecordCastle,
-    PieceConfig,
     RectangularBoardConfig,
     RulesConfigurationError
 } from '../../../../types';
-import { GameEngine } from '../../../GameEngine';
+import { PiecePlacement } from '../../../gameState';
+import { generateGameState } from '../../../gameState/generateGameState';
 import { generateGetLegalCastleMovesFunction } from './castleMove';
 
 type testPieceNames = ['foo', 'bar'];
@@ -41,28 +40,6 @@ const castleMoveRecord: MoveRecordCastle<testPieceNames> = {
 const boardConfig: RectangularBoardConfig = {
     width: 8,
     height: 8
-};
-
-const baseRulesConfig: GameRules<testPieceNames> = {
-    name: 'test',
-    board: boardConfig,
-    players: [
-        {
-            color: 'white',
-            order: 0
-        },
-        {
-            color: 'black',
-            order: 1
-        }
-    ],
-    winConditions: [
-        {
-            condition: 'resign'
-        }
-    ],
-    drawConditions: [],
-    pieces: [] //override on tests
 };
 
 const baseMoveConfig: CastleMove<testPieceNames> = {
@@ -120,28 +97,6 @@ describe('generateGetLegalCastleMovesFunction', () => {
         });
     });
 
-    test('returns correct threatened spaces when captureAvailability is optional', () => {
-        const moveConfig: CastleMove<testPieceNames> = {
-            ...baseMoveConfig,
-            captureAvailability: 'optional'
-        };
-
-        const result = getTestResult(moveConfig, ['e', 1], castleMoveRecord);
-
-        expect(result.spacesThreatened).toEqual([['g', 1]]);
-    });
-
-    test('returns correct threatened spaces when captureAvailability is required', () => {
-        const moveConfig: CastleMove<testPieceNames> = {
-            ...baseMoveConfig,
-            captureAvailability: 'required'
-        };
-
-        const result = getTestResult(moveConfig, ['e', 1], castleMoveRecord);
-
-        expect(result.spacesThreatened).toEqual([['g', 1]]);
-    });
-
     test('throws error if castle information not configured for player color', () => {
         const moveConfig: CastleMove<testPieceNames> = {
             ...baseMoveConfig,
@@ -159,33 +114,23 @@ function getTestResult(
     startingPosition: BoardPosition,
     verifyMoveReturnValue: MoveRecord<testPieceNames> | false
 ): AvailableMoves {
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'foo',
-        displayCharacters: {
-            white: 'F',
-            black: 'f'
-        },
-        notation: 'F',
-        startingPositions: {
-            white: [startingPosition]
-        },
-        moves: [moveConfig]
-    };
-
-    const rulesConfig: GameRules<testPieceNames> = {
-        ...baseRulesConfig,
-        pieces: [pieceConfig]
-    };
-
     generateVerifyLegalMoveFunctionMock.mockReturnValue(() => {
         return verifyMoveReturnValue;
     });
 
-    const engine = new GameEngine(rulesConfig);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
+        {
+            piece: { name: 'foo', color: 'white', moveCount: 0 },
+            position: startingPosition
+        }
+    ];
 
-    const getMoveFunction = generateGetLegalCastleMovesFunction(moveConfig);
+    const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-    return getMoveFunction(board, piece, startingPosition);
+    const getMoveFunction = generateGetLegalCastleMovesFunction(
+        'foo',
+        moveConfig
+    );
+
+    return getMoveFunction(state, startingPosition, new Map());
 }

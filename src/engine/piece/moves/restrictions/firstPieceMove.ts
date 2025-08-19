@@ -1,7 +1,11 @@
-import { Piece } from '../../piece';
+import { BoardPosition } from '../../../../types';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
 
 export function firstPieceMove<PieceNames extends string[]>(
-    piece: Piece<PieceNames>
+    state: GameState<PieceNames>,
+    props: { piecePosition: BoardPosition }
 ): boolean {
-    return piece.moveCount === 0;
+    const space = rectangularBoardHelper.getSpace(state, props.piecePosition);
+    return space?.piece?.moveCount === 0;
 }

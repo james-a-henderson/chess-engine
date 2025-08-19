@@ -1,17 +1,16 @@
 import {
     AvailableMoves,
     BoardPosition,
-    CaptureAvailability,
     GetLegalMovesFunction,
     InvalidSpaceError,
     JumpMove,
-    MoveConditionFunction
+    LegalMovesForPiece,
+    MoveRecord
 } from '../../../../types';
-import { RectangularBoard } from '../../../board/rectangularBoard';
-import { Piece } from '../../piece';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
 import { getMoveConditionFunctions } from '../helpers';
 
-//todo: filter out spaces that fail board.verifyMovePositionValid
 export function generateGetLegalJumpMovesFunction<PieceNames extends string[]>(
     move: JumpMove<PieceNames>
 ): GetLegalMovesFunction<PieceNames> {
@@ -19,25 +18,11 @@ export function generateGetLegalJumpMovesFunction<PieceNames extends string[]>(
         move.moveConditions ?? []
     );
 
-    return generateFunction(
-        move.captureAvailability,
-        move.jumpCoordinates,
-        conditionFunctions
-    );
-}
-
-function generateFunction<PieceNames extends string[]>(
-    captureAvailability: CaptureAvailability,
-    jumpCoordinates: {
-        horizontalSpaces: number;
-        verticalSpaces: number;
-    }[],
-    conditionFunctions: MoveConditionFunction<PieceNames>[]
-): GetLegalMovesFunction<PieceNames> {
     return (
-        board: RectangularBoard<PieceNames>,
-        piece: Piece<PieceNames>,
-        currentSpace: BoardPosition
+        state: GameState<PieceNames>,
+        origin: BoardPosition,
+        getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
+        previousMove?: MoveRecord<PieceNames>
     ) => {
         const availableMoves: AvailableMoves = {
             moves: [],
@@ -46,47 +31,59 @@ function generateFunction<PieceNames extends string[]>(
         };
 
         for (const conditionFunction of conditionFunctions) {
-            if (!conditionFunction(piece, board, currentSpace)) {
+            if (
+                !conditionFunction(state, {
+                    piecePosition: origin,
+                    getLegalMovesFunctions: getLegalMovesFunctions,
+                    previousMove: previousMove
+                })
+            ) {
                 return availableMoves;
             }
         }
 
-        const [currentFileIndex, currentRankIndex] =
-            board.coordinatesToIndicies(currentSpace);
+        const [originFileIndex, originRankIndex] =
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                origin
+            );
 
-        for (const coordinate of jumpCoordinates) {
+        for (const coordinate of move.jumpCoordinates) {
             let horizontalSpaces = coordinate.horizontalSpaces;
             let verticalSpaces = coordinate.verticalSpaces;
 
-            if (piece.playerColor === 'black') {
+            if (state.currentPlayer === 'black') {
                 //invert coordinates for black
                 horizontalSpaces = -horizontalSpaces;
                 verticalSpaces = -verticalSpaces;
             }
 
-            const fileIndex = currentFileIndex + horizontalSpaces;
-            const rankIndex = currentRankIndex + verticalSpaces;
+            const fileIndex = originFileIndex + horizontalSpaces;
+            const rankIndex = originRankIndex + verticalSpaces;
 
             try {
-                const space = board.getSpace([fileIndex, rankIndex]);
+                const space = rectangularBoardHelper.getSpace(state, [
+                    fileIndex,
+                    rankIndex
+                ]);
 
-                if (space.piece?.playerColor === piece.playerColor) {
+                if (space.piece?.color === state.currentPlayer) {
                     continue;
                 }
 
-                switch (captureAvailability) {
+                switch (move.captureAvailability) {
+                    case 'optional':
+                        availableMoves.moves.push(space.position);
+                        availableMoves.spacesThreatened.push(space.position);
+                        if (space.piece) {
+                            availableMoves.captureMoves.push(space.position);
+                        }
+                        break;
                     case 'required':
                         //piece is threatening space, even if move is not legal
                         availableMoves.spacesThreatened.push(space.position);
                         if (space.piece) {
                             availableMoves.moves.push(space.position);
-                            availableMoves.captureMoves.push(space.position);
-                        }
-                        break;
-                    case 'optional':
-                        availableMoves.moves.push(space.position);
-                        availableMoves.spacesThreatened.push(space.position);
-                        if (space.piece) {
                             availableMoves.captureMoves.push(space.position);
                         }
                         break;

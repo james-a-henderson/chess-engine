@@ -960,7 +960,7 @@ function runGeneralTest<PieceNames extends string[]>(
         }
     );
 
-    assertBoardPosition(engine.board, expectedBoard);
+    assertBoardPosition(engine.currentBoard, expectedBoard, rulesConfig.pieces);
 }
 
 function runErrorTest<PieceNames extends string[]>(

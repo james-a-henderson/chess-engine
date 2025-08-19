@@ -4,8 +4,8 @@ import {
     MoveConditionFunction,
     MoveRecord
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
-import { Piece } from '../../piece';
+import { rectangularBoardHelper } from '../../../board';
+import { GameState } from '../../../gameState';
 import { calculateMoveLength, determineMoveDirection } from '../helpers';
 
 export function generateSpecificPreviousMoveFunction<
@@ -15,31 +15,41 @@ export function generateSpecificPreviousMoveFunction<
     pieceLocations: { direction: Direction; numSpaces: number }[]
 ): MoveConditionFunction<PieceNames> {
     return (
-        piece: Piece<PieceNames>,
-        board: RectangularBoard<PieceNames>,
-        piecePosition: BoardPosition,
-        previousMove?: MoveRecord<PieceNames>
+        state: GameState<PieceNames>,
+        props: {
+            piecePosition: BoardPosition;
+            previousMove?: MoveRecord<PieceNames>;
+        }
     ) => {
-        if (!previousMove || previousMove.moveName !== previousMoveName) {
+        if (
+            !props.previousMove ||
+            props.previousMove.moveName !== previousMoveName
+        ) {
             return false;
         }
 
         if (pieceLocations.length === 0) {
-            //if no locations is configured, then relation to current piece is irrelevent
+            //if no locations are configured, then relation to current piece is irrelevent
             return true;
         }
 
         const [pieceFileIndex, pieceRankIndex] =
-            board.coordinatesToIndicies(piecePosition);
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                props.piecePosition
+            );
         const [previousPieceFileIndex, previousPieceRankIndex] =
-            board.coordinatesToIndicies(previousMove.destinationSpace);
+            rectangularBoardHelper.coordinatesToIndicies(
+                state.boardConfig,
+                props.previousMove.destinationSpace
+            );
 
         const direction = determineMoveDirection(
             pieceFileIndex,
             pieceRankIndex,
             previousPieceFileIndex,
             previousPieceRankIndex,
-            piece.playerColor
+            state.currentPlayer
         );
 
         if (direction === 'invalid') {
