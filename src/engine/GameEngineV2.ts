@@ -1,8 +1,12 @@
 import {
+    BoardPosition,
     GameError,
     GameRules,
     GetLegalMovesFunctionV2,
+    IllegalMoveError,
     LegalMovesForPiece,
+    MoveOptions,
+    MoveRecord,
     PieceConfig,
     PieceConfigurationError,
     Player,
@@ -12,11 +16,12 @@ import {
     verifyLegalMoveFunctionV2,
     VerifyMovesForPiece
 } from '../types';
-import { generateCheckFunctionV2 } from './board';
+import { generateCheckFunctionV2, rectangularBoardHelper } from './board';
 import {
     BoardSpaceStatus,
     GameState,
-    GameStatePiecePlacement
+    GameStatePiecePlacement,
+    updateGameState
 } from './gameState';
 import { generateGameState } from './gameState/generateGameState';
 import {
@@ -61,6 +66,156 @@ export class GameEngineV2<PieceNames extends string[]> {
 
     get currentBoard(): BoardSpaceStatus<PieceNames>[][] {
         return this.currentGameState.board;
+    }
+
+    get currentPlayer(): PlayerColor {
+        return this.currentGameState.currentPlayer;
+    }
+
+    public getSpace(
+        position: BoardPosition | [number, number]
+    ): BoardSpaceStatus<PieceNames> {
+        return rectangularBoardHelper.getSpace(this.currentGameState, position);
+    }
+
+    private getPieceConfig(
+        pieceName: PieceNames[keyof PieceNames]
+    ): PieceConfig<PieceNames> {
+        for (const config of this._config.pieces) {
+            if (config.name === pieceName) {
+                return config;
+            }
+        }
+
+        throw new PieceConfigurationError(
+            pieceName,
+            'Cannot find configuration for piece'
+        );
+    }
+
+    public verifyMove(
+        origin: BoardPosition,
+        destination: BoardPosition,
+        moveOptions?: MoveOptions<PieceNames>
+    ): MoveRecord<PieceNames> | false {
+        const originSpace = this.getSpace(origin);
+
+        if (
+            !originSpace.piece ||
+            originSpace.piece.color !== this.currentPlayer
+        ) {
+            return false;
+        }
+
+        const verifyMoveFuncs = this._verifyFunctions.get(
+            originSpace.piece.name
+        );
+
+        if (!verifyMoveFuncs) {
+            return false;
+        }
+
+        for (const func of verifyMoveFuncs) {
+            const result = func(
+                this.currentGameState,
+                origin,
+                destination,
+                this._getMovesFunctions,
+                this.currentGameState.lastMove,
+                moveOptions
+            );
+
+            if (result) {
+                //move is legal if one move function returns true
+                //todo: ensure no move conflict
+                return this.verifyPromotionRules(result) ? result : false;
+            }
+        }
+
+        return false;
+    }
+
+    private verifyPromotionRules(move: MoveRecord<PieceNames>): boolean {
+        if (this.isPromotionSpace(move)) {
+            if (!move.promotedTo) {
+                return false;
+            }
+
+            const pieceConfig = this.getPieceConfig(move.pieceName);
+
+            if (!pieceConfig.promotionConfig) {
+                return false;
+            }
+
+            if (
+                !pieceConfig.promotionConfig.promotionTargets.includes(
+                    move.promotedTo
+                )
+            ) {
+                return false;
+            }
+        } else if (move.promotedTo) {
+            //cannot have promotion target if specfied space is not promotion space
+            return false;
+        }
+
+        return true;
+    }
+
+    private isPromotionSpace(move: MoveRecord<PieceNames>): boolean {
+        const pieceConfig = this.getPieceConfig(move.pieceName);
+
+        if (!pieceConfig.promotionConfig) {
+            return false; //no promotion configuration for piece
+        }
+
+        const promotionPositions =
+            pieceConfig.promotionConfig.promotionSquares[move.pieceColor];
+
+        if (!promotionPositions) {
+            return false;
+        }
+
+        for (const promotionPosition of promotionPositions) {
+            if (
+                promotionPosition[0] === move.destinationSpace[0] &&
+                promotionPosition[1] === move.destinationSpace[1]
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public makeMove(
+        origin: BoardPosition,
+        destination: BoardPosition,
+        moveOptions?: MoveOptions<PieceNames>
+    ) {
+        const move = this.verifyMove(origin, destination, moveOptions);
+
+        if (!move) {
+            throw new IllegalMoveError('Move is not legal');
+        }
+
+        const newState = updateGameState(this.currentGameState, move);
+
+        //check if newState is valid
+        for (const func of this._verifyBoardFunctions) {
+            if (
+                !func(
+                    newState,
+                    this._verifyFunctions,
+                    this._getMovesFunctions,
+                    this.currentPlayer
+                )
+            ) {
+                throw new IllegalMoveError('Resulting board state is invalid');
+            }
+        }
+
+        this._gameStates.push(newState);
     }
 
     private generateInitialGameState(): GameState<PieceNames> {

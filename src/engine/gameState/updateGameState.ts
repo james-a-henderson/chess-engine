@@ -1,6 +1,7 @@
 import {
     BoardPosition,
     GameError,
+    IllegalMoveError,
     MoveRecord,
     MoveRecordCastle,
     MoveRecordJump,
@@ -121,7 +122,9 @@ function promotePiece<PieceNames extends string[]>(
     const space = rectangularBoardHelper.getSpace(state, position);
     const piece = space.piece;
     if (!piece) {
-        throw new GameError('Attempting to promote on space with no piece');
+        throw new IllegalMoveError(
+            'Attempting to promote on space with no piece'
+        );
     }
 
     piece.name = promoteTo;
