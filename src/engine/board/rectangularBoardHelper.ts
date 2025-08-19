@@ -6,13 +6,13 @@ import {
     PlayerColor,
     RectangularBoardConfig
 } from '../../types';
-import { BoardSpaceStatus, GameState } from '../gameState';
+import { BoardSpace, GameState } from '../gameState';
 
 export const rectangularBoardHelper = {
     getSpace<PieceNames extends string[]>(
         state: GameState<PieceNames>,
         position: BoardPosition | [number, number]
-    ): BoardSpaceStatus<PieceNames> {
+    ): BoardSpace<PieceNames> {
         let fileIndex: number;
         let rankIndex: number;
 
@@ -36,7 +36,7 @@ export const rectangularBoardHelper = {
         position: BoardPosition,
         direction: Direction,
         numSpaces: number
-    ): BoardSpaceStatus<PieceNames> {
+    ): BoardSpace<PieceNames> {
         if (numSpaces <= 0) {
             throw new InvalidSpaceError('numSpaces must be at least 1');
         }
@@ -102,8 +102,8 @@ export const rectangularBoardHelper = {
             isColor?: PlayerColor;
             notColor?: PlayerColor;
         }
-    ): BoardSpaceStatus<PieceNames>[] {
-        const spaces: BoardSpaceStatus<PieceNames>[] = [];
+    ): BoardSpace<PieceNames>[] {
+        const spaces: BoardSpace<PieceNames>[] = [];
 
         for (const space of boardSpaces(state)) {
             if (!space.piece) {

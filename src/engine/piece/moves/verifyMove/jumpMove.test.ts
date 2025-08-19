@@ -5,9 +5,9 @@ import {
     PlayerColor,
     RectangularBoardConfig
 } from '../../../../types';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
-import { generateVerifyJumpMoveFunctionV2 } from './jumpMoveV2';
+import { generateVerifyJumpMoveFunction } from './jumpMove';
 
 type testPieceNames = ['foo', 'bar'];
 
@@ -18,7 +18,7 @@ const boardConfig: RectangularBoardConfig = {
     width: 8
 };
 
-describe('generateVerifyJumpMoveFunctionV2', () => {
+describe('generateVerifyJumpMoveFunction', () => {
     afterEach(() => {
         jest.restoreAllMocks();
     });
@@ -42,7 +42,7 @@ describe('generateVerifyJumpMoveFunctionV2', () => {
             ]
         };
 
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 1 },
                 position: ['c', 3]
@@ -51,7 +51,7 @@ describe('generateVerifyJumpMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const moveFunction = generateVerifyJumpMoveFunctionV2('foo', move);
+        const moveFunction = generateVerifyJumpMoveFunction('foo', move);
 
         const result = moveFunction(state, ['c', 3], ['e', 5], new Map());
 
@@ -202,7 +202,7 @@ function generateMoveTest(
 ) {
     const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
 
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {
             piece: { name: 'foo', color: playerColor, moveCount: 0 },
             position: startingPosition
@@ -218,7 +218,7 @@ function generateMoveTest(
 
     const state = generateGameState(piecePlacements, playerColor, boardConfig);
 
-    const moveFunction = generateVerifyJumpMoveFunctionV2('foo', moveConfig);
+    const moveFunction = generateVerifyJumpMoveFunction('foo', moveConfig);
 
     const moveOptions: MoveOptions<testPieceNames> | undefined =
         testOptions?.promotionTarget

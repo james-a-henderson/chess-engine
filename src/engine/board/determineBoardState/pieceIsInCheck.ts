@@ -7,7 +7,7 @@ import {
 import { GameState } from '../../gameState';
 import { rectangularBoardHelper } from '../rectangularBoardHelper';
 
-export function pieceIsInCheckV2<PieceNames extends string[]>(
+export function pieceIsInCheck<PieceNames extends string[]>(
     gameState: GameState<PieceNames>,
     verifyFunctions: VerifyMovesForPiece<PieceNames>,
     getMovesFunctions: LegalMovesForPiece<PieceNames>,

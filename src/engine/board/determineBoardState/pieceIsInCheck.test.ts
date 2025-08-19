@@ -3,9 +3,9 @@ import {
     RectangularBoardConfig,
     VerifyMovesForPiece
 } from '../../../types';
-import { GameStatePiecePlacement } from '../../gameState';
+import { PiecePlacement } from '../../gameState';
 import { generateGameState } from '../../gameState/generateGameState';
-import { pieceIsInCheckV2 } from './pieceIsInCheckV2';
+import { pieceIsInCheck } from './pieceIsInCheck';
 
 type testPieceNames = ['king', 'attacker'];
 
@@ -16,7 +16,7 @@ describe('pieceIsInCheck', () => {
     };
 
     test('returns false if verifyFunctions map is empty', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
                     color: 'black',
@@ -56,7 +56,7 @@ describe('pieceIsInCheck', () => {
             'black',
             testBoardConfig
         );
-        const result = pieceIsInCheckV2(
+        const result = pieceIsInCheck(
             state,
             new Map(),
             new Map(),
@@ -66,7 +66,7 @@ describe('pieceIsInCheck', () => {
         expect(result).toEqual(false);
     });
     test('returns true if white piece is in check', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
                     color: 'black',
@@ -124,7 +124,7 @@ describe('pieceIsInCheck', () => {
             'black',
             testBoardConfig
         );
-        const result = pieceIsInCheckV2(
+        const result = pieceIsInCheck(
             state,
             verifyMoves,
             new Map(),
@@ -135,7 +135,7 @@ describe('pieceIsInCheck', () => {
     });
 
     test('returns false if white piece is not in check', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
                     color: 'black',
@@ -186,7 +186,7 @@ describe('pieceIsInCheck', () => {
             'black',
             testBoardConfig
         );
-        const result = pieceIsInCheckV2(
+        const result = pieceIsInCheck(
             state,
             verifyMoves,
             new Map(),
@@ -197,7 +197,7 @@ describe('pieceIsInCheck', () => {
     });
 
     test('returns true if black piece is in check', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
                     color: 'white',
@@ -255,7 +255,7 @@ describe('pieceIsInCheck', () => {
             'white',
             testBoardConfig
         );
-        const result = pieceIsInCheckV2(
+        const result = pieceIsInCheck(
             state,
             verifyMoves,
             new Map(),
@@ -266,7 +266,7 @@ describe('pieceIsInCheck', () => {
     });
 
     test('returns false if white piece is not in check', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
                     color: 'white',
@@ -317,7 +317,7 @@ describe('pieceIsInCheck', () => {
             'white',
             testBoardConfig
         );
-        const result = pieceIsInCheckV2(
+        const result = pieceIsInCheck(
             state,
             verifyMoves,
             new Map(),
@@ -328,7 +328,7 @@ describe('pieceIsInCheck', () => {
     });
 
     test('throws error if no check pieces are found', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
                     color: 'white',
@@ -369,12 +369,12 @@ describe('pieceIsInCheck', () => {
             testBoardConfig
         );
         expect(() =>
-            pieceIsInCheckV2(state, new Map(), new Map(), 'king', 'black')
+            pieceIsInCheck(state, new Map(), new Map(), 'king', 'black')
         ).toThrow(GameError);
     });
 
     test('throws error if multiple check pieces are found', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: {
                     color: 'white',
@@ -415,7 +415,7 @@ describe('pieceIsInCheck', () => {
             testBoardConfig
         );
         expect(() =>
-            pieceIsInCheckV2(state, new Map(), new Map(), 'king', 'white')
+            pieceIsInCheck(state, new Map(), new Map(), 'king', 'white')
         ).toThrow(GameError);
     });
 });

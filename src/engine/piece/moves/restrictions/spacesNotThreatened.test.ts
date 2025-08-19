@@ -3,17 +3,17 @@ import {
     RectangularBoardConfig,
     RulesConfigurationError
 } from '../../../../types';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
-import { generateSpacesNotThreatenedFunctionV2 } from './spacesNotThreatenedV2';
+import { generateSpacesNotThreatenedFunction } from './spacesNotThreatened';
 
 type pieceNames = ['foo', 'bar'];
 
-describe('spacesNotThreatenedV2', () => {
+describe('spacesNotThreatened', () => {
     const boardConfig: RectangularBoardConfig = { width: 8, height: 8 };
 
     test('throws error if configuration not set for color', () => {
-        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
             black: [['h', 8]]
         });
 
@@ -28,11 +28,11 @@ describe('spacesNotThreatenedV2', () => {
     });
 
     test('returns true if no getLegalMovesFunctions are passed in', () => {
-        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
             white: [['a', 1]]
         });
 
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['b', 2]
@@ -88,11 +88,11 @@ describe('spacesNotThreatenedV2', () => {
             ]
         ]);
 
-        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
             black: [['a', 1]]
         });
 
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { name: 'bar', color: 'black', moveCount: 0 },
                 position: ['g', 1]
@@ -135,11 +135,11 @@ describe('spacesNotThreatenedV2', () => {
             ]
         ]);
 
-        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
             white: [['a', 1]]
         });
 
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['b', 2]
@@ -194,11 +194,11 @@ describe('spacesNotThreatenedV2', () => {
             ]
         ]);
 
-        const func = generateSpacesNotThreatenedFunctionV2<pieceNames>({
+        const func = generateSpacesNotThreatenedFunction<pieceNames>({
             black: [['a', 1]]
         });
 
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'black', moveCount: 0 },
                 position: ['b', 2]

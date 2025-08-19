@@ -3,7 +3,7 @@ import {
     BoardPosition,
     Direction,
     emptyGetMovesFunction,
-    GetLegalMovesFunctionV2,
+    GetLegalMovesFunction,
     InvalidSpaceError,
     LegalMovesForPiece,
     MoveRecord,
@@ -12,15 +12,15 @@ import {
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
 import {
-    getMoveConditionFunctionsV2,
+    getMoveConditionFunctions,
     makeNextSpaceIterator,
     reverseDirection
 } from '../helpers';
 
-export function generateGetLegalStandardMovesFunctionV2<
+export function generateGetLegalStandardMovesFunction<
     PieceNames extends string[]
->(move: StandardMove<PieceNames>): GetLegalMovesFunctionV2<PieceNames> {
-    const conditionFunctions = getMoveConditionFunctionsV2(
+>(move: StandardMove<PieceNames>): GetLegalMovesFunction<PieceNames> {
+    const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 

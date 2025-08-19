@@ -4,7 +4,7 @@ import {
     InvalidSpaceError,
     RectangularBoardConfig
 } from '../../types';
-import { GameState, GameStatePiecePlacement } from '../gameState';
+import { GameState, PiecePlacement } from '../gameState';
 import { generateGameState } from '../gameState/generateGameState';
 import { rectangularBoardHelper } from './rectangularBoardHelper';
 
@@ -23,7 +23,7 @@ describe('rectangularBoardHelper', () => {
         let gameState: GameState<testPieceNames>;
 
         beforeEach(() => {
-            const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+            const piecePlacements: PiecePlacement<testPieceNames>[] = [
                 {
                     piece: { color: 'white', moveCount: 0, name: 'foo' },
                     position: ['a', 1]
@@ -232,7 +232,7 @@ describe('rectangularBoardHelper', () => {
         );
     });
     describe('getPieceSpaces', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { color: 'white', moveCount: 0, name: 'foo' },
                 position: ['a', 1]

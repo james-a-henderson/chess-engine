@@ -1,1 +1,1 @@
-export * from './assertBoardPositionV2';
+export * from './assertBoardPosition';

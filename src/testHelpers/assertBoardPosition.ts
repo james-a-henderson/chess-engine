@@ -1,8 +1,8 @@
-import { BoardSpaceStatus } from '../engine/gameState';
+import { BoardSpace } from '../engine/gameState';
 import { PieceConfig, PlayerColor } from '../types';
 
-export function assertBoardPositionV2<PieceNames extends string[]>(
-    board: BoardSpaceStatus<PieceNames>[][],
+export function assertBoardPosition<PieceNames extends string[]>(
+    board: BoardSpace<PieceNames>[][],
     expectedBoard: (string | undefined)[][],
     pieceConfig: PieceConfig<PieceNames>[]
 ) {

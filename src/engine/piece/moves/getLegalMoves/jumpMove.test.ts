@@ -7,10 +7,10 @@ import {
     CaptureAvailability,
     AvailableMoves
 } from '../../../../types';
-import { generateGetLegalJumpMovesFunctionV2 } from './jumpMoveV2';
+import { generateGetLegalJumpMovesFunction } from './jumpMove';
 
 import * as helperFunctions from '../helpers';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
 
 type testPieceNames = ['foo'];
@@ -274,7 +274,7 @@ describe('generateGetLegalJumpMovesFunction', () => {
     test('Returns no moves when move does not satisfy condition', () => {
         jest.spyOn(
             helperFunctions,
-            'getMoveConditionFunctionsV2'
+            'getMoveConditionFunctions'
         ).mockReturnValue([
             () => {
                 return false;
@@ -296,7 +296,7 @@ describe('generateGetLegalJumpMovesFunction', () => {
     test('Returns expected value when move satisfies conditions', () => {
         jest.spyOn(
             helperFunctions,
-            'getMoveConditionFunctionsV2'
+            'getMoveConditionFunctions'
         ).mockReturnValue([
             () => {
                 return true;
@@ -340,7 +340,7 @@ function getTestResult(
         : 'white';
     const otherColor: PlayerColor = color === 'white' ? 'black' : 'white';
 
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {
             piece: { name: 'foo', color: color, moveCount: 0 },
             position: startingPosition
@@ -363,7 +363,7 @@ function getTestResult(
 
     const state = generateGameState(piecePlacements, color, boardConfig);
 
-    const getMovesFunction = generateGetLegalJumpMovesFunctionV2(move);
+    const getMovesFunction = generateGetLegalJumpMovesFunction(move);
 
     return getMovesFunction(state, startingPosition, new Map());
 }

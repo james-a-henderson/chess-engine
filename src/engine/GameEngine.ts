@@ -2,7 +2,7 @@ import {
     BoardPosition,
     GameError,
     GameRules,
-    GetLegalMovesFunctionV2,
+    GetLegalMovesFunction,
     IllegalMoveError,
     LegalMovesForPiece,
     MoveOptions,
@@ -12,24 +12,24 @@ import {
     Player,
     PlayerColor,
     PlayerConfigurationError,
-    VerifyBoardStateFunctionV2,
-    verifyLegalMoveFunctionV2,
+    VerifyBoardStateFunction,
+    verifyLegalMoveFunction,
     VerifyMovesForPiece
 } from '../types';
-import { generateCheckFunctionV2, rectangularBoardHelper } from './board';
+import { generateCheckFunction, rectangularBoardHelper } from './board';
 import {
-    BoardSpaceStatus,
+    BoardSpace,
     GameState,
-    GameStatePiecePlacement,
+    PiecePlacement,
     updateGameState
 } from './gameState';
 import { generateGameState } from './gameState/generateGameState';
 import {
-    generateGetLegalMovesFunctionV2,
-    generateVerifyLegalMoveFunctionV2
+    generateGetLegalMovesFunction,
+    generateVerifyLegalMoveFunction
 } from './piece/moves';
 
-export class GameEngineV2<PieceNames extends string[]> {
+export class GameEngine<PieceNames extends string[]> {
     private _players: Player[];
     private _gameStates: GameState<PieceNames>[];
     private _config: GameRules<PieceNames>;
@@ -37,7 +37,7 @@ export class GameEngineV2<PieceNames extends string[]> {
     private _verifyFunctions: VerifyMovesForPiece<PieceNames> = new Map();
     private _getMovesFunctions: LegalMovesForPiece<PieceNames> = new Map();
 
-    private _verifyBoardFunctions: VerifyBoardStateFunctionV2<PieceNames>[];
+    private _verifyBoardFunctions: VerifyBoardStateFunction<PieceNames>[];
 
     constructor(rules: GameRules<PieceNames>) {
         this._config = rules;
@@ -64,7 +64,7 @@ export class GameEngineV2<PieceNames extends string[]> {
         return state;
     }
 
-    get currentBoard(): BoardSpaceStatus<PieceNames>[][] {
+    get currentBoard(): BoardSpace<PieceNames>[][] {
         return this.currentGameState.board;
     }
 
@@ -74,7 +74,7 @@ export class GameEngineV2<PieceNames extends string[]> {
 
     public getSpace(
         position: BoardPosition | [number, number]
-    ): BoardSpaceStatus<PieceNames> {
+    ): BoardSpace<PieceNames> {
         return rectangularBoardHelper.getSpace(this.currentGameState, position);
     }
 
@@ -219,7 +219,7 @@ export class GameEngineV2<PieceNames extends string[]> {
     }
 
     private generateInitialGameState(): GameState<PieceNames> {
-        const placements: GameStatePiecePlacement<PieceNames>[] = [];
+        const placements: PiecePlacement<PieceNames>[] = [];
 
         for (const pieceConfig of this._config.pieces) {
             for (const [color, startingPositions] of Object.entries(
@@ -342,21 +342,18 @@ export class GameEngineV2<PieceNames extends string[]> {
 
     private generateMoveFunctions() {
         for (const pieceConfig of this._config.pieces) {
-            const verifyFuncs: verifyLegalMoveFunctionV2<PieceNames>[] = [];
-            const getMovesFuncs: GetLegalMovesFunctionV2<PieceNames>[] = [];
+            const verifyFuncs: verifyLegalMoveFunction<PieceNames>[] = [];
+            const getMovesFuncs: GetLegalMovesFunction<PieceNames>[] = [];
 
             for (const moveConfig of pieceConfig.moves) {
                 verifyFuncs.push(
-                    generateVerifyLegalMoveFunctionV2(
+                    generateVerifyLegalMoveFunction(
                         pieceConfig.name,
                         moveConfig
                     )
                 );
                 getMovesFuncs.push(
-                    generateGetLegalMovesFunctionV2(
-                        pieceConfig.name,
-                        moveConfig
-                    )
+                    generateGetLegalMovesFunction(pieceConfig.name, moveConfig)
                 );
             }
 
@@ -365,14 +362,13 @@ export class GameEngineV2<PieceNames extends string[]> {
         }
     }
 
-    private generateVerifyBoardStateFunctions(): VerifyBoardStateFunctionV2<PieceNames>[] {
-        const verifyBoardFunctions: VerifyBoardStateFunctionV2<PieceNames>[] =
-            [];
+    private generateVerifyBoardStateFunctions(): VerifyBoardStateFunction<PieceNames>[] {
+        const verifyBoardFunctions: VerifyBoardStateFunction<PieceNames>[] = [];
 
         for (const condition of this._config.winConditions) {
             if (condition.condition === 'checkmate') {
                 verifyBoardFunctions.push(
-                    generateCheckFunctionV2(condition.checkmatePiece)
+                    generateCheckFunction(condition.checkmatePiece)
                 );
             }
         }

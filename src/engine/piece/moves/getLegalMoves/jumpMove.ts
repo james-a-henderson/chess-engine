@@ -1,7 +1,7 @@
 import {
     AvailableMoves,
     BoardPosition,
-    GetLegalMovesFunctionV2,
+    GetLegalMovesFunction,
     InvalidSpaceError,
     JumpMove,
     LegalMovesForPiece,
@@ -9,12 +9,12 @@ import {
 } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
-import { getMoveConditionFunctionsV2 } from '../helpers';
+import { getMoveConditionFunctions } from '../helpers';
 
-export function generateGetLegalJumpMovesFunctionV2<
-    PieceNames extends string[]
->(move: JumpMove<PieceNames>): GetLegalMovesFunctionV2<PieceNames> {
-    const conditionFunctions = getMoveConditionFunctionsV2(
+export function generateGetLegalJumpMovesFunction<PieceNames extends string[]>(
+    move: JumpMove<PieceNames>
+): GetLegalMovesFunction<PieceNames> {
+    const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 

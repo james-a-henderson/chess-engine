@@ -8,9 +8,9 @@ import {
     Direction,
     emptyVerifyMovesFunction
 } from '../../../../types';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
-import { generateVerifyStandardMoveFunctionV2 } from './standardMoveV2';
+import { generateVerifyStandardMoveFunction } from './standardMove';
 
 type testPieceNames = ['generic', 'forward', 'dummy'];
 
@@ -69,7 +69,7 @@ const rightBackwardMove: StandardMove<testPieceNames> = {
     directions: ['rightBackward']
 };
 
-describe('generateVerifyStandardMoveFunctionsV2', () => {
+describe('generateVerifyStandardMoveFunctions', () => {
     beforeEach(() => {
         jest.restoreAllMocks();
     });
@@ -86,7 +86,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
             type: 'standard'
         };
 
-        const result = generateVerifyStandardMoveFunctionV2('generic', move);
+        const result = generateVerifyStandardMoveFunction('generic', move);
         expect(result).toEqual(emptyVerifyMovesFunction);
     });
 
@@ -105,7 +105,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
             ]
         };
 
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'generic', color: 'white', moveCount: 1 },
                 position: ['a', 2]
@@ -114,7 +114,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const moveFunction = generateVerifyStandardMoveFunctionV2(
+        const moveFunction = generateVerifyStandardMoveFunction(
             'generic',
             move
         );
@@ -132,7 +132,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
             type: 'standard'
         };
 
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'generic', color: 'white', moveCount: 1 },
                 position: ['a', 1]
@@ -141,7 +141,7 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const moveFunction = generateVerifyStandardMoveFunctionV2(
+        const moveFunction = generateVerifyStandardMoveFunction(
             'generic',
             move
         );
@@ -2228,7 +2228,7 @@ function generateMoveTest(
 ) {
     const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
 
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {
             piece: { name: 'generic', color: playerColor, moveCount: 0 },
             position: startingPosition
@@ -2251,7 +2251,7 @@ function generateMoveTest(
 
     const state = generateGameState(piecePlacements, playerColor, boardConfig);
 
-    const moveFunction = generateVerifyStandardMoveFunctionV2(
+    const moveFunction = generateVerifyStandardMoveFunction(
         'generic',
         moveConfig
     );
@@ -2284,7 +2284,7 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
     startingPosition: BoardPosition,
     destinationPosition: BoardPosition
 ) {
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {
             piece: { name: 'generic', color: playerColor, moveCount: 0 },
             position: startingPosition
@@ -2293,7 +2293,7 @@ function generateThrowsErrorWhenDestinationIsInvalidTest(
 
     const state = generateGameState(piecePlacements, playerColor, boardConfig);
 
-    const moveFunction = generateVerifyStandardMoveFunctionV2(
+    const moveFunction = generateVerifyStandardMoveFunction(
         'generic',
         moveConfig
     );

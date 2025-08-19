@@ -2,19 +2,19 @@ import {
     RectangularBoardConfig,
     RulesConfigurationError
 } from '../../../../types';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
-import { generateOtherPieceHasNotMovedFunctionV2 } from './otherPieceHasNotMovedV2';
+import { generateOtherPieceHasNotMovedFunction } from './otherPieceHasNotMoved';
 
 type testPieceNames = ['foo', 'bar'];
-describe('generateOtherPieceHasNotMovedFunctionV2', () => {
+describe('generateOtherPieceHasNotMovedFunction', () => {
     const boardConfig: RectangularBoardConfig = {
         height: 3,
         width: 3
     };
 
     test('returns true if piece is on target space and has not moved', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -26,7 +26,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         ];
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
-        const func = generateOtherPieceHasNotMovedFunctionV2<testPieceNames>(
+        const func = generateOtherPieceHasNotMovedFunction<testPieceNames>(
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
@@ -39,7 +39,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
     });
 
     test('returns false if no piece is on target space', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'black', moveCount: 0 },
                 position: ['c', 3]
@@ -47,7 +47,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         ];
 
         const state = generateGameState(piecePlacements, 'black', boardConfig);
-        const func = generateOtherPieceHasNotMovedFunctionV2<testPieceNames>(
+        const func = generateOtherPieceHasNotMovedFunction<testPieceNames>(
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
@@ -60,7 +60,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
     });
 
     test('returns false if incorrect piece is on target space', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -72,7 +72,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         ];
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
-        const func = generateOtherPieceHasNotMovedFunctionV2<testPieceNames>(
+        const func = generateOtherPieceHasNotMovedFunction<testPieceNames>(
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
@@ -85,7 +85,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
     });
 
     test('returns false if piece of incorrect color is on target space', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -97,7 +97,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         ];
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
-        const func = generateOtherPieceHasNotMovedFunctionV2<testPieceNames>(
+        const func = generateOtherPieceHasNotMovedFunction<testPieceNames>(
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
@@ -110,7 +110,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
     });
 
     test('returns false if correct piece is on target space but it has previously moved', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['c', 1]
@@ -122,7 +122,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         ];
 
         const state = generateGameState(piecePlacements, 'black', boardConfig);
-        const func = generateOtherPieceHasNotMovedFunctionV2<testPieceNames>(
+        const func = generateOtherPieceHasNotMovedFunction<testPieceNames>(
             'bar',
             { white: ['a', 3], black: ['c', 3] }
         );
@@ -135,7 +135,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
     });
 
     test('Throws error if piece color is not in configuration', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'black', moveCount: 0 },
                 position: ['c', 1]
@@ -147,7 +147,7 @@ describe('generateOtherPieceHasNotMovedFunctionV2', () => {
         ];
 
         const state = generateGameState(piecePlacements, 'black', boardConfig);
-        const func = generateOtherPieceHasNotMovedFunctionV2<testPieceNames>(
+        const func = generateOtherPieceHasNotMovedFunction<testPieceNames>(
             'bar',
             { white: ['a', 3] }
         );

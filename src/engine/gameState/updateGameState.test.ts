@@ -1,6 +1,6 @@
 import { GameError, MoveRecord, RectangularBoardConfig } from '../../types';
 import { rectangularBoardHelper } from '../board';
-import { GameState, GameStatePiecePlacement } from './gameState';
+import { GameState, PiecePlacement } from './gameState';
 import { generateGameState } from './generateGameState';
 import { updateGameState } from './updateGameState';
 
@@ -10,7 +10,7 @@ describe('updateGameState', () => {
     const smallBoardConfig: RectangularBoardConfig = { width: 2, height: 2 };
     const standardBoardConfig: RectangularBoardConfig = { width: 8, height: 8 };
     test('Input Game state is not changed', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { color: 'white', moveCount: 0, name: 'foo' },
                 position: ['a', 1]
@@ -50,7 +50,7 @@ describe('updateGameState', () => {
     });
 
     describe('Basic move', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { color: 'white', moveCount: 0, name: 'foo' },
                 position: ['a', 1]
@@ -109,7 +109,7 @@ describe('updateGameState', () => {
     });
 
     describe('castle move', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { color: 'white', moveCount: 0, name: 'foo' },
                 position: ['e', 1]
@@ -231,7 +231,7 @@ describe('updateGameState', () => {
 
     describe('capture move', () => {
         describe('normal capture location', () => {
-            const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+            const piecePlacements: PiecePlacement<pieceNames>[] = [
                 {
                     piece: { color: 'white', moveCount: 0, name: 'foo' },
                     position: ['a', 1]
@@ -276,7 +276,7 @@ describe('updateGameState', () => {
         });
 
         describe('alternate capture location', () => {
-            const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+            const piecePlacements: PiecePlacement<pieceNames>[] = [
                 {
                     piece: { color: 'white', moveCount: 0, name: 'foo' },
                     position: ['a', 1]
@@ -329,7 +329,7 @@ describe('updateGameState', () => {
     });
 
     test('Promotion move updates piece name', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: { color: 'white', moveCount: 0, name: 'foo' },
                 position: ['a', 1]

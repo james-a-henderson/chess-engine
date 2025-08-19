@@ -1,18 +1,18 @@
 import {
     BoardPosition,
-    MoveConditionFunctionV2,
+    MoveConditionFunction,
     PlayerColor,
     RulesConfigurationError
 } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
 
-export function generateOtherPieceHasNotMovedFunctionV2<
+export function generateOtherPieceHasNotMovedFunction<
     PieceNames extends string[]
 >(
     pieceName: PieceNames[keyof PieceNames],
     piecePositionForColor: Partial<Record<PlayerColor, BoardPosition>>
-): MoveConditionFunctionV2<PieceNames> {
+): MoveConditionFunction<PieceNames> {
     return (state: GameState<PieceNames>) => {
         const position = piecePositionForColor[state.currentPlayer];
 

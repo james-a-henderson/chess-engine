@@ -20,7 +20,7 @@ export type MoveOptions<PieceNames extends string[]> =
     | CastleMoveOptions
     | PromotionMoveOptions<PieceNames>; //will expand with promotion options later
 
-export type verifyLegalMoveFunctionV2<PieceNames extends string[]> = (
+export type verifyLegalMoveFunction<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
     origin: BoardPosition,
     destination: BoardPosition,
@@ -47,14 +47,14 @@ export type AvailableMoves = {
     specialMoves?: SpecialMove[];
 };
 
-export type GetLegalMovesFunctionV2<PieceNames extends string[]> = (
+export type GetLegalMovesFunction<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
     origin: BoardPosition,
     getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
     previousMove?: MoveRecord<PieceNames>
 ) => AvailableMoves;
 
-export type MoveConditionFunctionV2<PieceNames extends string[]> = (
+export type MoveConditionFunction<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
     props: {
         piecePosition: BoardPosition;
@@ -73,9 +73,9 @@ export function emptyVerifyMovesFunction(): false {
 
 export type VerifyMovesForPiece<PieceNames extends string[]> = Map<
     PieceNames[keyof PieceNames],
-    verifyLegalMoveFunctionV2<PieceNames>[]
+    verifyLegalMoveFunction<PieceNames>[]
 >;
 export type LegalMovesForPiece<PieceNames extends string[]> = Map<
     PieceNames[keyof PieceNames],
-    GetLegalMovesFunctionV2<PieceNames>[]
+    GetLegalMovesFunction<PieceNames>[]
 >;

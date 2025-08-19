@@ -1,10 +1,10 @@
 import { MoveRecord, RectangularBoardConfig } from '../../../../types';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
-import { generateSpecificPreviousMoveFunctionV2 } from './specificPreviousMoveV2';
+import { generateSpecificPreviousMoveFunction } from './specificPreviousMove';
 
 type testPieceNames = ['foo', 'bar'];
-describe('generateSpecificPreviousMoveFunctionV2', () => {
+describe('generateSpecificPreviousMoveFunction', () => {
     const boardConfig: RectangularBoardConfig = {
         height: 3,
         width: 3
@@ -19,7 +19,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
         pieceName: 'bar'
     };
     test('Generated function returns false if previous move has different name then configured', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -32,7 +32,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const func = generateSpecificPreviousMoveFunctionV2<testPieceNames>(
+        const func = generateSpecificPreviousMoveFunction<testPieceNames>(
             'test',
             []
         );
@@ -50,7 +50,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
     });
 
     test('Generated function returns true if previous move is correct and positions are not configured', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -63,7 +63,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const func = generateSpecificPreviousMoveFunctionV2<testPieceNames>(
+        const func = generateSpecificPreviousMoveFunction<testPieceNames>(
             'test',
             []
         );
@@ -78,7 +78,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
     });
 
     test('Generated function returns false if previously moved piece is in an invalid direction', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -91,7 +91,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const func = generateSpecificPreviousMoveFunctionV2<testPieceNames>(
+        const func = generateSpecificPreviousMoveFunction<testPieceNames>(
             'test',
             [{ direction: 'right', numSpaces: 2 }]
         );
@@ -109,7 +109,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
     });
 
     test('Generated function returns true if previously moved piece in configured location', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -122,7 +122,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const func = generateSpecificPreviousMoveFunctionV2<testPieceNames>(
+        const func = generateSpecificPreviousMoveFunction<testPieceNames>(
             'test',
             [{ direction: 'right', numSpaces: 2 }]
         );
@@ -137,7 +137,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
     });
 
     test('Generated function returns false if previously moved piece is not in configured location', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -150,7 +150,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const func = generateSpecificPreviousMoveFunctionV2<testPieceNames>(
+        const func = generateSpecificPreviousMoveFunction<testPieceNames>(
             'test',
             [{ direction: 'right', numSpaces: 1 }]
         );
@@ -165,7 +165,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
     });
 
     test('Generated function returns true if previously moved piece is in one of many configured locations', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'white', moveCount: 0 },
                 position: ['a', 1]
@@ -178,7 +178,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-        const func = generateSpecificPreviousMoveFunctionV2<testPieceNames>(
+        const func = generateSpecificPreviousMoveFunction<testPieceNames>(
             'test',
             [
                 { direction: 'right', numSpaces: 1 },
@@ -197,7 +197,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
     });
 
     test('Generated function correctly flips direction for black piece', () => {
-        const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+        const piecePlacements: PiecePlacement<testPieceNames>[] = [
             {
                 piece: { name: 'foo', color: 'black', moveCount: 0 },
                 position: ['c', 1]
@@ -210,7 +210,7 @@ describe('generateSpecificPreviousMoveFunctionV2', () => {
 
         const state = generateGameState(piecePlacements, 'black', boardConfig);
 
-        const func = generateSpecificPreviousMoveFunctionV2<testPieceNames>(
+        const func = generateSpecificPreviousMoveFunction<testPieceNames>(
             'test',
             [{ direction: 'right', numSpaces: 2 }]
         );

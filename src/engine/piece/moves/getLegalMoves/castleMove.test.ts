@@ -7,9 +7,9 @@ import {
     RectangularBoardConfig,
     RulesConfigurationError
 } from '../../../../types';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
-import { generateGetLegalCastleMovesFunctionV2 } from './castleMoveV2';
+import { generateGetLegalCastleMovesFunction } from './castleMove';
 
 type testPieceNames = ['foo', 'bar'];
 
@@ -17,7 +17,7 @@ const generateVerifyLegalMoveFunctionMock = jest.fn();
 
 jest.mock('../verifyMove', () => {
     return {
-        generateVerifyLegalMoveFunctionV2: () =>
+        generateVerifyLegalMoveFunction: () =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             generateVerifyLegalMoveFunctionMock()
     };
@@ -118,7 +118,7 @@ function getTestResult(
         return verifyMoveReturnValue;
     });
 
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {
             piece: { name: 'foo', color: 'white', moveCount: 0 },
             position: startingPosition
@@ -127,7 +127,7 @@ function getTestResult(
 
     const state = generateGameState(piecePlacements, 'white', boardConfig);
 
-    const getMoveFunction = generateGetLegalCastleMovesFunctionV2(
+    const getMoveFunction = generateGetLegalCastleMovesFunction(
         'foo',
         moveConfig
     );

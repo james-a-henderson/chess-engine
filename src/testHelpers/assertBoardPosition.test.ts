@@ -1,11 +1,11 @@
-import { BoardSpaceStatus, GameStatePiecePlacement } from '../engine/gameState';
+import { BoardSpace, PiecePlacement } from '../engine/gameState';
 import { generateGameState } from '../engine/gameState/generateGameState';
 import { PieceConfig, PlayerColor } from '../types';
-import { assertBoardPositionV2 } from './assertBoardPositionV2';
+import { assertBoardPosition } from './assertBoardPosition';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];
 
-describe('assertBoardPositionV2', () => {
+describe('assertBoardPosition', () => {
     const testPiece: PieceConfig<testPieceNames> = {
         name: 'testPiece',
         notation: 'A',
@@ -129,7 +129,7 @@ describe('assertBoardPositionV2', () => {
         }) => {
             const board = generateTestBoard(pieces);
             expect(() =>
-                assertBoardPositionV2(board, expectedBoard, pieces)
+                assertBoardPosition(board, expectedBoard, pieces)
             ).not.toThrow();
         }
     );
@@ -169,7 +169,7 @@ describe('assertBoardPositionV2', () => {
         ({ expectedBoard }: { expectedBoard: (string | undefined)[][] }) => {
             const board = generateTestBoard([]);
             expect(() =>
-                assertBoardPositionV2(board, expectedBoard, pieceConfigs)
+                assertBoardPosition(board, expectedBoard, pieceConfigs)
             ).toThrow('Board heights do not match');
         }
     );
@@ -207,7 +207,7 @@ describe('assertBoardPositionV2', () => {
         ({ expectedBoard }: { expectedBoard: (string | undefined)[][] }) => {
             const board = generateTestBoard([]);
             expect(() =>
-                assertBoardPositionV2(board, expectedBoard, pieceConfigs)
+                assertBoardPosition(board, expectedBoard, pieceConfigs)
             ).toThrow('Board widths do not match');
         }
     );
@@ -272,7 +272,7 @@ describe('assertBoardPositionV2', () => {
         }) => {
             const board = generateTestBoard(pieces);
             expect(() =>
-                assertBoardPositionV2(board, expectedBoard, pieces)
+                assertBoardPosition(board, expectedBoard, pieces)
             ).toThrow();
         }
     );
@@ -280,8 +280,8 @@ describe('assertBoardPositionV2', () => {
 
 function generateTestBoard(
     pieceConfigs: PieceConfig<testPieceNames>[]
-): BoardSpaceStatus<testPieceNames>[][] {
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [];
+): BoardSpace<testPieceNames>[][] {
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [];
 
     for (const config of pieceConfigs) {
         for (const [color, startingPositions] of Object.entries(

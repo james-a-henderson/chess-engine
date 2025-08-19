@@ -1,5 +1,5 @@
 import { GameRules, IllegalMoveError, MoveRecord, PieceConfig } from '../types';
-import { GameEngineV2 } from './GameEngineV2';
+import { GameEngine } from './GameEngine';
 
 const mockGenerateVerifyLegalMove = jest.fn();
 const mockGenerateGetLegalMoves = jest.fn();
@@ -8,10 +8,10 @@ const mockGenerateCheckFunction = jest.fn();
 
 jest.mock('./piece/moves', () => {
     return {
-        generateVerifyLegalMoveFunctionV2: () =>
+        generateVerifyLegalMoveFunction: () =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             mockGenerateVerifyLegalMove(),
-        generateGetLegalMovesFunctionV2: () =>
+        generateGetLegalMovesFunction: () =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             mockGenerateGetLegalMoves()
     };
@@ -21,7 +21,7 @@ jest.mock('./board', () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return {
         ...jest.requireActual('./board'),
-        generateCheckFunctionV2: () =>
+        generateCheckFunction: () =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             mockGenerateCheckFunction()
     };
@@ -85,7 +85,7 @@ const testRecord: MoveRecord<testPieceNames> = {
     destinationSpace: ['a', 2]
 };
 
-describe('GameEngineV2 gameplay', () => {
+describe('GameEngine gameplay', () => {
     beforeEach(() => {
         mockGenerateVerifyLegalMove.mockReset();
         mockGenerateGetLegalMoves.mockReset();
@@ -106,13 +106,13 @@ describe('GameEngineV2 gameplay', () => {
         jest.restoreAllMocks();
     });
     describe('getSpace', () => {
-        let engine: GameEngineV2<testPieceNames>;
+        let engine: GameEngine<testPieceNames>;
 
         beforeEach(() => {
             mockGenerateVerifyLegalMove.mockReturnValue(() => {
                 return testRecord;
             });
-            engine = new GameEngineV2(testConfig);
+            engine = new GameEngine(testConfig);
         });
 
         test('returns correct space with coordinates', () => {
@@ -146,14 +146,14 @@ describe('GameEngineV2 gameplay', () => {
 
     describe('verifyMove', () => {
         test('returns false if origin space does not have piece', () => {
-            const engine = new GameEngineV2(testConfig);
+            const engine = new GameEngine(testConfig);
             const result = engine.verifyMove(['a', 2], ['a', 3]);
 
             expect(result).toEqual(false);
         });
 
         test('returns false if origin space has piece of wrong color', () => {
-            const engine = new GameEngineV2(testConfig);
+            const engine = new GameEngine(testConfig);
             const result = engine.verifyMove(['a', 8], ['a', 7]);
 
             expect(result).toEqual(false);
@@ -169,14 +169,14 @@ describe('GameEngineV2 gameplay', () => {
                 pieces: [pieceConfig]
             };
 
-            const engine = new GameEngineV2(rulesConfig);
+            const engine = new GameEngine(rulesConfig);
             const result = engine.verifyMove(['a', 1], ['a', 2]);
 
             expect(result).toEqual(false);
         });
 
         test('returns false if verify move function returns false', () => {
-            const engine = new GameEngineV2(testConfig);
+            const engine = new GameEngine(testConfig);
             const result = engine.verifyMove(['a', 1], ['a', 2]);
 
             expect(result).toEqual(false);
@@ -187,7 +187,7 @@ describe('GameEngineV2 gameplay', () => {
                 return testRecord;
             });
 
-            const engine = new GameEngineV2(testConfig);
+            const engine = new GameEngine(testConfig);
             const result = engine.verifyMove(['a', 1], ['a', 2]);
 
             expect(result).toEqual(testRecord);
@@ -254,7 +254,7 @@ describe('GameEngineV2 gameplay', () => {
                     return testRecord;
                 });
 
-                const engine = new GameEngineV2(promotionRulesConfig);
+                const engine = new GameEngine(promotionRulesConfig);
                 const result = engine.verifyMove(['c', 1], ['c', 8]);
 
                 expect(result).toEqual(false);
@@ -270,7 +270,7 @@ describe('GameEngineV2 gameplay', () => {
                     return testRecord;
                 });
 
-                const engine = new GameEngineV2(promotionRulesConfig);
+                const engine = new GameEngine(promotionRulesConfig);
                 const result = engine.verifyMove(['c', 1], ['c', 8]);
 
                 expect(result).toEqual(false);
@@ -286,7 +286,7 @@ describe('GameEngineV2 gameplay', () => {
                     return testRecord;
                 });
 
-                const engine = new GameEngineV2(promotionRulesConfig);
+                const engine = new GameEngine(promotionRulesConfig);
                 const result = engine.verifyMove(['c', 1], ['c', 7]);
 
                 expect(result).toEqual(false);
@@ -312,7 +312,7 @@ describe('GameEngineV2 gameplay', () => {
                     return promotionRecord;
                 });
 
-                const engine = new GameEngineV2(config);
+                const engine = new GameEngine(config);
                 const result = engine.verifyMove(['c', 1], ['c', 8]);
                 expect(result).toEqual(false);
             });
@@ -327,7 +327,7 @@ describe('GameEngineV2 gameplay', () => {
                     return record;
                 });
 
-                const engine = new GameEngineV2(promotionRulesConfig);
+                const engine = new GameEngine(promotionRulesConfig);
                 const result = engine.verifyMove(['a', 1], ['a', 2]);
                 expect(result).toEqual(false);
             });
@@ -337,7 +337,7 @@ describe('GameEngineV2 gameplay', () => {
                     return promotionRecord;
                 });
 
-                const engine = new GameEngineV2(promotionRulesConfig);
+                const engine = new GameEngine(promotionRulesConfig);
                 const result = engine.verifyMove(['c', 1], ['c', 8]);
 
                 expect(result).toEqual(promotionRecord);
@@ -347,12 +347,11 @@ describe('GameEngineV2 gameplay', () => {
 
     describe('makeMove', () => {
         test('throws error if move is not valid', () => {
-            jest.spyOn(
-                GameEngineV2.prototype,
-                'verifyMove'
-            ).mockReturnValueOnce(false);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                false
+            );
 
-            const engine = new GameEngineV2(testConfig);
+            const engine = new GameEngine(testConfig);
             expect(() => {
                 engine.makeMove(['a', 1], ['a', 2]);
             }).toThrow(IllegalMoveError);
@@ -369,33 +368,30 @@ describe('GameEngineV2 gameplay', () => {
                 ]
             };
 
-            jest.spyOn(
-                GameEngineV2.prototype,
-                'verifyMove'
-            ).mockReturnValueOnce(testRecord);
-            const engine = new GameEngineV2(config);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+            const engine = new GameEngine(config);
             expect(() => {
                 engine.makeMove(['a', 1], ['a', 2]);
             }).toThrow(IllegalMoveError);
         });
 
         test('updates player if move is valid', () => {
-            jest.spyOn(
-                GameEngineV2.prototype,
-                'verifyMove'
-            ).mockReturnValueOnce(testRecord);
-            const engine = new GameEngineV2(testConfig);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+            const engine = new GameEngine(testConfig);
             engine.makeMove(['a', 1], ['a', 2]);
 
             expect(engine.currentPlayer).toEqual('black');
         });
 
         test('piece is not on origin space after move', () => {
-            jest.spyOn(
-                GameEngineV2.prototype,
-                'verifyMove'
-            ).mockReturnValueOnce(testRecord);
-            const engine = new GameEngineV2(testConfig);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+            const engine = new GameEngine(testConfig);
 
             expect(engine.getSpace(['a', 1]).piece).not.toBeUndefined();
 
@@ -404,11 +400,10 @@ describe('GameEngineV2 gameplay', () => {
         });
 
         test('piece is on destination space after move', () => {
-            jest.spyOn(
-                GameEngineV2.prototype,
-                'verifyMove'
-            ).mockReturnValueOnce(testRecord);
-            const engine = new GameEngineV2(testConfig);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+            const engine = new GameEngine(testConfig);
 
             expect(engine.getSpace(['a', 2]).piece).toBeUndefined();
 
@@ -418,11 +413,10 @@ describe('GameEngineV2 gameplay', () => {
         });
 
         test('piece move count is updated after move', () => {
-            jest.spyOn(
-                GameEngineV2.prototype,
-                'verifyMove'
-            ).mockReturnValueOnce(testRecord);
-            const engine = new GameEngineV2(testConfig);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+            const engine = new GameEngine(testConfig);
             engine.makeMove(['a', 1], ['a', 2]);
 
             expect(engine.getSpace(['a', 2]).piece?.moveCount).toEqual(1);
@@ -442,11 +436,10 @@ describe('GameEngineV2 gameplay', () => {
             mockGenerateCheckFunction.mockReturnValue(() => {
                 return true;
             });
-            jest.spyOn(
-                GameEngineV2.prototype,
-                'verifyMove'
-            ).mockReturnValueOnce(testRecord);
-            const engine = new GameEngineV2(config);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+            const engine = new GameEngine(config);
             expect(() => {
                 engine.makeMove(['a', 1], ['a', 2]);
             }).not.toThrow(IllegalMoveError);

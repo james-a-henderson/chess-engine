@@ -3,27 +3,27 @@ import {
     CastleConfigForColor,
     CastleMove,
     LegalMovesForPiece,
-    MoveConditionFunctionV2,
+    MoveConditionFunction,
     MoveOptions,
     MoveRecord,
-    verifyLegalMoveFunctionV2
+    verifyLegalMoveFunction
 } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
 import {
     calculateMoveLength,
     determineMoveDirection,
-    getMoveConditionFunctionsV2,
+    getMoveConditionFunctions,
     makeNextSpaceIterator,
     positionsAreEqual,
-    validateCaputureRulesV2
+    validateCaputureRules
 } from '../helpers';
 
-export function generateVerifyCastleMoveFunctionV2<PieceNames extends string[]>(
+export function generateVerifyCastleMoveFunction<PieceNames extends string[]>(
     pieceName: PieceNames[keyof PieceNames],
     move: CastleMove<PieceNames>
-): verifyLegalMoveFunctionV2<PieceNames> {
-    const conditionFunctions = getMoveConditionFunctionsV2(
+): verifyLegalMoveFunction<PieceNames> {
+    const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 
@@ -33,8 +33,8 @@ export function generateVerifyCastleMoveFunctionV2<PieceNames extends string[]>(
 function generateFunction<PieceNames extends string[]>(
     pieceName: PieceNames[keyof PieceNames],
     move: CastleMove<PieceNames>,
-    conditionFunctions: MoveConditionFunctionV2<PieceNames>[]
-): verifyLegalMoveFunctionV2<PieceNames> {
+    conditionFunctions: MoveConditionFunction<PieceNames>[]
+): verifyLegalMoveFunction<PieceNames> {
     return (
         state: GameState<PieceNames>,
         origin: BoardPosition,
@@ -67,7 +67,7 @@ function generateFunction<PieceNames extends string[]>(
         }
 
         if (
-            !validateCaputureRulesV2(
+            !validateCaputureRules(
                 state,
                 origin,
                 destination,
@@ -116,7 +116,6 @@ function generateFunction<PieceNames extends string[]>(
             return false;
         }
 
-        //todo: validate resulting board state is valid
         return {
             type: 'castle',
             moveName: move.name,

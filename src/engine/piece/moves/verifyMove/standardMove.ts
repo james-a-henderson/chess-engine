@@ -3,31 +3,29 @@ import {
     Direction,
     emptyVerifyMovesFunction,
     LegalMovesForPiece,
-    MoveConditionFunctionV2,
+    MoveConditionFunction,
     MoveOptions,
     MoveRecord,
     StandardMove,
     StandardMoveAlternateCaptureLocation,
-    verifyLegalMoveFunctionV2
+    verifyLegalMoveFunction
 } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
 import {
     calculateMoveLength,
     determineMoveDirection,
-    getMoveConditionFunctionsV2,
+    getMoveConditionFunctions,
     makeNextSpaceIterator,
     positionsAreEqual,
     reverseDirection,
-    validateCaputureRulesV2
+    validateCaputureRules
 } from '../helpers';
 
-export function generateVerifyStandardMoveFunctionV2<
-    PieceNames extends string[]
->(
+export function generateVerifyStandardMoveFunction<PieceNames extends string[]>(
     pieceName: PieceNames[keyof PieceNames],
     move: StandardMove<PieceNames>
-): verifyLegalMoveFunctionV2<PieceNames> {
+): verifyLegalMoveFunction<PieceNames> {
     const directions: Direction[] =
         move.directions !== 'all'
             ? move.directions
@@ -45,7 +43,7 @@ export function generateVerifyStandardMoveFunctionV2<
         return emptyVerifyMovesFunction;
     }
 
-    const conditionFunctions = getMoveConditionFunctionsV2(
+    const conditionFunctions = getMoveConditionFunctions(
         move.moveConditions ?? []
     );
 
@@ -55,8 +53,8 @@ export function generateVerifyStandardMoveFunctionV2<
 function generateFunction<PieceNames extends string[]>(
     pieceName: PieceNames[keyof PieceNames],
     move: StandardMove<PieceNames>,
-    conditionFunctions: MoveConditionFunctionV2<PieceNames>[]
-): verifyLegalMoveFunctionV2<PieceNames> {
+    conditionFunctions: MoveConditionFunction<PieceNames>[]
+): verifyLegalMoveFunction<PieceNames> {
     return (
         state: GameState<PieceNames>,
         origin: BoardPosition,
@@ -97,7 +95,7 @@ function generateFunction<PieceNames extends string[]>(
                 return false;
             }
         } else if (
-            !validateCaputureRulesV2(
+            !validateCaputureRules(
                 state,
                 origin,
                 destination,
@@ -180,8 +178,6 @@ function generateFunction<PieceNames extends string[]>(
                 return false;
             }
         }
-
-        //todo: validate resulting board space is valid
 
         return {
             originSpace: origin,

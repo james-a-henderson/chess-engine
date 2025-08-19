@@ -1,23 +1,23 @@
 import {
     emptyVerifyMovesFunction,
     Move,
-    verifyLegalMoveFunctionV2
+    verifyLegalMoveFunction
 } from '../../../../types';
-import { generateVerifyCastleMoveFunctionV2 } from './castleMoveV2';
-import { generateVerifyJumpMoveFunctionV2 } from './jumpMoveV2';
-import { generateVerifyStandardMoveFunctionV2 } from './standardMoveV2';
+import { generateVerifyCastleMoveFunction } from './castleMove';
+import { generateVerifyJumpMoveFunction } from './jumpMove';
+import { generateVerifyStandardMoveFunction } from './standardMove';
 
-export function generateVerifyLegalMoveFunctionV2<PieceNames extends string[]>(
+export function generateVerifyLegalMoveFunction<PieceNames extends string[]>(
     pieceName: PieceNames[keyof PieceNames],
     move: Move<PieceNames>
-): verifyLegalMoveFunctionV2<PieceNames> {
+): verifyLegalMoveFunction<PieceNames> {
     switch (move.type) {
         case 'standard':
-            return generateVerifyStandardMoveFunctionV2(pieceName, move);
+            return generateVerifyStandardMoveFunction(pieceName, move);
         case 'jump':
-            return generateVerifyJumpMoveFunctionV2(pieceName, move);
+            return generateVerifyJumpMoveFunction(pieceName, move);
         case 'castle':
-            return generateVerifyCastleMoveFunctionV2(pieceName, move);
+            return generateVerifyCastleMoveFunction(pieceName, move);
         default:
             return emptyVerifyMovesFunction;
     }

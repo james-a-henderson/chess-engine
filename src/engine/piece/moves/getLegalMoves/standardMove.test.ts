@@ -7,10 +7,10 @@ import {
     RectangularBoardConfig,
     StandardMove
 } from '../../../../types';
-import { generateGetLegalStandardMovesFunctionV2 } from './standardMoveV2';
+import { generateGetLegalStandardMovesFunction } from './standardMove';
 
 import * as helperFunctions from '../helpers';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
 
 type testPieceNames = ['foo'];
@@ -28,7 +28,7 @@ const baseMoveConfig: StandardMove<testPieceNames> = {
     maxSpaces: 'unlimited'
 };
 
-describe('generateGetLegalStandardMovesFunctionV2', () => {
+describe('generateGetLegalStandardMovesFunction', () => {
     beforeEach(() => {
         jest.restoreAllMocks();
     });
@@ -411,7 +411,7 @@ describe('generateGetLegalStandardMovesFunctionV2', () => {
     test('Returns empty array when move does not satisfy condition', () => {
         jest.spyOn(
             helperFunctions,
-            'getMoveConditionFunctionsV2'
+            'getMoveConditionFunctions'
         ).mockReturnValue([
             () => {
                 return false;
@@ -425,7 +425,7 @@ describe('generateGetLegalStandardMovesFunctionV2', () => {
     test('Returns expected value when move satisfies conditions', () => {
         jest.spyOn(
             helperFunctions,
-            'getMoveConditionFunctionsV2'
+            'getMoveConditionFunctions'
         ).mockReturnValue([
             () => {
                 return true;
@@ -483,7 +483,7 @@ function getTestResult(
         : 'white';
     const otherColor: PlayerColor = color === 'white' ? 'black' : 'white';
 
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {
             piece: { name: 'foo', color: color, moveCount: 0 },
             position: startingPosition
@@ -506,7 +506,7 @@ function getTestResult(
 
     const state = generateGameState(piecePlacements, color, boardConfig);
 
-    const getMovesFunction = generateGetLegalStandardMovesFunctionV2(move);
+    const getMovesFunction = generateGetLegalStandardMovesFunction(move);
 
     return getMovesFunction(state, startingPosition, new Map());
 }

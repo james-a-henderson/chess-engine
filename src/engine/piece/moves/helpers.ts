@@ -4,19 +4,19 @@ import {
     Direction,
     GameError,
     MoveCondition,
-    MoveConditionFunctionV2,
+    MoveConditionFunction,
     PlayerColor
 } from '../../../types';
 import { rectangularBoardHelper } from '../../board';
 import { GameState } from '../../gameState';
 import {
-    firstPieceMoveV2,
-    generateOtherPieceHasNotMovedFunctionV2,
-    generateSpacesNotThreatenedFunctionV2,
-    generateSpecificPreviousMoveFunctionV2
+    firstPieceMove,
+    generateOtherPieceHasNotMovedFunction,
+    generateSpacesNotThreatenedFunction,
+    generateSpecificPreviousMoveFunction
 } from './restrictions';
 
-export function validateCaputureRulesV2<PieceNames extends string[]>(
+export function validateCaputureRules<PieceNames extends string[]>(
     state: GameState<PieceNames>,
     origin: BoardPosition,
     destination: BoardPosition,
@@ -81,19 +81,19 @@ export function reverseDirection(direction: Direction): Direction {
     }
 }
 
-export function getMoveConditionFunctionsV2<PieceNames extends string[]>(
+export function getMoveConditionFunctions<PieceNames extends string[]>(
     conditions: MoveCondition<PieceNames>[]
-): MoveConditionFunctionV2<PieceNames>[] {
-    const conditionFunctions: MoveConditionFunctionV2<PieceNames>[] = [];
+): MoveConditionFunction<PieceNames>[] {
+    const conditionFunctions: MoveConditionFunction<PieceNames>[] = [];
 
     for (const condition of conditions) {
         switch (condition.condition) {
             case 'firstPieceMove':
-                conditionFunctions.push(firstPieceMoveV2);
+                conditionFunctions.push(firstPieceMove);
                 break;
             case 'otherPieceHasNotMoved':
                 conditionFunctions.push(
-                    generateOtherPieceHasNotMovedFunctionV2(
+                    generateOtherPieceHasNotMovedFunction(
                         condition.piece,
                         condition.piecePositionForColor
                     )
@@ -101,14 +101,14 @@ export function getMoveConditionFunctionsV2<PieceNames extends string[]>(
                 break;
             case 'spacesNotThreatened':
                 conditionFunctions.push(
-                    generateSpacesNotThreatenedFunctionV2(
+                    generateSpacesNotThreatenedFunction(
                         condition.spacesForColor
                     )
                 );
                 break;
             case 'specificPreviousMove':
                 conditionFunctions.push(
-                    generateSpecificPreviousMoveFunctionV2(
+                    generateSpecificPreviousMoveFunction(
                         condition.previousMoveName,
                         condition.locations
                     )

@@ -2,22 +2,22 @@ import {
     AvailableMoves,
     BoardPosition,
     CastleMove,
-    GetLegalMovesFunctionV2,
+    GetLegalMovesFunction,
     LegalMovesForPiece,
     MoveRecord,
     RulesConfigurationError
 } from '../../../../types';
 import { GameState } from '../../../gameState';
-import { generateVerifyLegalMoveFunctionV2 } from '../verifyMove';
+import { generateVerifyLegalMoveFunction } from '../verifyMove';
 
-export function generateGetLegalCastleMovesFunctionV2<
+export function generateGetLegalCastleMovesFunction<
     PieceNames extends string[]
 >(
     pieceName: PieceNames[keyof PieceNames],
     move: CastleMove<PieceNames>
-): GetLegalMovesFunctionV2<PieceNames> {
+): GetLegalMovesFunction<PieceNames> {
     //since there's only one possible move for each castle move, we can lean on the verify move code
-    const verifyCastleMoveFunction = generateVerifyLegalMoveFunctionV2(
+    const verifyCastleMoveFunction = generateVerifyLegalMoveFunction(
         pieceName,
         move
     );

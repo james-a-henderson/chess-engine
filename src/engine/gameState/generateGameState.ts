@@ -6,15 +6,11 @@ import {
     RectangularBoardConfig
 } from '../../types';
 import { rectangularBoardHelper } from '../board';
-import {
-    BoardSpaceStatus,
-    GameState,
-    GameStatePiecePlacement
-} from './gameState';
+import { BoardSpace, GameState, PiecePlacement } from './gameState';
 
 //todo: extend to other board shapes
 export function generateGameState<PieceNames extends string[]>(
-    piecePlacements: GameStatePiecePlacement<PieceNames>[],
+    piecePlacements: PiecePlacement<PieceNames>[],
     currentPlayer: PlayerColor,
     boardConfig: RectangularBoardConfig
 ): GameState<PieceNames> {
@@ -51,7 +47,7 @@ export function generateGameState<PieceNames extends string[]>(
 
 function generateEmptyBoard<PieceNames extends string[]>(
     boardConfig: RectangularBoardConfig
-): BoardSpaceStatus<PieceNames>[][] {
+): BoardSpace<PieceNames>[][] {
     if (
         !Number.isSafeInteger(boardConfig.width) ||
         !Number.isSafeInteger(boardConfig.height) ||
@@ -63,10 +59,10 @@ function generateEmptyBoard<PieceNames extends string[]>(
         throw new BoardConfigurationError('invalid board size');
     }
 
-    const board: BoardSpaceStatus<PieceNames>[][] = [];
+    const board: BoardSpace<PieceNames>[][] = [];
 
     for (let i = 0; i < boardConfig.width; i++) {
-        const file: BoardSpaceStatus<PieceNames>[] = [];
+        const file: BoardSpace<PieceNames>[] = [];
         for (let j = 0; j < boardConfig.height; j++) {
             file.push({
                 position: rectangularBoardHelper.indiciesToCoordinates(

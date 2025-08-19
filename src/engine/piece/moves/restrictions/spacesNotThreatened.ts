@@ -1,18 +1,18 @@
 import {
     BoardPosition,
     LegalMovesForPiece,
-    MoveConditionFunctionV2,
+    MoveConditionFunction,
     PlayerColor,
     RulesConfigurationError
 } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
 
-export function generateSpacesNotThreatenedFunctionV2<
+export function generateSpacesNotThreatenedFunction<
     PieceNames extends string[]
 >(
     spacesForColor: Partial<Record<PlayerColor, BoardPosition[]>>
-): MoveConditionFunctionV2<PieceNames> {
+): MoveConditionFunction<PieceNames> {
     return (
         state: GameState<PieceNames>,
         props: { getLegalMovesFunctions: LegalMovesForPiece<PieceNames> }

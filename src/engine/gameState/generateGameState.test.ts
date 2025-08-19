@@ -3,7 +3,7 @@ import {
     PieceConfigurationError,
     RectangularBoardConfig
 } from '../../types';
-import { GameStatePiecePlacement } from './gameState';
+import { PiecePlacement } from './gameState';
 import { generateGameState } from './generateGameState';
 
 type pieceNames = ['foo', 'bar'];
@@ -70,7 +70,7 @@ describe('generateGameState', () => {
     });
 
     test('Piece placements are on expected positions', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: {
                     color: 'white',
@@ -109,7 +109,7 @@ describe('generateGameState', () => {
     });
 
     test('Pieces are not on spaces not specified', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: {
                     color: 'white',
@@ -139,7 +139,7 @@ describe('generateGameState', () => {
     });
 
     test('Throws error if multiple pieces have same position', () => {
-        const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+        const piecePlacements: PiecePlacement<pieceNames>[] = [
             {
                 piece: {
                     color: 'white',
@@ -172,7 +172,7 @@ describe('generateGameState', () => {
     ])(
         'Throws if piece is placed on invalid position %s%d',
         (file: string, rank: number) => {
-            const piecePlacements: GameStatePiecePlacement<pieceNames>[] = [
+            const piecePlacements: PiecePlacement<pieceNames>[] = [
                 {
                     piece: {
                         color: 'white',

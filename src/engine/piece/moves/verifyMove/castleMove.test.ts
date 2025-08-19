@@ -1,11 +1,11 @@
 import { BoardPosition, CastleMove, PlayerColor } from '../../../../types';
-import { GameStatePiecePlacement } from '../../../gameState';
+import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
-import { generateVerifyCastleMoveFunctionV2 } from './castleMoveV2';
+import { generateVerifyCastleMoveFunction } from './castleMove';
 
 type testPieceNames = ['king', 'rook', 'foo'];
 
-describe('generateVerifyCastleMoveFunctionV2', () => {
+describe('generateVerifyCastleMoveFunction', () => {
     afterEach(() => {
         jest.restoreAllMocks();
     });
@@ -372,7 +372,7 @@ function generateMoveTest(
 ) {
     const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
 
-    const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
+    const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {
             piece: {
                 name: 'king',
@@ -409,7 +409,7 @@ function generateMoveTest(
         height: 8
     });
 
-    const moveFunction = generateVerifyCastleMoveFunctionV2('king', moveConfig);
+    const moveFunction = generateVerifyCastleMoveFunction('king', moveConfig);
 
     const result = moveFunction(
         state,

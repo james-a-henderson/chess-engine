@@ -1,1 +1,1 @@
-export * from './pieceIsInCheckV2';
+export * from './pieceIsInCheck';

@@ -1,19 +1,19 @@
 import {
     BoardPosition,
     Direction,
-    MoveConditionFunctionV2,
+    MoveConditionFunction,
     MoveRecord
 } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
 import { calculateMoveLength, determineMoveDirection } from '../helpers';
 
-export function generateSpecificPreviousMoveFunctionV2<
+export function generateSpecificPreviousMoveFunction<
     PieceNames extends string[]
 >(
     previousMoveName: string,
     pieceLocations: { direction: Direction; numSpaces: number }[]
-): MoveConditionFunctionV2<PieceNames> {
+): MoveConditionFunction<PieceNames> {
     return (
         state: GameState<PieceNames>,
         props: {

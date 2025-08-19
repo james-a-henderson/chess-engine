@@ -6,7 +6,7 @@ import {
 } from '../../types';
 
 export type GameState<PieceNames extends string[]> = {
-    board: BoardSpaceStatus<PieceNames>[][];
+    board: BoardSpace<PieceNames>[][];
     boardConfig: RectangularBoardConfig;
     currentPlayer: PlayerColor;
     status: GameStatus;
@@ -20,15 +20,12 @@ export type PieceState<PieceNames extends string[]> = {
     moveCount: number;
 };
 
-//todo: rename something simpler after refactor
-export type GameStatePiecePlacement<PieceNames extends string[]> = {
+export type PiecePlacement<PieceNames extends string[]> = {
     position: BoardPosition;
     piece: PieceState<PieceNames>;
 };
 
-//todo: update name to something simpler
-//BoardSpace name is already used throughout program, so using alternate name is easier for now
-export type BoardSpaceStatus<PieceNames extends string[]> = {
+export type BoardSpace<PieceNames extends string[]> = {
     position: BoardPosition;
     piece?: PieceState<PieceNames>;
 };

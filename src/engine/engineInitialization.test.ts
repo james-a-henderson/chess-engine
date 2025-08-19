@@ -1,5 +1,5 @@
 import { standardChessConfig } from '../rulesConfiguration';
-import { assertBoardPositionV2 } from '../testHelpers';
+import { assertBoardPosition } from '../testHelpers';
 import {
     BoardConfigurationError,
     GameRules,
@@ -9,13 +9,13 @@ import {
     Player,
     PlayerConfigurationError
 } from '../types';
-import { GameEngineV2 } from './GameEngineV2';
+import { GameEngine } from './GameEngine';
 
 import * as GenerateBoardVerificationFunctions from './board/generateVerifyBoardFunctions';
 
 type testPieceNames = ['testPiece', 'foo', 'bar'];
 
-describe('initialize engine V2', () => {
+describe('initialize engine', () => {
     const genericPiece: PieceConfig<testPieceNames> = {
         name: 'testPiece',
         notation: 'A',
@@ -64,7 +64,7 @@ describe('initialize engine V2', () => {
     });
 
     test('standard chess rules validate with no errors', () => {
-        expect(() => new GameEngineV2(standardChessConfig)).not.toThrow();
+        expect(() => new GameEngine(standardChessConfig)).not.toThrow();
     });
 
     describe('board configuration', () => {
@@ -85,7 +85,7 @@ describe('initialize engine V2', () => {
                     pieces: []
                 };
 
-                const board = new GameEngineV2(config).currentGameState.board;
+                const board = new GameEngine(config).currentGameState.board;
                 expect(board.length).toEqual(width);
                 board.forEach((file) => {
                     expect(file.length).toEqual(height);
@@ -121,7 +121,7 @@ describe('initialize engine V2', () => {
                     }
                 };
 
-                expect(() => new GameEngineV2(config)).toThrow(
+                expect(() => new GameEngine(config)).toThrow(
                     BoardConfigurationError
                 );
             }
@@ -165,7 +165,7 @@ describe('initialize engine V2', () => {
                     players: players
                 };
 
-                expect(() => new GameEngineV2(config)).not.toThrow(
+                expect(() => new GameEngine(config)).not.toThrow(
                     PlayerConfigurationError
                 );
             }
@@ -222,7 +222,7 @@ describe('initialize engine V2', () => {
                 players: players
             };
 
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PlayerConfigurationError
             );
         });
@@ -257,7 +257,7 @@ describe('initialize engine V2', () => {
                     players: players
                 };
 
-                const engine = new GameEngineV2(config);
+                const engine = new GameEngine(config);
                 expect(engine.currentGameState.currentPlayer).toEqual(expected);
             }
         );
@@ -284,7 +284,7 @@ describe('initialize engine V2', () => {
                     }
                 ]
             };
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PieceConfigurationError
             );
         });
@@ -309,7 +309,7 @@ describe('initialize engine V2', () => {
                     }
                 ]
             };
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PieceConfigurationError
             );
         });
@@ -326,7 +326,7 @@ describe('initialize engine V2', () => {
                     }
                 ]
             };
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PieceConfigurationError
             );
         });
@@ -343,7 +343,7 @@ describe('initialize engine V2', () => {
                     }
                 ]
             };
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PieceConfigurationError
             );
         });
@@ -358,7 +358,7 @@ describe('initialize engine V2', () => {
                     }
                 ]
             };
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PieceConfigurationError
             );
         });
@@ -376,7 +376,7 @@ describe('initialize engine V2', () => {
                     }
                 ]
             };
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PlayerConfigurationError
             );
         });
@@ -416,7 +416,7 @@ describe('initialize engine V2', () => {
                 ]
             };
 
-            const engine = new GameEngineV2<testPieceNames>(config);
+            const engine = new GameEngine<testPieceNames>(config);
 
             const expectedBoard: string[][] = [
                 ['F', ' ', 'B'],
@@ -424,7 +424,7 @@ describe('initialize engine V2', () => {
                 ['f', ' ', 'b']
             ];
 
-            assertBoardPositionV2(
+            assertBoardPosition(
                 engine.currentBoard,
                 expectedBoard,
                 config.pieces
@@ -445,7 +445,7 @@ describe('initialize engine V2', () => {
                 ]
             };
 
-            expect(() => new GameEngineV2(config)).toThrow(
+            expect(() => new GameEngine(config)).toThrow(
                 PieceConfigurationError
             );
         });
@@ -473,9 +473,7 @@ describe('initialize engine V2', () => {
                     ]
                 };
 
-                expect(() => new GameEngineV2(config)).toThrow(
-                    InvalidSpaceError
-                );
+                expect(() => new GameEngine(config)).toThrow(InvalidSpaceError);
             }
         );
     });
@@ -484,7 +482,7 @@ describe('initialize engine V2', () => {
         test('generateCheckFunction called if rules have checkmate win condition', () => {
             const generateCheckFunctionMock = jest.spyOn(
                 GenerateBoardVerificationFunctions,
-                'generateCheckFunctionV2'
+                'generateCheckFunction'
             );
 
             const config: GameRules<testPieceNames> = {
@@ -494,7 +492,7 @@ describe('initialize engine V2', () => {
                 ]
             };
 
-            new GameEngineV2(config);
+            new GameEngine(config);
 
             expect(generateCheckFunctionMock).toHaveBeenCalledTimes(1);
         });
@@ -502,7 +500,7 @@ describe('initialize engine V2', () => {
         test('generateCheckFunction is not called if rules does not have checkmate win condition', () => {
             const generateCheckFunctionMock = jest.spyOn(
                 GenerateBoardVerificationFunctions,
-                'generateCheckFunctionV2'
+                'generateCheckFunction'
             );
 
             const config: GameRules<testPieceNames> = {
@@ -510,7 +508,7 @@ describe('initialize engine V2', () => {
                 winConditions: [{ condition: 'resign' }]
             };
 
-            new GameEngineV2(config);
+            new GameEngine(config);
 
             expect(generateCheckFunctionMock).toHaveBeenCalledTimes(0);
         });

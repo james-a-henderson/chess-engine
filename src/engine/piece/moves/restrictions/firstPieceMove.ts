@@ -2,7 +2,7 @@ import { BoardPosition } from '../../../../types';
 import { rectangularBoardHelper } from '../../../board';
 import { GameState } from '../../../gameState';
 
-export function firstPieceMoveV2<PieceNames extends string[]>(
+export function firstPieceMove<PieceNames extends string[]>(
     state: GameState<PieceNames>,
     props: { piecePosition: BoardPosition }
 ): boolean {
