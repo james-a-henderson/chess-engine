@@ -1,8 +1,9 @@
 /* eslint-disable  @typescript-eslint/no-unused-vars */ //disabling this becuase it throws for testName, which isn't used directly in code
 
 import { GameEngine } from '../engine';
+import { GameEngineV2 } from '../engine/GameEngineV2';
 import { standardChessConfig, testConfig } from '../rulesConfiguration';
-import { assertBoardPosition } from '../testHelpers';
+import { assertBoardPosition, assertBoardPositionV2 } from '../testHelpers';
 import {
     BoardPosition,
     GameRules,
@@ -937,7 +938,7 @@ function runGeneralTest<PieceNames extends string[]>(
     moves: gameMove<PieceNames>[],
     expectedBoard: (string | undefined)[][]
 ) {
-    const engine = new GameEngine(rulesConfig);
+    const engine = new GameEngineV2(rulesConfig);
 
     moves.forEach(
         (
@@ -960,14 +961,18 @@ function runGeneralTest<PieceNames extends string[]>(
         }
     );
 
-    assertBoardPosition(engine.board, expectedBoard);
+    assertBoardPositionV2(
+        engine.currentBoard,
+        expectedBoard,
+        rulesConfig.pieces
+    );
 }
 
 function runErrorTest<PieceNames extends string[]>(
     rulesConfig: GameRules<PieceNames>,
     moves: gameMove<PieceNames>[]
 ) {
-    const engine = new GameEngine(rulesConfig);
+    const engine = new GameEngineV2(rulesConfig);
 
     for (let i = 0; i < moves.length - 1; i++) {
         //execute all but final move
