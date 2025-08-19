@@ -4,50 +4,17 @@ import {
     Direction,
     GameError,
     MoveCondition,
-    MoveConditionFunction,
     MoveConditionFunctionV2,
     PlayerColor
 } from '../../../types';
-import { RectangularBoard, rectangularBoardHelper } from '../../board';
+import { rectangularBoardHelper } from '../../board';
 import { GameState } from '../../gameState';
-import { Piece } from '../piece';
 import {
-    firstPieceMove,
     firstPieceMoveV2,
-    generateOtherPieceHasNotMovedFunction,
     generateOtherPieceHasNotMovedFunctionV2,
-    generateSpacesNotThreatenedFunction,
     generateSpacesNotThreatenedFunctionV2,
     generateSpecificPreviousMoveFunctionV2
 } from './restrictions';
-import { generateSpecificPreviousMoveFunction } from './restrictions/specificPreviousMove';
-
-export function validateCaptureRules<PieceNames extends string[]>(
-    piece: Piece<PieceNames>,
-    board: RectangularBoard<PieceNames>,
-    destination: BoardPosition,
-    captureAvailability: CaptureAvailability
-): boolean {
-    const destinationSpace = board.getSpace(destination);
-
-    if (destinationSpace.piece) {
-        const destinationPiece = destinationSpace.piece;
-        if (destinationPiece.playerColor === piece.playerColor) {
-            //cannot move a piece onto the same space as piece of same color
-            return false;
-        }
-
-        if (captureAvailability === 'forbidden') {
-            //captures not allowed
-            return false;
-        }
-    } else if (captureAvailability === 'required') {
-        //cannot move to empty space, must capture
-        return false;
-    }
-
-    return true;
-}
 
 export function validateCaputureRulesV2<PieceNames extends string[]>(
     state: GameState<PieceNames>,
@@ -112,44 +79,6 @@ export function reverseDirection(direction: Direction): Direction {
         case 'rightBackward':
             return 'leftForward';
     }
-}
-
-export function getMoveConditionFunctions<PieceNames extends string[]>(
-    conditions: MoveCondition<PieceNames>[]
-): MoveConditionFunction<PieceNames>[] {
-    const conditionFunctions: MoveConditionFunction<PieceNames>[] = [];
-
-    for (const condition of conditions) {
-        switch (condition.condition) {
-            case 'firstPieceMove':
-                conditionFunctions.push(firstPieceMove);
-                break;
-            case 'otherPieceHasNotMoved':
-                conditionFunctions.push(
-                    generateOtherPieceHasNotMovedFunction(
-                        condition.piece,
-                        condition.piecePositionForColor
-                    )
-                );
-                break;
-            case 'spacesNotThreatened':
-                conditionFunctions.push(
-                    generateSpacesNotThreatenedFunction(
-                        condition.spacesForColor
-                    )
-                );
-                break;
-            case 'specificPreviousMove':
-                conditionFunctions.push(
-                    generateSpecificPreviousMoveFunction(
-                        condition.previousMoveName,
-                        condition.locations
-                    )
-                );
-        }
-    }
-
-    return conditionFunctions;
 }
 
 export function getMoveConditionFunctionsV2<PieceNames extends string[]>(

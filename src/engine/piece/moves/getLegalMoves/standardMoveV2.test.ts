@@ -425,7 +425,7 @@ describe('generateGetLegalStandardMovesFunctionV2', () => {
     test('Returns expected value when move satisfies conditions', () => {
         jest.spyOn(
             helperFunctions,
-            'getMoveConditionFunctions'
+            'getMoveConditionFunctionsV2'
         ).mockReturnValue([
             () => {
                 return true;

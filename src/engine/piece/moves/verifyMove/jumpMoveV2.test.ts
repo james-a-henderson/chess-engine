@@ -5,7 +5,6 @@ import {
     PlayerColor,
     RectangularBoardConfig
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
 import { GameStatePiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
 import { generateVerifyJumpMoveFunctionV2 } from './jumpMoveV2';
@@ -57,51 +56,6 @@ describe('generateVerifyJumpMoveFunctionV2', () => {
         const result = moveFunction(state, ['c', 3], ['e', 5], new Map());
 
         expect(result).toEqual(false);
-    });
-
-    //verifying board state not implemented yet
-    test.skip("generated function returns false if board's verifyMovePositionValid method returns false", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return false;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
-                type: 'jump'
-            },
-            'white',
-            ['c', 3],
-            ['e', 5],
-            false
-        );
-    });
-
-    test("generated function returns true if board's verifyMovePositionValid method returns true", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return true;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                jumpCoordinates: [{ horizontalSpaces: 2, verticalSpaces: 2 }],
-                type: 'jump'
-            },
-            'white',
-            ['c', 3],
-            ['e', 5],
-            true
-        );
     });
 
     test('generated function returns false if capture is forbidden and destination has opposite color piece', () => {

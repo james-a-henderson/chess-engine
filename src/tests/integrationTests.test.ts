@@ -1,9 +1,8 @@
 /* eslint-disable  @typescript-eslint/no-unused-vars */ //disabling this becuase it throws for testName, which isn't used directly in code
 
-import { GameEngine } from '../engine';
-import { GameEngineV2 } from '../engine/GameEngineV2';
+import { GameEngineV2 } from '../engine';
 import { standardChessConfig, testConfig } from '../rulesConfiguration';
-import { assertBoardPosition, assertBoardPositionV2 } from '../testHelpers';
+import { assertBoardPositionV2 } from '../testHelpers';
 import {
     BoardPosition,
     GameRules,

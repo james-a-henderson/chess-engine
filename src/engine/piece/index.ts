@@ -1,1 +1,1 @@
-export * from './piece';
+export * from './moves';

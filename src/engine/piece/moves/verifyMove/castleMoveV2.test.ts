@@ -1,5 +1,4 @@
 import { BoardPosition, CastleMove, PlayerColor } from '../../../../types';
-import { RectangularBoard } from '../../../board';
 import { GameStatePiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
 import { generateVerifyCastleMoveFunctionV2 } from './castleMoveV2';
@@ -148,60 +147,6 @@ describe('generateVerifyCastleMoveFunctionV2', () => {
         generateMoveTest(moveConfig, 'black', ['e', 8], ['f', 8], false, {
             targetPiecePosition: ['f', 8],
             sameColorStartingPositions: [['d', 8]]
-        });
-    });
-
-    test.skip("generated function returns false if board's verifyMultipleMovePosition method returns false", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMultipleMovePosition'
-        ).mockImplementation(() => {
-            return false;
-        });
-        const moveConfig: CastleMove<testPieceNames> = {
-            name: 'castleMove',
-            captureAvailability: 'forbidden',
-            type: 'castle',
-            configForColor: {
-                white: {
-                    origin: ['e', 1],
-                    destination: ['g', 1],
-                    targetPieceName: 'rook',
-                    targetPieceOrigin: ['h', 1],
-                    targetPieceDestination: ['f', 1]
-                }
-            }
-        };
-
-        generateMoveTest(moveConfig, 'white', ['e', 1], ['g', 1], false, {
-            targetPiecePosition: ['h', 1]
-        });
-    });
-
-    test("generated function returns true if board's verifyMultipleMovePosition method returns true", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMultipleMovePosition'
-        ).mockImplementation(() => {
-            return true;
-        });
-        const moveConfig: CastleMove<testPieceNames> = {
-            name: 'castleMove',
-            captureAvailability: 'forbidden',
-            type: 'castle',
-            configForColor: {
-                white: {
-                    origin: ['e', 1],
-                    destination: ['g', 1],
-                    targetPieceName: 'rook',
-                    targetPieceOrigin: ['h', 1],
-                    targetPieceDestination: ['f', 1]
-                }
-            }
-        };
-
-        generateMoveTest(moveConfig, 'white', ['e', 1], ['g', 1], true, {
-            targetPiecePosition: ['h', 1]
         });
     });
 

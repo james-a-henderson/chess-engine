@@ -1,6 +1,4 @@
-import { RectangularBoard } from '../../engine/board/rectangularBoard';
 import { GameState } from '../../engine/gameState';
-import { Piece } from '../../engine/piece';
 import { BoardPosition } from '../common';
 import { MoveRecord } from './moveRecord';
 
@@ -21,15 +19,6 @@ export type PromotionMoveOptions<PieceNames extends string[]> =
 export type MoveOptions<PieceNames extends string[]> =
     | CastleMoveOptions
     | PromotionMoveOptions<PieceNames>; //will expand with promotion options later
-
-export type verifyLegalMoveFunction<PieceNames extends string[]> = (
-    board: RectangularBoard<PieceNames>,
-    piece: Piece<PieceNames>,
-    currentSpace: BoardPosition,
-    destination: BoardPosition,
-    previousMove?: MoveRecord<PieceNames>,
-    moveOptions?: MoveOptions<PieceNames>
-) => MoveRecord<PieceNames> | false;
 
 export type verifyLegalMoveFunctionV2<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
@@ -58,25 +47,12 @@ export type AvailableMoves = {
     specialMoves?: SpecialMove[];
 };
 
-export type GetLegalMovesFunction<PieceNames extends string[]> = (
-    board: RectangularBoard<PieceNames>,
-    piece: Piece<PieceNames>,
-    currentSpace: BoardPosition
-) => AvailableMoves;
-
 export type GetLegalMovesFunctionV2<PieceNames extends string[]> = (
     state: GameState<PieceNames>,
     origin: BoardPosition,
     getLegalMovesFunctions: LegalMovesForPiece<PieceNames>,
     previousMove?: MoveRecord<PieceNames>
 ) => AvailableMoves;
-
-export type MoveConditionFunction<PieceNames extends string[]> = (
-    piece: Piece<PieceNames>,
-    board: RectangularBoard<PieceNames>,
-    piecePosition: BoardPosition,
-    previousMove?: MoveRecord<PieceNames>
-) => boolean;
 
 export type MoveConditionFunctionV2<PieceNames extends string[]> = (
     state: GameState<PieceNames>,

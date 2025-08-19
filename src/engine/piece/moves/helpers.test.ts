@@ -3,21 +3,16 @@ import {
     CaptureAvailability,
     Direction,
     GameError,
-    GameRules,
     MoveCondition,
-    PieceConfig,
     PlayerColor
 } from '../../../types';
-import { GameEngine } from '../../GameEngine';
 import { GameStatePiecePlacement } from '../../gameState';
 import { generateGameState } from '../../gameState/generateGameState';
 import {
-    getMoveConditionFunctions,
     getMoveConditionFunctionsV2,
     makeNextSpaceIterator,
     positionsAreEqual,
     reverseDirection,
-    validateCaptureRules,
     validateCaputureRulesV2
 } from './helpers';
 
@@ -33,162 +28,7 @@ jest.mock('./restrictions', () => {
 
 type testPieceNames = ['foo', 'bar'];
 
-const rulesConfig: GameRules<testPieceNames> = {
-    name: 'test',
-    players: [
-        { color: 'white', order: 0 },
-        { color: 'black', order: 1 }
-    ],
-    board: {
-        height: 8,
-        width: 8
-    },
-    winConditions: [{ condition: 'resign' }],
-    drawConditions: [],
-    pieces: []
-};
-
 describe('helpers', () => {
-    describe('validateCaptureRules', () => {
-        describe('required', () => {
-            test('returns true if piece is black and destination space contains white piece', () => {
-                generateCaptureTest(
-                    'required',
-                    'black',
-                    ['c', 3],
-                    ['c', 5],
-                    true,
-                    true
-                );
-            });
-
-            test('returns false if piece is black and destination space contains no piece', () => {
-                generateCaptureTest(
-                    'required',
-                    'black',
-                    ['c', 3],
-                    ['c', 5],
-                    false,
-                    false
-                );
-            });
-
-            test('returns true if piece is white and destination space contains black piece', () => {
-                generateCaptureTest(
-                    'required',
-                    'white',
-                    ['c', 5],
-                    ['c', 3],
-                    true,
-                    true
-                );
-            });
-
-            test('returns false if piece is white and destination space contains no piece', () => {
-                generateCaptureTest(
-                    'required',
-                    'white',
-                    ['c', 5],
-                    ['c', 3],
-                    false,
-                    false
-                );
-            });
-        });
-
-        describe('optional', () => {
-            test('returns true if piece is black and destination space contains white piece', () => {
-                generateCaptureTest(
-                    'optional',
-                    'black',
-                    ['c', 3],
-                    ['c', 5],
-                    true,
-                    true
-                );
-            });
-
-            test('returns true if piece is black and destination space contains no piece', () => {
-                generateCaptureTest(
-                    'optional',
-                    'black',
-                    ['c', 3],
-                    ['c', 5],
-                    false,
-                    true
-                );
-            });
-
-            test('returns true if piece is white and destination space contains black piece', () => {
-                generateCaptureTest(
-                    'optional',
-                    'white',
-                    ['c', 5],
-                    ['c', 3],
-                    true,
-                    true
-                );
-            });
-
-            test('returns true if piece is white and destination space contains no piece', () => {
-                generateCaptureTest(
-                    'optional',
-                    'white',
-                    ['c', 5],
-                    ['c', 3],
-                    false,
-                    true
-                );
-            });
-        });
-
-        describe('forbidden', () => {
-            test('returns false if piece is black and destination space contains white piece', () => {
-                generateCaptureTest(
-                    'forbidden',
-                    'black',
-                    ['c', 3],
-                    ['c', 5],
-                    true,
-                    false
-                );
-            });
-
-            test('returns true if piece is black and destination space contains no piece', () => {
-                generateCaptureTest(
-                    'forbidden',
-                    'black',
-                    ['c', 3],
-                    ['c', 5],
-                    false,
-                    true
-                );
-            });
-
-            test('returns false if piece is white and destination space contains black piece', () => {
-                generateCaptureTest(
-                    'forbidden',
-                    'white',
-                    ['c', 5],
-                    ['c', 3],
-                    true,
-                    false
-                );
-            });
-
-            test('returns true if piece is white and destination space contains no piece', () => {
-                generateCaptureTest(
-                    'forbidden',
-                    'white',
-                    ['c', 5],
-                    ['c', 3],
-                    false,
-                    true
-                );
-            });
-        });
-    });
-
     describe('validateCaptureRulesV2', () => {
         test('Throws error if no piece on origin space', () => {
             const piecePlacements: GameStatePiecePlacement<testPieceNames>[] = [
@@ -439,90 +279,6 @@ describe('helpers', () => {
         ])('input: %s expected: %s', (input: string, expected: string) => {
             const result = reverseDirection(input as Direction);
             expect(result).toEqual(expected);
-        });
-    });
-
-    describe('getMoveConditionFunctions', () => {
-        afterEach(() => {
-            jest.restoreAllMocks();
-        });
-        test('returns empty array with no conditions', () => {
-            const result = getMoveConditionFunctions([]);
-
-            expect(result).toHaveLength(0);
-        });
-
-        test('returns firstPieceMove function with ConditionFirstPieceMove input', () => {
-            const input: MoveCondition<testPieceNames>[] = [
-                { condition: 'firstPieceMove' }
-            ];
-
-            const result = getMoveConditionFunctions(input);
-
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual(MoveRestrictions.firstPieceMove);
-        });
-
-        test('returns otherPieceHasNotMoved function with otherPieceHasNotMoved input', () => {
-            const testFunction = () => {
-                return true;
-            };
-            jest.spyOn(
-                MoveRestrictions,
-                'generateOtherPieceHasNotMovedFunction'
-            ).mockImplementation(() => {
-                return testFunction;
-            });
-
-            const input: MoveCondition<testPieceNames>[] = [
-                {
-                    condition: 'otherPieceHasNotMoved',
-                    piece: 'bar',
-                    piecePositionForColor: {}
-                }
-            ];
-            const result = getMoveConditionFunctions(input);
-
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual(testFunction);
-        });
-
-        test('returns spacesNotThreatened function with spacesNotThreatened input', () => {
-            const testFunction = () => {
-                return true;
-            };
-            jest.spyOn(
-                MoveRestrictions,
-                'generateSpacesNotThreatenedFunction'
-            ).mockImplementation(() => {
-                return testFunction;
-            });
-
-            const input: MoveCondition<testPieceNames>[] = [
-                {
-                    condition: 'spacesNotThreatened',
-                    spacesForColor: {}
-                }
-            ];
-            const result = getMoveConditionFunctions(input);
-
-            expect(result).toHaveLength(1);
-            expect(result[0]).toEqual(testFunction);
-        });
-
-        test('returns array of size 2 if input has two conditions', () => {
-            const input: MoveCondition<testPieceNames>[] = [
-                { condition: 'firstPieceMove' },
-                {
-                    condition: 'otherPieceHasNotMoved',
-                    piece: 'bar',
-                    piecePositionForColor: {}
-                }
-            ];
-
-            const result = getMoveConditionFunctions(input);
-
-            expect(result).toHaveLength(2);
         });
     });
 
@@ -847,61 +603,6 @@ describe('helpers', () => {
         );
     });
 });
-
-function generateCaptureTest(
-    captureAvailability: CaptureAvailability,
-    playerColor: PlayerColor,
-    startingPosition: BoardPosition,
-    destinationPosition: BoardPosition,
-    pieceOnPosition: boolean,
-    expected: boolean
-) {
-    const captureColor: PlayerColor =
-        playerColor === 'white' ? 'black' : 'white';
-    const pieceConfig: PieceConfig<testPieceNames> = {
-        name: 'foo',
-        notation: 'P',
-        displayCharacters: {
-            white: 'P',
-            black: 'p'
-        },
-        moves: [],
-        startingPositions: {
-            [playerColor]: [startingPosition]
-        }
-    };
-
-    const capturePieceConfig: PieceConfig<testPieceNames> = {
-        name: 'bar',
-        displayCharacters: {
-            white: 'B',
-            black: 'b'
-        },
-        notation: 'B',
-        moves: [],
-        startingPositions: {
-            [captureColor]: [destinationPosition]
-        }
-    };
-    const config: GameRules<testPieceNames> = {
-        ...rulesConfig,
-        pieces: pieceOnPosition
-            ? [pieceConfig, capturePieceConfig]
-            : [pieceConfig]
-    };
-    const engine = new GameEngine(config);
-    const board = engine.board;
-    const piece = board.getSpace(startingPosition).piece!;
-
-    const result = validateCaptureRules(
-        piece,
-        board,
-        destinationPosition,
-        captureAvailability
-    );
-
-    expect(result).toEqual(expected);
-}
 
 function generateCaptureTestV2(
     captureAvailability: CaptureAvailability,

@@ -8,7 +8,6 @@ import {
     Direction,
     emptyVerifyMovesFunction
 } from '../../../../types';
-import { RectangularBoard } from '../../../board';
 import { GameStatePiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
 import { generateVerifyStandardMoveFunctionV2 } from './standardMoveV2';
@@ -122,53 +121,6 @@ describe('generateVerifyStandardMoveFunctionsV2', () => {
 
         const result = moveFunction(state, ['a', 2], ['a', 3], new Map());
         expect(result).toEqual(false);
-    });
-
-    //verify position valid not implemented
-    test.skip("generated function returns false if board's verifyMovePositionValid method returns false", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return false;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                type: 'standard',
-                directions: ['forward'],
-                maxSpaces: 'unlimited'
-            },
-            'white',
-            ['c', 3],
-            ['c', 5],
-            false
-        );
-    });
-
-    test("generated function returns true if board's verifyMovePositionValid method returns true", () => {
-        jest.spyOn(
-            RectangularBoard.prototype,
-            'verifyMovePositionValid'
-        ).mockImplementation(() => {
-            return true;
-        });
-
-        generateMoveTest(
-            {
-                name: 'test',
-                captureAvailability: 'optional',
-                type: 'standard',
-                directions: ['forward'],
-                maxSpaces: 'unlimited'
-            },
-            'white',
-            ['c', 3],
-            ['c', 5],
-            true
-        );
     });
 
     test('generated function returns promotedTo if promotion is specified in moveOptions', () => {
