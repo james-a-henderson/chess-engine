@@ -29,7 +29,14 @@ type CheckMate<PieceNames extends string[]> = WinConditionBase & {
     checkmatePiece: PieceNames[keyof PieceNames];
 };
 
-type WinCondition<PieceNames extends string[]> = Resign | CheckMate<PieceNames>;
+type CaptureAllPieces = WinConditionBase & {
+    condition: 'captureAllPieces';
+};
+
+export type WinCondition<PieceNames extends string[]> =
+    | Resign
+    | CheckMate<PieceNames>
+    | CaptureAllPieces;
 
 type DrawConditionBase = {
     condition: string;
