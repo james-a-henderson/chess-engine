@@ -3,7 +3,7 @@ import {
     MoveRecord,
     PlayerColor,
     RectangularBoardConfig
-} from '../../types';
+} from '..';
 
 export type GameState<PieceNames extends string[]> = {
     board: BoardSpace<PieceNames>[][];
@@ -34,11 +34,11 @@ type GameStatusBase = {
     status: string;
 };
 
-type GameStatusInProgress = GameStatusBase & {
+export type GameStatusInProgress = GameStatusBase & {
     status: 'inProgress';
 };
 
-type GameStatusWin = GameStatusBase & {
+export type GameStatusWin = GameStatusBase & {
     status: 'victory';
     winningPlayer: PlayerColor;
 };
@@ -47,4 +47,4 @@ type GameStatusDraw = GameStatusBase & {
     status: 'draw';
 };
 
-type GameStatus = GameStatusInProgress | GameStatusWin | GameStatusDraw;
+export type GameStatus = GameStatusInProgress | GameStatusWin | GameStatusDraw;

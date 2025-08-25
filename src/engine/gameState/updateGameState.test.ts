@@ -1,6 +1,6 @@
 import { GameError, MoveRecord, RectangularBoardConfig } from '../../types';
 import { rectangularBoardHelper } from '../board';
-import { GameState, PiecePlacement } from './gameState';
+import { GameState, PiecePlacement } from '../../types/engine/gameState';
 import { generateGameState } from './generateGameState';
 import { updateGameState } from './updateGameState';
 

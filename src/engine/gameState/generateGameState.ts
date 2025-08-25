@@ -6,7 +6,11 @@ import {
     RectangularBoardConfig
 } from '../../types';
 import { rectangularBoardHelper } from '../board';
-import { BoardSpace, GameState, PiecePlacement } from './gameState';
+import {
+    BoardSpace,
+    GameState,
+    PiecePlacement
+} from '../../types/engine/gameState';
 
 //todo: extend to other board shapes
 export function generateGameState<PieceNames extends string[]>(

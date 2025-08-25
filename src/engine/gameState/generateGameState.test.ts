@@ -3,7 +3,7 @@ import {
     PieceConfigurationError,
     RectangularBoardConfig
 } from '../../types';
-import { PiecePlacement } from './gameState';
+import { PiecePlacement } from '../../types/engine/gameState';
 import { generateGameState } from './generateGameState';
 
 type pieceNames = ['foo', 'bar'];

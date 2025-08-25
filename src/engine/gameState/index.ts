@@ -1,2 +1,2 @@
-export * from './gameState';
+export * from '../../types/engine/gameState';
 export * from './updateGameState';

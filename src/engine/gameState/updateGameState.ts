@@ -8,7 +8,7 @@ import {
     MoveRecordStandard
 } from '../../types';
 import { rectangularBoardHelper } from '../board';
-import { GameState } from './gameState';
+import { GameState } from '../../types/engine/gameState';
 
 //when we get here, we assume that the move has been verified
 export function updateGameState<PieceNames extends string[]>(
