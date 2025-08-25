@@ -6,6 +6,7 @@ import { assertBoardPosition } from '../testHelpers';
 import {
     BoardPosition,
     GameRules,
+    GameStatus,
     IllegalMoveError,
     MoveOptions
 } from '../types';
@@ -87,6 +88,68 @@ describe('integration tests', () => {
                 moves: gameMove<['rook']>[];
             }) => {
                 runErrorTest(testConfig, moves);
+            }
+        );
+
+        test.each([
+            {
+                testName: 'white victory',
+                moves: [
+                    [
+                        ['a', 1],
+                        ['a', 8]
+                    ],
+                    [
+                        ['h', 8],
+                        ['h', 7]
+                    ],
+                    [
+                        ['h', 1],
+                        ['h', 7]
+                    ]
+                ] as gameMove<['rook']>[],
+                finalStatus: {
+                    status: 'victory',
+                    winningPlayer: 'white'
+                } as GameStatus
+            },
+            {
+                testName: 'black victory',
+                moves: [
+                    [
+                        ['a', 1],
+                        ['a', 8]
+                    ],
+                    [
+                        ['h', 8],
+                        ['a', 8]
+                    ],
+                    [
+                        ['h', 1],
+                        ['h', 8]
+                    ],
+                    [
+                        ['a', 8],
+                        ['h', 8]
+                    ]
+                ] as gameMove<['rook']>[],
+                finalStatus: {
+                    status: 'victory',
+                    winningPlayer: 'black'
+                } as GameStatus
+            }
+        ])(
+            'Rook only game end test: $testName',
+            ({
+                testName,
+                moves,
+                finalStatus
+            }: {
+                testName: string;
+                moves: gameMove<['rook']>[];
+                finalStatus: GameStatus;
+            }) => {
+                runGameEndTest(testConfig, moves, finalStatus);
             }
         );
     });
@@ -981,4 +1044,41 @@ function runErrorTest<PieceNames extends string[]>(
     expect(() => {
         engine.makeMove(finalTarget, finalDestination, finalOptions);
     }).toThrow(IllegalMoveError);
+}
+
+function runGameEndTest<PieceNames extends string[]>(
+    rulesConfig: GameRules<PieceNames>,
+    moves: gameMove<PieceNames>[],
+    finalStatus: GameStatus
+) {
+    const engine = new GameEngine(rulesConfig);
+
+    moves.forEach(
+        (
+            [
+                targetPosition,
+                destinationPosition,
+                moveOptions
+            ]: gameMove<PieceNames>,
+            index: number
+        ) => {
+            try {
+                engine.makeMove(
+                    targetPosition,
+                    destinationPosition,
+                    moveOptions
+                );
+            } catch (error) {
+                throw new Error(`Error at move ${index}`);
+            }
+        }
+    );
+
+    const status = engine.currentGameState.status;
+
+    expect(status.status).toEqual(finalStatus.status);
+
+    if (status.status === 'victory' && finalStatus.status === 'victory') {
+        expect(status.winningPlayer).toEqual(finalStatus.winningPlayer);
+    }
 }

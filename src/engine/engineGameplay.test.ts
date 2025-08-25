@@ -37,8 +37,8 @@ jest.mock('./board', () => {
 
 jest.mock('./determineWinner', () => {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         generateDetermineWinnerFunctions: () =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             mockGenerateDetermineWinnerFunctions()
     };
 });

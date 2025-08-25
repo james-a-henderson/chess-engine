@@ -18,7 +18,7 @@ export const testConfig: GameRules<['rook']> = {
     ],
     winConditions: [
         {
-            condition: 'resign'
+            condition: 'captureAllPieces'
         }
     ],
     drawConditions: [],
