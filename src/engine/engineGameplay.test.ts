@@ -1,10 +1,18 @@
-import { GameRules, IllegalMoveError, MoveRecord, PieceConfig } from '../types';
+import {
+    GameError,
+    GameRules,
+    IllegalMoveError,
+    MoveRecord,
+    PieceConfig
+} from '../types';
 import { GameEngine } from './GameEngine';
 
 const mockGenerateVerifyLegalMove = jest.fn();
 const mockGenerateGetLegalMoves = jest.fn();
 
 const mockGenerateCheckFunction = jest.fn();
+
+const mockGenerateDetermineWinnerFunctions = jest.fn();
 
 jest.mock('./piece/moves', () => {
     return {
@@ -24,6 +32,14 @@ jest.mock('./board', () => {
         generateCheckFunction: () =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             mockGenerateCheckFunction()
+    };
+});
+
+jest.mock('./determineWinner', () => {
+    return {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        generateDetermineWinnerFunctions: () =>
+            mockGenerateDetermineWinnerFunctions()
     };
 });
 
@@ -71,7 +87,7 @@ const testConfig: GameRules<testPieceNames> = {
         height: 8,
         width: 8
     },
-    winConditions: [],
+    winConditions: [{ condition: 'captureAllPieces' }],
     drawConditions: [],
     pieces: [testPiece]
 };
@@ -90,6 +106,7 @@ describe('GameEngine gameplay', () => {
         mockGenerateVerifyLegalMove.mockReset();
         mockGenerateGetLegalMoves.mockReset();
         mockGenerateCheckFunction.mockReset();
+        mockGenerateDetermineWinnerFunctions.mockReset();
 
         mockGenerateVerifyLegalMove.mockReturnValue(() => {
             return false;
@@ -100,6 +117,11 @@ describe('GameEngine gameplay', () => {
         mockGenerateCheckFunction.mockReturnValue(() => {
             return false;
         });
+        mockGenerateDetermineWinnerFunctions.mockReturnValue([
+            () => {
+                return false;
+            }
+        ]);
     });
 
     afterAll(() => {
@@ -443,6 +465,116 @@ describe('GameEngine gameplay', () => {
             expect(() => {
                 engine.makeMove(['a', 1], ['a', 2]);
             }).not.toThrow(IllegalMoveError);
+        });
+
+        test('throws error if game state is not in progress', () => {
+            mockGenerateDetermineWinnerFunctions.mockReturnValueOnce([
+                () => {
+                    return { status: 'victory', winningPlayer: 'white' };
+                }
+            ]);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValue(
+                testRecord
+            );
+
+            const engine = new GameEngine(testConfig);
+
+            engine.makeMove(['a', 1], ['a', 2]);
+            expect(() => {
+                engine.makeMove(['a', 8], ['a', 7]);
+            }).toThrow(GameError);
+        });
+    });
+
+    describe('determineGameStatus', () => {
+        const returnFalse = () => {
+            return false;
+        };
+        const returnWhiteWin = () => {
+            return { status: 'victory', winningPlayer: 'white' };
+        };
+        const returnBlackWin = () => {
+            return { status: 'victory', winningPlayer: 'black' };
+        };
+        test('game status is inProgress if determineWinnerFunction returns false', () => {
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+
+            const engine = new GameEngine(testConfig);
+
+            engine.makeMove(['a', 1], ['a', 2]);
+            expect(engine.currentGameState.status.status).toEqual('inProgress');
+        });
+
+        test('game status is inProgress if multiple determineWinnerFunctions exist and all return false', () => {
+            mockGenerateDetermineWinnerFunctions.mockReturnValueOnce([
+                returnFalse,
+                returnFalse,
+                returnFalse
+            ]);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+
+            const engine = new GameEngine(testConfig);
+
+            engine.makeMove(['a', 1], ['a', 2]);
+            expect(engine.currentGameState.status.status).toEqual('inProgress');
+        });
+
+        test('game status is white win if determineWinnerFunction returns white win', () => {
+            mockGenerateDetermineWinnerFunctions.mockReturnValueOnce([
+                returnWhiteWin
+            ]);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+
+            const engine = new GameEngine(testConfig);
+
+            engine.makeMove(['a', 1], ['a', 2]);
+            expect(engine.currentGameState.status).toEqual({
+                status: 'victory',
+                winningPlayer: 'white'
+            });
+        });
+
+        test('game status is black win if determineWinnerFunction returns black win', () => {
+            mockGenerateDetermineWinnerFunctions.mockReturnValueOnce([
+                returnBlackWin
+            ]);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+
+            const engine = new GameEngine(testConfig);
+
+            engine.makeMove(['a', 1], ['a', 2]);
+            expect(engine.currentGameState.status).toEqual({
+                status: 'victory',
+                winningPlayer: 'black'
+            });
+        });
+
+        test('game status is white win if single determineWinnerFunction returns white win and all others return false', () => {
+            mockGenerateDetermineWinnerFunctions.mockReturnValueOnce([
+                returnFalse,
+                returnFalse,
+                returnWhiteWin,
+                returnFalse
+            ]);
+            jest.spyOn(GameEngine.prototype, 'verifyMove').mockReturnValueOnce(
+                testRecord
+            );
+
+            const engine = new GameEngine(testConfig);
+
+            engine.makeMove(['a', 1], ['a', 2]);
+            expect(engine.currentGameState.status).toEqual({
+                status: 'victory',
+                winningPlayer: 'white'
+            });
         });
     });
 });

@@ -1,5 +1,5 @@
-import { GameState, GameStatusInProgress, GameStatusWin } from './gameState';
+import { GameState, GameStatusWin } from './gameState';
 
 export type DetermineWinnerFunction<PieceNames extends string[]> = (
     state: GameState<PieceNames>
-) => GameStatusWin | GameStatusInProgress;
+) => GameStatusWin | false;

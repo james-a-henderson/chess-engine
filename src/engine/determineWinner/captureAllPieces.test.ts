@@ -70,9 +70,7 @@ describe('captureAllPieces', () => {
 
         const result = allPlayerPiecesCaptured(state);
 
-        expect(result).toEqual({
-            status: 'inProgress'
-        });
+        expect(result).toEqual(false);
     });
 
     test('returns in progress if both players have pieces and current player is black', () => {
@@ -91,8 +89,6 @@ describe('captureAllPieces', () => {
 
         const result = allPlayerPiecesCaptured(state);
 
-        expect(result).toEqual({
-            status: 'inProgress'
-        });
+        expect(result).toEqual(false);
     });
 });

@@ -7,7 +7,8 @@ import {
     PieceConfig,
     PieceConfigurationError,
     Player,
-    PlayerConfigurationError
+    PlayerConfigurationError,
+    RulesConfigurationError
 } from '../types';
 import { GameEngine } from './GameEngine';
 
@@ -511,6 +512,42 @@ describe('initialize engine', () => {
             new GameEngine(config);
 
             expect(generateCheckFunctionMock).toHaveBeenCalledTimes(0);
+        });
+    });
+
+    describe('generateDetermineWinnerFunctions', () => {
+        test('throws error if no win conditions are set', () => {
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
+                winConditions: []
+            };
+
+            expect(() => new GameEngine(config)).toThrow(
+                RulesConfigurationError
+            );
+        });
+
+        test('does not throw error if one win condition is set', () => {
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
+                winConditions: [{ condition: 'captureAllPieces' }]
+            };
+            expect(() => new GameEngine(config)).not.toThrow(
+                RulesConfigurationError
+            );
+        });
+
+        test('does not throw error if multiple win conditions are set', () => {
+            const config: GameRules<testPieceNames> = {
+                ...genericRulesConfig,
+                winConditions: [
+                    { condition: 'captureAllPieces' },
+                    { condition: 'checkmate', checkmatePiece: 'foo' }
+                ]
+            };
+            expect(() => new GameEngine(config)).not.toThrow(
+                RulesConfigurationError
+            );
         });
     });
 });

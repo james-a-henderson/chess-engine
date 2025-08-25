@@ -2,7 +2,7 @@ import { DetermineWinnerFunction, WinCondition } from '../../types';
 import { allPlayerPiecesCaptured } from './captureAllPieces';
 import { generateDetermineCheckmateFunction } from './checkmate';
 
-export function generateDetermineWinnerFunction<PieceNames extends string[]>(
+export function generateDetermineWinnerFunctions<PieceNames extends string[]>(
     conditions: WinCondition<PieceNames>[]
 ): DetermineWinnerFunction<PieceNames>[] {
     const funcs: DetermineWinnerFunction<PieceNames>[] = [];
@@ -21,7 +21,7 @@ export function generateDetermineWinnerFunction<PieceNames extends string[]>(
                 //todo: remove the resign win condition
                 //I'll be changing resign to being a special case. However the resign condition is used in some unit tests, which still need to be updated
                 funcs.push(() => {
-                    return { status: 'inProgress' };
+                    return false;
                 });
                 break;
         }

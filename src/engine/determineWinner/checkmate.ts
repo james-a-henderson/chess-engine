@@ -8,6 +8,6 @@ export function generateDetermineCheckmateFunction<PieceNames extends string[]>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return (state: GameState<PieceNames>) => {
         //todo: complete function
-        return { status: 'inProgress' };
+        return false;
     };
 }

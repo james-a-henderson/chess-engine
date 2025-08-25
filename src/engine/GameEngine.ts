@@ -1,5 +1,6 @@
 import {
     BoardPosition,
+    DetermineWinnerFunction,
     GameError,
     GameRules,
     GetLegalMovesFunction,
@@ -12,14 +13,17 @@ import {
     Player,
     PlayerColor,
     PlayerConfigurationError,
+    RulesConfigurationError,
     VerifyBoardStateFunction,
     verifyLegalMoveFunction,
     VerifyMovesForPiece
 } from '../types';
 import { generateCheckFunction, rectangularBoardHelper } from './board';
+import { generateDetermineWinnerFunctions } from './determineWinner';
 import {
     BoardSpace,
     GameState,
+    GameStatus,
     PiecePlacement,
     updateGameState
 } from './gameState';
@@ -39,6 +43,8 @@ export class GameEngine<PieceNames extends string[]> {
 
     private _verifyBoardFunctions: VerifyBoardStateFunction<PieceNames>[];
 
+    private _determineWinnerFunctions: DetermineWinnerFunction<PieceNames>[];
+
     constructor(rules: GameRules<PieceNames>) {
         this._config = rules;
 
@@ -50,6 +56,8 @@ export class GameEngine<PieceNames extends string[]> {
         this.generateMoveFunctions();
 
         this._verifyBoardFunctions = this.generateVerifyBoardStateFunctions();
+
+        this._determineWinnerFunctions = this.generateDetermineWinnerFunction();
     }
 
     get currentGameState(): GameState<PieceNames> {
@@ -193,6 +201,10 @@ export class GameEngine<PieceNames extends string[]> {
         destination: BoardPosition,
         moveOptions?: MoveOptions<PieceNames>
     ) {
+        if (this.currentGameState.status.status !== 'inProgress') {
+            throw new GameError('Cannot make move after game is finished');
+        }
+
         const move = this.verifyMove(origin, destination, moveOptions);
 
         if (!move) {
@@ -215,7 +227,23 @@ export class GameEngine<PieceNames extends string[]> {
             }
         }
 
+        newState.status = this.determineGameStatus(newState);
+
         this._gameStates.push(newState);
+    }
+
+    private determineGameStatus(state: GameState<PieceNames>): GameStatus {
+        for (const func of this._determineWinnerFunctions) {
+            const result = func(state);
+
+            if (result) {
+                return result;
+            }
+        }
+
+        //todo: check for draw conditions
+
+        return { status: 'inProgress' };
     }
 
     private generateInitialGameState(): GameState<PieceNames> {
@@ -374,5 +402,19 @@ export class GameEngine<PieceNames extends string[]> {
         }
 
         return verifyBoardFunctions;
+    }
+
+    private generateDetermineWinnerFunction(): DetermineWinnerFunction<PieceNames>[] {
+        const funcs = generateDetermineWinnerFunctions(
+            this._config.winConditions
+        );
+
+        if (funcs.length === 0) {
+            throw new RulesConfigurationError(
+                'Must have at least one win condition'
+            );
+        }
+
+        return funcs;
     }
 }
