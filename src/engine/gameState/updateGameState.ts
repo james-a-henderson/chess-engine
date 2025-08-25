@@ -9,6 +9,7 @@ import {
 } from '../../types';
 import { rectangularBoardHelper } from '../board';
 import { GameState } from '../../types/engine/gameState';
+import { getOtherPlayerColor } from '../../common';
 
 //when we get here, we assume that the move has been verified
 export function updateGameState<PieceNames extends string[]>(
@@ -32,8 +33,7 @@ export function updateGameState<PieceNames extends string[]>(
     }
 
     //todo: handle more then two player colors
-    newState.currentPlayer =
-        newState.currentPlayer === 'white' ? 'black' : 'white';
+    newState.currentPlayer = getOtherPlayerColor(newState.currentPlayer);
 
     return newState;
 }

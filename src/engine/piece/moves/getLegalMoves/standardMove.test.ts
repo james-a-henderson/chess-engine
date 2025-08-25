@@ -12,6 +12,7 @@ import { generateGetLegalStandardMovesFunction } from './standardMove';
 import * as helperFunctions from '../helpers';
 import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
+import { getOtherPlayerColor } from '../../../../common';
 
 type testPieceNames = ['foo'];
 
@@ -481,7 +482,7 @@ function getTestResult(
     const color: PlayerColor = testOptions?.pieceColor
         ? testOptions.pieceColor
         : 'white';
-    const otherColor: PlayerColor = color === 'white' ? 'black' : 'white';
+    const otherColor: PlayerColor = getOtherPlayerColor(color);
 
     const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {

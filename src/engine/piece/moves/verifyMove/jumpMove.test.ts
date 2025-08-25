@@ -1,3 +1,4 @@
+import { getOtherPlayerColor } from '../../../../common';
 import {
     BoardPosition,
     JumpMove,
@@ -200,7 +201,7 @@ function generateMoveTest(
         promotionTarget?: testPieceNames[keyof testPieceNames];
     }
 ) {
-    const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
+    const otherColor: PlayerColor = getOtherPlayerColor(playerColor);
 
     const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {

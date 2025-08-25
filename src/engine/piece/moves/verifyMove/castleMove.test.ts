@@ -1,3 +1,4 @@
+import { getOtherPlayerColor } from '../../../../common';
 import { BoardPosition, CastleMove, PlayerColor } from '../../../../types';
 import { PiecePlacement } from '../../../gameState';
 import { generateGameState } from '../../../gameState/generateGameState';
@@ -370,7 +371,7 @@ function generateMoveTest(
         pieceMoves?: number;
     }
 ) {
-    const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
+    const otherColor: PlayerColor = getOtherPlayerColor(playerColor);
 
     const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {

@@ -1,3 +1,4 @@
+import { getOtherPlayerColor } from '../../../../common';
 import {
     RectangularBoardConfig,
     StandardMove,
@@ -2226,7 +2227,7 @@ function generateMoveTest(
     expected: boolean,
     testOptions?: testOptions
 ) {
-    const otherColor: PlayerColor = playerColor === 'white' ? 'black' : 'white';
+    const otherColor: PlayerColor = getOtherPlayerColor(playerColor);
 
     const piecePlacements: PiecePlacement<testPieceNames>[] = [
         {

@@ -1,3 +1,4 @@
+import { getOtherPlayerColor } from '../../../common';
 import {
     BoardPosition,
     CaptureAvailability,
@@ -612,8 +613,7 @@ function generateCaptureTest(
     pieceOnPosition: boolean,
     expected: boolean
 ) {
-    const captureColor: PlayerColor =
-        playerColor === 'white' ? 'black' : 'white';
+    const captureColor: PlayerColor = getOtherPlayerColor(playerColor);
 
     const movePiecePlacement: PiecePlacement<testPieceNames> = {
         piece: { name: 'foo', moveCount: 0, color: playerColor },
